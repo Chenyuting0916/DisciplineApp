@@ -4,12 +4,13 @@
 @using DisciplineApp.Models
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject TaskService TaskService
+@inject ToastService ToastService
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 
 <PageTitle>@Localizer["Home"]</PageTitle>
 <AuthorizeView>
     <Authorized>
-        <div class="dashboard-container">
+        <div class="dashboard-container pt-4">
             <div class="welcome-section mb-5">
                 <h1>@Localizer["Welcome"], @context.User.Identity?.Name!</h1>
                 <p class="text-muted">Stay consistent and track your progress.</p>
@@ -42,8 +43,8 @@
                                 <ul class="list-group list-group-flush">
                                     @foreach (var task in todayTasks.Take(5))
                                     {
-                                        <li class="list-group-item d-flex align-items-center @(task.IsCompleted ? "text-decoration-line-through text-muted" : "")">
-                                            <input type="checkbox" class="form-check-input me-2" checked="@task.IsCompleted" disabled>
+                                        <li class="list-group-item d-flex align-items-center @(task.IsCompleted ? "text-decoration-line-through text-muted" : "")" style="cursor: pointer;">
+                                            <input type="checkbox" class="form-check-input me-2" checked="@task.IsCompleted" @onchange="() => ToggleTaskFromHome(task)">
                                             @task.Title
                                             @if (task.IsRoutine)
                                             {
@@ -114,6 +115,34 @@
             if (!string.IsNullOrEmpty(userId))
             {
                 todayTasks = await TaskService.GetTasksForDateAsync(userId, DateTime.Today);
+            }
+        }
+    }
+
+    private async Task ToggleTaskFromHome(UserTask task)
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                var result = await TaskService.ToggleTaskCompletionAsync(task.Id, userId);
+                
+                if (result.success && result.xpAwarded > 0)
+                {
+                    ToastService.ShowSuccess($"🎉 +{result.xpAwarded} XP! ({result.remainingDaily} XP remaining today)");
+                }
+                else if (result.capReached)
+                {
+                    ToastService.ShowWarning("⚠️ Daily XP cap reached (500 XP)");
+                }
+                
+                // Reload tasks
+                todayTasks = await TaskService.GetTasksForDateAsync(userId, DateTime.Today);
+                StateHasChanged();
             }
         }
     }

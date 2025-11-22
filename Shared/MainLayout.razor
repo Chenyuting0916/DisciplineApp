@@ -47,15 +47,15 @@
 </div>
 
 <!-- Toast Container -->
-<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 9999;">
     @foreach (var toast in toasts)
     {
         <div class="toast show" role="alert">
-            <div class="toast-header bg-@toast.Type text-white">
-                <strong class="me-auto">@(toast.Type == "success" ? "✓" : "!")</strong>
-                <button type="button" class="btn-close btn-close-white" @onclick="() => RemoveToast(toast)"></button>
+            <div class="toast-header @GetToastHeaderClass(toast.Type)">
+                <strong class="me-auto">@(toast.Type == "success" ? "✓" : toast.Type == "warning" ? "⚠" : "ℹ")</strong>
+                <button type="button" class="btn-close" @onclick="() => RemoveToast(toast)"></button>
             </div>
-            <div class="toast-body">
+            <div class="toast-body bg-dark text-white">
                 @toast.Message
             </div>
         </div>
@@ -68,8 +68,13 @@
     }
     
     .toast {
-        min-width: 250px;
+        min-width: 300px;
         margin-bottom: 0.5rem;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+    
+    .toast-header {
+        border-bottom: 1px solid rgba(255,255,255,0.1);
     }
 </style>
 
@@ -138,6 +143,18 @@
     {
         public string Message { get; set; } = "";
         public string Type { get; set; } = "success";
+    }
+
+    private string GetToastHeaderClass(string type)
+    {
+        return type switch
+        {
+            "success" => "bg-success text-white",
+            "warning" => "bg-warning text-dark",
+            "danger" => "bg-danger text-white",
+            "info" => "bg-info text-white",
+            _ => "bg-secondary text-white"
+        };
     }
 
     protected override async Task OnInitializedAsync()
