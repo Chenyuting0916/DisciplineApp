@@ -1,0 +1,75 @@
+@page "/calendar"
+@using DisciplineApp.Services
+@using Google.Apis.Calendar.v3.Data
+@inject CalendarService CalendarService
+@inject TokenProvider TokenProvider
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
+
+<PageTitle>@Localizer["Calendar"]</PageTitle>
+
+<div class="calendar-container">
+    <h3>@Localizer["Calendar"]</h3>
+
+    @if (isLoading)
+    {
+        <p>Loading events...</p>
+    }
+    else if (events == null || events.Items == null || events.Items.Count == 0)
+    {
+        <p>No upcoming events found.</p>
+    }
+    else
+    {
+        <div class="list-group">
+            @foreach (var eventItem in events.Items)
+            {
+                var start = eventItem.Start.DateTime ?? DateTime.Parse(eventItem.Start.Date);
+                <div class="list-group-item list-group-item-action flex-column align-items-start">
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">@eventItem.Summary</h5>
+                        <small>@start.ToString("g")</small>
+                    </div>
+                    <p class="mb-1">@eventItem.Description</p>
+                    <small class="text-muted">@eventItem.Location</small>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+<style>
+    .calendar-container {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+</style>
+
+@code {
+    private Events? events;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            // Check if we have an access token
+            if (!string.IsNullOrEmpty(TokenProvider.AccessToken))
+            {
+                try
+                {
+                    events = await CalendarService.GetUpcomingEventsAsync(TokenProvider.AccessToken);
+                }
+                catch (Exception ex)
+                {
+                    // Handle token expiration or other errors
+                    Console.WriteLine($"Error fetching events: {ex.Message}");
+                }
+            }
+        }
+        isLoading = false;
+    }
+}

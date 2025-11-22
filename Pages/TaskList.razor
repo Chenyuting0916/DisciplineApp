@@ -1,0 +1,234 @@
+@page "/tasks"
+@using DisciplineApp.Services
+@using DisciplineApp.Models
+@inject TaskService TaskService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
+@inject LocalStorageService LocalStorageService
+@inject ToastService ToastService
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h3>@Localizer["Tasks"]</h3>
+        <button class="btn btn-primary" @onclick="ShowAddTaskModal">
+            <span class="oi oi-plus"></span> Add Task
+        </button>
+    </div>
+
+    <div class="task-list">
+        @if (tasks == null)
+        {
+            <p>Loading...</p>
+        }
+        else if (!tasks.Any())
+        {
+            <p class="text-muted">No tasks for today. Add one above!</p>
+        }
+        else
+        {
+            @foreach (var task in tasks)
+            {
+                <div class="task-item card mb-2 p-3 @(task.IsCompleted ? "completed" : "")">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" checked="@task.IsCompleted" @onchange="() => ToggleTask(task)" id="task-@task.Id">
+                            <label class="form-check-label" for="task-@task.Id">
+                                @task.Title
+                            </label>
+                        </div>
+                        <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteTask(task)">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+@if (showAddTaskModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">Add New Task</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="HideAddTaskModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Task Title</label>
+                        <input type="text" class="form-control" @bind="newTaskTitle" placeholder="Enter task title..." />
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" @bind="isRoutineTask" id="modalRoutineCheck">
+                        <label class="form-check-label" for="modalRoutineCheck">
+                            Routine (repeats daily)
+                        </label>
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" @onclick="HideAddTaskModal">Cancel</button>
+                    <button type="button" class="btn btn-primary" @onclick="AddTaskFromModal">Add Task</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .task-item.completed .form-check-label {
+        text-decoration: line-through;
+        color: var(--text-muted);
+    }
+    .task-container {
+        max-width: 600px;
+        margin: 0 auto;
+    }
+</style>
+
+@code {
+    private List<UserTask>? tasks;
+    private string newTaskTitle = "";
+    private bool isRoutineTask = false;
+    private bool showAddTaskModal = false;
+    private string userId = "";
+    private bool _hasRendered = false;
+
+    private void ShowAddTaskModal() => showAddTaskModal = true;
+    private void HideAddTaskModal()
+    {
+        showAddTaskModal = false;
+        newTaskTitle = "";
+        isRoutineTask = false;
+    }
+
+    private async Task AddTaskFromModal()
+    {
+        await AddTask();
+        HideAddTaskModal();
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value ?? "";
+            if (!string.IsNullOrEmpty(userId))
+            {
+                tasks = await TaskService.GetTasksForDateAsync(userId, DateTime.Today);
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && string.IsNullOrEmpty(userId))
+        {
+            _hasRendered = true;
+            await LoadGuestTasks();
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadGuestTasks()
+    {
+        tasks = await LocalStorageService.GetItemAsync<List<UserTask>>("guest_tasks") ?? new List<UserTask>();
+        tasks = tasks.Where(t => t.Date.Date == DateTime.Today).ToList();
+    }
+
+    private async Task LoadTasks()
+    {
+        if (!string.IsNullOrEmpty(userId))
+        {
+            tasks = await TaskService.GetTasksForDateAsync(userId, DateTime.Today);
+        }
+        else
+        {
+            await LoadGuestTasks();
+        }
+    }
+
+    private async Task AddTask()
+    {
+        if (string.IsNullOrWhiteSpace(newTaskTitle)) return;
+
+        if (!string.IsNullOrEmpty(userId))
+        {
+            await TaskService.AddTaskAsync(userId, newTaskTitle, DateTime.Today, isRoutineTask);
+        }
+        else
+        {
+            var allGuestTasks = await LocalStorageService.GetItemAsync<List<UserTask>>("guest_tasks") ?? new List<UserTask>();
+            var newTask = new UserTask 
+            { 
+                Id = allGuestTasks.Any() ? allGuestTasks.Max(t => t.Id) + 1 : 1,
+                UserId = "guest", 
+                Title = newTaskTitle, 
+                Date = DateTime.Today,
+                IsRoutine = isRoutineTask
+            };
+            allGuestTasks.Add(newTask);
+            await LocalStorageService.SetItemAsync("guest_tasks", allGuestTasks);
+        }
+        
+        newTaskTitle = "";
+        isRoutineTask = false;
+        await LoadTasks();
+    }
+
+    private async Task ToggleTask(UserTask task)
+    {
+        if (!string.IsNullOrEmpty(userId))
+        {
+            var result = await TaskService.ToggleTaskCompletionAsync(task.Id, userId);
+            
+            if (result.success && result.xpAwarded > 0)
+            {
+                ToastService.ShowSuccess($"🎉 +{result.xpAwarded} XP! ({result.remainingDaily} XP remaining today)");
+            }
+            else if (result.capReached)
+            {
+                ToastService.ShowWarning("⚠️ Daily XP cap reached (500 XP)");
+            }
+        }
+        else
+        {
+            var allGuestTasks = await LocalStorageService.GetItemAsync<List<UserTask>>("guest_tasks") ?? new List<UserTask>();
+            var target = allGuestTasks.FirstOrDefault(t => t.Id == task.Id);
+            if (target != null)
+            {
+                target.IsCompleted = !target.IsCompleted;
+                target.CompletedAt = target.IsCompleted ? DateTime.UtcNow : null;
+                await LocalStorageService.SetItemAsync("guest_tasks", allGuestTasks);
+                
+                if (target.IsCompleted)
+                {
+                    ToastService.ShowInfo("✓ Task completed! (Login to earn XP)");
+                }
+            }
+        }
+        await LoadTasks(); 
+    }
+
+    private async Task DeleteTask(UserTask task)
+    {
+        if (!string.IsNullOrEmpty(userId))
+        {
+            await TaskService.DeleteTaskAsync(task.Id, userId);
+        }
+        else
+        {
+            var allGuestTasks = await LocalStorageService.GetItemAsync<List<UserTask>>("guest_tasks") ?? new List<UserTask>();
+            var target = allGuestTasks.FirstOrDefault(t => t.Id == task.Id);
+            if (target != null)
+            {
+                allGuestTasks.Remove(target);
+                await LocalStorageService.SetItemAsync("guest_tasks", allGuestTasks);
+            }
+        }
+        await LoadTasks();
+    }
+}

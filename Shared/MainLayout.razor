@@ -1,0 +1,164 @@
+﻿@inherits LayoutComponentBase
+@using DisciplineApp.Data
+@using DisciplineApp.Services
+@using Microsoft.AspNetCore.Components.Authorization
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject GamificationService GamificationService
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
+@inject ToastService ToastService
+
+<PageTitle>DisciplineApp</PageTitle>
+
+<div class="page">
+    <div class="sidebar">
+        <NavMenu />
+    </div>
+
+    <main>
+        <div class="top-row px-4">
+            <LanguageSelector />
+            <AuthorizeView>
+                <Authorized>
+                    <div class="user-stats d-flex align-items-center gap-3">
+                        <span class="fw-bold">@(currentUser?.DisplayName ?? context.User.Identity?.Name ?? "User")</span>
+                        @if (currentUser != null)
+                        {
+                            <span class="badge bg-info text-dark">Lvl @currentUser.Level</span>
+                            <div class="progress xp-progress" style="width: 100px; height: 10px;" title="XP: @currentUser.CurrentXP / @(currentUser.Level * 100)">
+                                <div class="progress-bar bg-success" role="progressbar" style="width: @(GetXpPercentage())%" aria-valuenow="@currentUser.CurrentXP" aria-valuemin="0" aria-valuemax="@(currentUser.Level * 100)"></div>
+                            </div>
+                            <small class="text-muted">@currentUser.CurrentXP XP</small>
+                        }
+                    </div>
+                    <a href="Identity/Account/LogOut" class="ms-3 btn btn-sm btn-outline-danger">@Localizer["Logout"]</a>
+                </Authorized>
+                <NotAuthorized>
+                    <span class="fw-bold me-3">Guest</span>
+                    <button class="btn btn-sm btn-primary" @onclick="ShowLoginModal">@Localizer["Login"]</button>
+                </NotAuthorized>
+            </AuthorizeView>
+            <a href="https://docs.microsoft.com/aspnet/" target="_blank" class="ms-3">About</a>
+        </div>
+
+        <article class="content px-4">
+            @Body
+        </article>
+    </main>
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 9999;">
+    @foreach (var toast in toasts)
+    {
+        <div class="toast show" role="alert">
+            <div class="toast-header bg-@toast.Type text-white">
+                <strong class="me-auto">@(toast.Type == "success" ? "✓" : "!")</strong>
+                <button type="button" class="btn-close btn-close-white" @onclick="() => RemoveToast(toast)"></button>
+            </div>
+            <div class="toast-body">
+                @toast.Message
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .xp-progress .progress-bar {
+        transition: width 0.5s ease-in-out;
+    }
+    
+    .toast {
+        min-width: 250px;
+        margin-bottom: 0.5rem;
+    }
+</style>
+
+@if (showLoginModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">@Localizer["Login"]</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="HideLoginModal"></button>
+                </div>
+                <div class="modal-body text-center p-5">
+                    <h4 class="mb-4">@Localizer["Welcome"]</h4>
+                    <a href="Account/LoginWithGoogle" class="btn btn-lg btn-light w-100 d-flex align-items-center justify-content-center gap-2">
+                        <img src="https://www.google.com/favicon.ico" alt="Google" width="20" height="20">
+                        Continue with Google
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private ApplicationUser? currentUser;
+    private bool showLoginModal = false;
+    private List<ToastMessage> toasts = new();
+
+    private void ShowLoginModal() => showLoginModal = true;
+    private void HideLoginModal() => showLoginModal = false;
+
+    protected override void OnInitialized()
+    {
+        ToastService.OnShow += ShowToast;
+    }
+
+    private void ShowToast(string message, string type)
+    {
+        var toast = new ToastMessage { Message = message, Type = type };
+        toasts.Add(toast);
+        StateHasChanged();
+        
+        // Auto-remove after 3 seconds
+        Task.Delay(3000).ContinueWith(_ =>
+        {
+            InvokeAsync(() =>
+            {
+                RemoveToast(toast);
+            });
+        });
+    }
+
+    private void RemoveToast(ToastMessage toast)
+    {
+        toasts.Remove(toast);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        ToastService.OnShow -= ShowToast;
+    }
+
+    private class ToastMessage
+    {
+        public string Message { get; set; } = "";
+        public string Type { get; set; } = "success";
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                currentUser = await GamificationService.GetUserStatsAsync(userId);
+            }
+        }
+    }
+
+    private int GetXpPercentage()
+    {
+        if (currentUser == null || currentUser.Level == 0) return 0;
+        int required = currentUser.Level * 100;
+        return (int)((double)currentUser.CurrentXP / required * 100);
+    }
+}

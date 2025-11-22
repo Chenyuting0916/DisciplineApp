@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Home" xml:space="preserve">
+    <value>ホーム</value>
+  </data>
+  <data name="Timer" xml:space="preserve">
+    <value>集中タイマー</value>
+  </data>
+  <data name="Tasks" xml:space="preserve">
+    <value>デイリータスク</value>
+  </data>
+  <data name="Leaderboard" xml:space="preserve">
+    <value>ランキング</value>
+  </data>
+  <data name="Calendar" xml:space="preserve">
+    <value>カレンダー</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>ログイン</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>ログアウト</value>
+  </data>
+  <data name="Welcome" xml:space="preserve">
+    <value>自律アプリへようこそ</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>レベル</value>
+  </data>
+</root>

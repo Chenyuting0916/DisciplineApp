@@ -1,0 +1,128 @@
+@using System.Globalization
+@inject GamificationService GamificationService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="heatmap-container">
+    <h4 class="mb-3">Activity Heatmap</h4>
+    
+    @if (isLoading)
+    {
+        <p>Loading activity...</p>
+    }
+    else
+    {
+        <div class="heatmap-grid">
+            @for (int i = 0; i < 53; i++) // 53 weeks
+            {
+                <div class="heatmap-week">
+                    @for (int j = 0; j < 7; j++) // 7 days
+                    {
+                        var date = StartDate.AddDays(i * 7 + j);
+                        if (date <= DateTime.Today)
+                        {
+                            var count = ActivityData.ContainsKey(date) ? ActivityData[date] : 0;
+                            var level = GetLevel(count);
+                            <div class="heatmap-day level-@level" title="@date.ToShortDateString(): @count activities"></div>
+                        }
+                        else
+                        {
+                             <div class="heatmap-day empty"></div>
+                        }
+                    }
+                </div>
+            }
+        </div>
+        <div class="heatmap-legend mt-2">
+            <span class="text-muted small me-2">Less</span>
+            <div class="heatmap-day level-0"></div>
+            <div class="heatmap-day level-1"></div>
+            <div class="heatmap-day level-2"></div>
+            <div class="heatmap-day level-3"></div>
+            <div class="heatmap-day level-4"></div>
+            <span class="text-muted small ms-2">More</span>
+        </div>
+    }
+</div>
+
+<style>
+    .heatmap-container {
+        padding: 1.5rem;
+        background: var(--bg-secondary);
+        border-radius: 1rem;
+        overflow-x: auto;
+    }
+    
+    .heatmap-grid {
+        display: flex;
+        gap: 3px;
+    }
+
+    .heatmap-week {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+    }
+
+    .heatmap-day {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+        background-color: rgba(255, 255, 255, 0.05); /* Default/Empty */
+    }
+
+    .heatmap-day.empty {
+        background-color: transparent;
+    }
+
+    .heatmap-day.level-0 { background-color: rgba(255, 255, 255, 0.05); }
+    .heatmap-day.level-1 { background-color: #0e4429; }
+    .heatmap-day.level-2 { background-color: #006d32; }
+    .heatmap-day.level-3 { background-color: #26a641; }
+    .heatmap-day.level-4 { background-color: #39d353; }
+
+    /* Dark mode adjustments if needed, assuming global dark theme */
+    :root[data-theme="dark"] .heatmap-day.level-1 { background-color: #0e4429; }
+    
+    .heatmap-legend {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        justify-content: flex-end;
+    }
+</style>
+
+@code {
+    private Dictionary<DateTime, int> ActivityData = new();
+    private DateTime StartDate;
+    private bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Calculate start date (1 year ago, aligned to Sunday)
+        var oneYearAgo = DateTime.Today.AddYears(-1);
+        int diff = (7 + (oneYearAgo.DayOfWeek - DayOfWeek.Sunday)) % 7;
+        StartDate = oneYearAgo.AddDays(-diff);
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                ActivityData = await GamificationService.GetActivityDataAsync(userId, StartDate);
+            }
+        }
+        isLoading = false;
+    }
+
+    private int GetLevel(int count)
+    {
+        if (count == 0) return 0;
+        if (count <= 2) return 1;
+        if (count <= 5) return 2;
+        if (count <= 9) return 3;
+        return 4;
+    }
+}

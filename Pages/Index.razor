@@ -1,0 +1,120 @@
+﻿@page "/"
+@using DisciplineApp.Shared
+@using DisciplineApp.Services
+@using DisciplineApp.Models
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject TaskService TaskService
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
+
+<PageTitle>@Localizer["Home"]</PageTitle>
+<AuthorizeView>
+    <Authorized>
+        <div class="dashboard-container">
+            <div class="welcome-section mb-5">
+                <h1>@Localizer["Welcome"], @context.User.Identity?.Name!</h1>
+                <p class="text-muted">Stay consistent and track your progress.</p>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <Heatmap />
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-md-12">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">@Localizer["Tasks"] - Today</h5>
+                            <a href="tasks" class="btn btn-sm btn-outline-primary">View All</a>
+                        </div>
+                        <div class="card-body">
+                            @if (todayTasks == null)
+                            {
+                                <p class="text-muted">Loading tasks...</p>
+                            }
+                            else if (!todayTasks.Any())
+                            {
+                                <p class="text-muted">No tasks for today. <a href="tasks">Add one</a>!</p>
+                            }
+                            else
+                            {
+                                <ul class="list-group list-group-flush">
+                                    @foreach (var task in todayTasks.Take(5))
+                                    {
+                                        <li class="list-group-item d-flex align-items-center @(task.IsCompleted ? "text-decoration-line-through text-muted" : "")">
+                                            <input type="checkbox" class="form-check-input me-2" checked="@task.IsCompleted" disabled>
+                                            @task.Title
+                                            @if (task.IsRoutine)
+                                            {
+                                                <span class="badge bg-info ms-2">Routine</span>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                                @if (todayTasks.Count > 5)
+                                {
+                                    <p class="text-muted mt-2 mb-0">+@(todayTasks.Count - 5) more tasks...</p>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">@Localizer["Timer"]</h5>
+                            <p class="card-text">Start a Pomodoro session to stay focused.</p>
+                            <a href="timer" class="btn btn-primary">Go to Timer</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <div class="card h-100">
+                        <div class="card-body text-center">
+                            <h5 class="card-title">@Localizer["Tasks"]</h5>
+                            <p class="card-text">Manage your daily goals and to-dos.</p>
+                            <a href="tasks" class="btn btn-primary">View Tasks</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div class="text-center mt-5">
+            <h1>@Localizer["Welcome"]</h1>
+            <p class="lead">Please log in to track your progress.</p>
+            <a href="Identity/Account/Login" class="btn btn-lg btn-primary">@Localizer["Login"]</a>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+<style>
+    .dashboard-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+</style>
+
+@code {
+    private List<UserTask>? todayTasks;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                todayTasks = await TaskService.GetTasksForDateAsync(userId, DateTime.Today);
+            }
+        }
+    }
+}

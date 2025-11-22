@@ -1,0 +1,192 @@
+@page "/timer"
+@using System.Timers
+@using DisciplineApp.Services
+@inject GamificationService GamificationService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject LocalStorageService LocalStorageService
+
+
+
+<div class="timer-container">
+    <div class="timer-display">
+        <svg class="progress-ring" width="300" height="300">
+            <circle
+                class="progress-ring__circle"
+                stroke="var(--accent-color)"
+                stroke-width="10"
+                fill="transparent"
+                r="140"
+                cx="150"
+                cy="150"
+                style="stroke-dasharray: @Circumference @Circumference; stroke-dashoffset: @DashOffset;"
+            />
+        </svg>
+        <div class="time-text">@TimeDisplay</div>
+    </div>
+
+    <div class="controls">
+        @if (!IsRunning)
+        {
+            <button class="btn btn-primary btn-lg" @onclick="StartTimer">Start Focus</button>
+        }
+        else
+        {
+            <button class="btn btn-warning btn-lg" @onclick="PauseTimer">Pause</button>
+        }
+        <button class="btn btn-secondary btn-lg" @onclick="ResetTimer">Reset</button>
+    </div>
+
+    <div class="mode-selector mt-4">
+        <button class="btn btn-outline-light @(CurrentMode == TimerMode.Focus ? "active" : "")" @onclick="() => SetMode(TimerMode.Focus)">Focus (25m)</button>
+        <button class="btn btn-outline-light @(CurrentMode == TimerMode.ShortBreak ? "active" : "")" @onclick="() => SetMode(TimerMode.ShortBreak)">Short Break (5m)</button>
+        <button class="btn btn-outline-light @(CurrentMode == TimerMode.LongBreak ? "active" : "")" @onclick="() => SetMode(TimerMode.LongBreak)">Long Break (15m)</button>
+    </div>
+</div>
+
+<style>
+    .timer-container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+    .timer-display {
+        position: relative;
+        width: 300px;
+        height: 300px;
+        margin-bottom: 2rem;
+    }
+    .progress-ring__circle {
+        transition: stroke-dashoffset 0.35s;
+        transform: rotate(-90deg);
+        transform-origin: 50% 50%;
+    }
+    .time-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 4rem;
+        font-weight: bold;
+        color: var(--text-primary);
+    }
+    .controls {
+        gap: 1rem;
+        display: flex;
+    }
+    .mode-selector {
+        gap: 0.5rem;
+        display: flex;
+    }
+</style>
+
+@code {
+    private System.Timers.Timer _timer = new(1000);
+    private int _timeLeft;
+    private int _totalTime;
+    private bool IsRunning = false;
+    private TimerMode CurrentMode = TimerMode.Focus;
+    
+    private const double Radius = 140;
+    private const double Circumference = 2 * Math.PI * Radius;
+    private double DashOffset => Circumference - (_timeLeft / (double)_totalTime) * Circumference;
+
+    private string TimeDisplay => TimeSpan.FromSeconds(_timeLeft).ToString(@"mm\:ss");
+
+    protected override void OnInitialized()
+    {
+        SetMode(TimerMode.Focus);
+        _timer.Elapsed += OnTimerElapsed;
+    }
+
+    private void SetMode(TimerMode mode)
+    {
+        CurrentMode = mode;
+        IsRunning = false;
+        _timer.Stop();
+        
+        _totalTime = mode switch
+        {
+            TimerMode.Focus => 25 * 60,
+            TimerMode.ShortBreak => 5 * 60,
+            TimerMode.LongBreak => 15 * 60,
+            _ => 25 * 60
+        };
+        _timeLeft = _totalTime;
+        StateHasChanged();
+    }
+
+    private void StartTimer()
+    {
+        if (_timeLeft > 0)
+        {
+            IsRunning = true;
+            _timer.Start();
+        }
+    }
+
+    private void PauseTimer()
+    {
+        IsRunning = false;
+        _timer.Stop();
+    }
+
+    private void ResetTimer()
+    {
+        SetMode(CurrentMode);
+    }
+
+    private async void OnTimerElapsed(object? sender, ElapsedEventArgs e)
+    {
+        if (_timeLeft > 0)
+        {
+            _timeLeft--;
+            await InvokeAsync(StateHasChanged);
+        }
+        else
+        {
+            IsRunning = false;
+            _timer.Stop();
+            await InvokeAsync(OnTimerComplete);
+        }
+    }
+
+    private async Task OnTimerComplete()
+    {
+        if (CurrentMode == TimerMode.Focus)
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated ?? false)
+            {
+                var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+                if (!string.IsNullOrEmpty(userId))
+                {
+                    await GamificationService.RecordPomodoroSessionAsync(userId, 25);
+                }
+            }
+            else
+            {
+                // Guest Mode: Save to LocalStorage
+                var guestSessions = await LocalStorageService.GetItemAsync<int>("guest_pomodoro_sessions");
+                await LocalStorageService.SetItemAsync("guest_pomodoro_sessions", guestSessions + 1);
+            }
+        }
+        // Play sound or notification here
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        _timer?.Dispose();
+    }
+
+    enum TimerMode
+    {
+        Focus,
+        ShortBreak,
+        LongBreak
+    }
+}

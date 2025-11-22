@@ -1,0 +1,118 @@
+@page "/leaderboard"
+@using DisciplineApp.Services
+@using DisciplineApp.Models
+@inject GamificationService GamificationService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
+
+<div class="leaderboard-container">
+    <h2 class="text-center mb-4">@Localizer["Leaderboard"]</h2>
+
+    @if (users == null)
+    {
+        <p class="text-center">Loading rankings...</p>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th class="text-center" style="width: 80px;">Rank</th>
+                                <th>User</th>
+                                <th class="text-center">Level</th>
+                                <th class="text-end pe-4">Total XP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < users.Count; i++)
+                            {
+                                var user = users[i];
+                                var isCurrentUser = user.Id == currentUserId;
+                                <tr class="@(isCurrentUser ? "table-active" : "")">
+                                    <td class="text-center align-middle">
+                                        @if (i == 0)
+                                        {
+                                            <span class="badge bg-warning text-dark">🥇</span>
+                                        }
+                                        else if (i == 1)
+                                        {
+                                            <span class="badge bg-secondary">🥈</span>
+                                        }
+                                        else if (i == 2)
+                                        {
+                                            <span class="badge bg-danger">🥉</span> // Bronze-ish
+                                        }
+                                        else
+                                        {
+                                            <span class="fw-bold text-muted">@(i + 1)</span>
+                                        }
+                                    </td>
+                                    <td class="align-middle">
+                                        <div class="d-flex align-items-center">
+                                            <div class="avatar-circle me-2">
+                                                @user.UserName?.Substring(0, 1).ToUpper()
+                                            </div>
+                                            <div>
+                                                <div class="fw-bold">@(user.DisplayName ?? user.UserName)</div>
+                                                @if (isCurrentUser)
+                                                {
+                                                    <small class="text-muted">You</small>
+                                                }
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        <span class="badge bg-info text-dark">Lvl @user.Level</span>
+                                    </td>
+                                    <td class="text-end align-middle pe-4">
+                                        <span class="fw-bold">@user.TotalXP.ToString("N0")</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .leaderboard-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 1rem;
+    }
+    
+    .avatar-circle {
+        width: 36px;
+        height: 36px;
+        background-color: var(--accent-color, #007bff);
+        color: white;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+    }
+</style>
+
+@code {
+    private List<ApplicationUser>? users;
+    private string currentUserId = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        users = await GamificationService.GetLeaderboardAsync(20);
+        
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            currentUserId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value ?? "";
+        }
+    }
+}

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <data name="Home" xml:space="preserve">
+    <value>首頁</value>
+  </data>
+  <data name="Timer" xml:space="preserve">
+    <value>專注計時器</value>
+  </data>
+  <data name="Tasks" xml:space="preserve">
+    <value>每日任務</value>
+  </data>
+  <data name="Leaderboard" xml:space="preserve">
+    <value>排行榜</value>
+  </data>
+  <data name="Calendar" xml:space="preserve">
+    <value>行事曆</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>登入</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>登出</value>
+  </data>
+  <data name="Welcome" xml:space="preserve">
+    <value>歡迎來到自律應用</value>
+  </data>
+  <data name="Level" xml:space="preserve">
+    <value>等級</value>
+  </data>
+</root>
