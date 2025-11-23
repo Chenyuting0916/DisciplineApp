@@ -31,7 +31,7 @@ public class AccountController : Controller
         var properties = _signInManager.ConfigureExternalAuthenticationProperties(GoogleDefaults.AuthenticationScheme, redirectUrl);
         
         // Request offline access to get refresh token and access to Calendar API
-        properties.Items["scope"] = "openid profile email https://www.googleapis.com/auth/calendar.readonly";
+        properties.Items["scope"] = "openid profile email https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/tasks.readonly";
         properties.Items["access_type"] = "offline";
         properties.Items["prompt"] = "consent";
         
