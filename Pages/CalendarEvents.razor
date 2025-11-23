@@ -1,182 +1,139 @@
 @page "/calendar"
-@using DisciplineApp.Services
-@using Google.Apis.Calendar.v3
 @using Google.Apis.Calendar.v3.Data
-@inject DisciplineApp.Services.CalendarService CalendarService
-@inject TaskService TaskService
+@using DisciplineApp.Services
+@inject CalendarService CalendarService
 @inject TokenProvider TokenProvider
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 
-<PageTitle>@Localizer["Calendar"]</PageTitle>
+<PageTitle>Calendar</PageTitle>
 
 <div class="calendar-container pt-4">
-    <h3>@Localizer["Calendar"]</h3>
+    <h2 class="mb-4">My Calendar & Tasks</h2>
 
-    @if (isLoading)
+    @if (!isAuthenticated)
     {
-        <p>Loading events...</p>
+        <div class="alert alert-info">
+            Please <a href="Account/LoginWithGoogle">log in with Google</a> to view your calendar and tasks.
+        </div>
     }
-    else if (calendarItems.Count == 0)
+    else if (isLoading)
     {
-        <p>No upcoming events or tasks found.</p>
+        <p>Loading your calendar and tasks...</p>
     }
     else
     {
-        <div class="list-group">
-            @foreach (var item in calendarItems)
-            {
-                var borderClass = item.Type == CalendarItemType.Task ? "border-primary" : "border-warning";
-                var badgeClass = item.Type == CalendarItemType.Task ? "bg-primary" : "bg-warning text-dark";
-                var icon = item.Type == CalendarItemType.Task ? "✓" : "📅";
-                
-                <div class="list-group-item list-group-item-action flex-column align-items-start border-start border-4 @borderClass">
-                    <div class="d-flex w-100 justify-content-between">
-                        <h5 class="mb-1 text-truncate" style="max-width: 70%;">
-                            <span class="badge @badgeClass me-2">@icon</span>
-                            @item.Title
-                        </h5>
-                        <small class="text-nowrap ms-2">@item.Time.ToString("g")</small>
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">📅 Upcoming Events</h5>
                     </div>
-                    @if (!string.IsNullOrEmpty(item.Description))
-                    {
-                        <p class="mb-1 text-truncate" style="max-width: 100%;">@item.Description</p>
-                    }
-                    @if (!string.IsNullOrEmpty(item.Location))
-                    {
-                        <small class="text-muted d-block text-truncate">📍 @item.Location</small>
-                    }
-                    @if (item.Type == CalendarItemType.Task && item.IsCompleted)
-                    {
-                        <div class="mt-1">
-                            <span class="badge bg-success">Completed</span>
-                        </div>
-                    }
+                    <div class="card-body">
+                        @if (events == null || !events.Any())
+                        {
+                            <p class="text-muted">No upcoming events.</p>
+                        }
+                        else
+                        {
+                            <ul class="list-group list-group-flush">
+                                @foreach (var evt in events.Take(10))
+                                {
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <strong>@evt.Summary</strong>
+                                                @if (evt.Start?.DateTime != null)
+                                                {
+                                                    <br /><small class="text-muted">@evt.Start.DateTime.Value.ToString("MMM dd, yyyy h:mm tt")</small>
+                                                }
+                                                else if (evt.Start?.Date != null)
+                                                {
+                                                    <br /><small class="text-muted">@evt.Start.Date (All day)</small>
+                                                }
+                                            </div>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </div>
                 </div>
-            }
+            </div>
+
+            <div class="col-md-6 mb-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">✅ My Tasks</h5>
+                    </div>
+                    <div class="card-body">
+                        @if (tasks == null || !tasks.Any())
+                        {
+                            <p class="text-muted">No tasks found.</p>
+                        }
+                        else
+                        {
+                            <ul class="list-group list-group-flush">
+                                @foreach (var task in tasks.Take(10))
+                                {
+                                    <li class="list-group-item">
+                                        <div class="d-flex justify-content-between align-items-start">
+                                            <div>
+                                                <strong>@task.Title</strong>
+                                                @if (!string.IsNullOrEmpty(task.Due))
+                                                {
+                                                    <br /><small class="text-muted">Due: @DateTime.Parse(task.Due).ToString("MMM dd, yyyy")</small>
+                                                }
+                                            </div>
+                                        </div>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                </div>
+            </div>
         </div>
     }
 </div>
 
 <style>
     .calendar-container {
-        max-width: 800px;
+        max-width: 1200px;
         margin: 0 auto;
+        padding: 1rem;
     }
 </style>
 
 @code {
-    private List<CalendarItem> calendarItems = new();
+    private IList<Event>? events;
+    private IList<Google.Apis.Tasks.v1.Data.Task>? tasks;
     private bool isLoading = true;
+    private bool isAuthenticated = false;
 
     protected override async Task OnInitializedAsync()
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
+        isAuthenticated = user.Identity?.IsAuthenticated ?? false;
 
-        Console.WriteLine($"Calendar Page - User authenticated: {user.Identity?.IsAuthenticated}");
-
-        if (user.Identity?.IsAuthenticated ?? false)
+        if (isAuthenticated)
         {
-            var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
-            Console.WriteLine($"Calendar Page - User ID: {userId}");
-            
-            if (!string.IsNullOrEmpty(userId))
+            try
             {
-                // 1. Fetch Google Calendar Events
-                Events? googleEvents = null;
-                
-                Console.WriteLine($"Calendar Page - Access Token available: {!string.IsNullOrEmpty(TokenProvider.AccessToken)}");
-                
-                if (!string.IsNullOrEmpty(TokenProvider.AccessToken))
-                {
-                    try
-                    {
-                        Console.WriteLine("Calendar Page - Initializing CalendarService...");
-                        await CalendarService.GetUpcomingEventsAsync(TokenProvider.AccessToken);
-                        
-                        if (CalendarService.Service != null)
-                        {
-                            Console.WriteLine("Calendar Page - Fetching events...");
-                            var request = CalendarService.Service.Events.List("primary");
-                            request.TimeMin = DateTime.Today;
-                            request.TimeMax = DateTime.Today.AddDays(7);
-                            request.SingleEvents = true;
-                            request.OrderBy = EventsResource.ListRequest.OrderByEnum.StartTime;
-                            
-                            googleEvents = await request.ExecuteAsync();
-                            Console.WriteLine($"Calendar Page - Events fetched: {googleEvents?.Items?.Count ?? 0}");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"Calendar Page - Error fetching Google Calendar events: {ex.Message}");
-                    }
-                }
+                // Fetch events for the next 30 days
+                var startDate = DateTime.Today;
+                var endDate = DateTime.Today.AddDays(30);
+                events = await CalendarService.GetEventsAsync(startDate, endDate);
 
-                // 2. Fetch Local Tasks for next 7 days
-                var tasks = new List<DisciplineApp.Models.UserTask>();
-                for (int i = 0; i < 7; i++)
-                {
-                    var date = DateTime.Today.AddDays(i);
-                    var dateTasks = await TaskService.GetTasksForDateAsync(userId, date);
-                    if (dateTasks != null)
-                    {
-                        tasks.AddRange(dateTasks);
-                    }
-                }
-                Console.WriteLine($"Calendar Page - Tasks fetched: {tasks.Count}");
-
-                // 3. Merge Google Calendar events and local tasks
-                if (googleEvents?.Items != null)
-                {
-                    foreach (var item in googleEvents.Items)
-                    {
-                        var start = item.Start.DateTime ?? DateTime.Parse(item.Start.Date);
-                        calendarItems.Add(new CalendarItem
-                        {
-                            Title = item.Summary ?? "(No Title)",
-                            Time = start,
-                            Description = item.Description,
-                            Location = item.Location,
-                            Type = CalendarItemType.GoogleEvent
-                        });
-                    }
-                }
-
-                // Add tasks
-                foreach (var task in tasks)
-                {
-                    calendarItems.Add(new CalendarItem
-                    {
-                        Title = task.Title,
-                        Time = task.Date,
-                        IsCompleted = task.IsCompleted,
-                        Type = CalendarItemType.Task
-                    });
-                }
-
-                // Sort by time
-                calendarItems = calendarItems.OrderBy(i => i.Time).ToList();
-                Console.WriteLine($"Calendar Page - Total calendar items: {calendarItems.Count}");
+                // Fetch Google Tasks
+                tasks = await CalendarService.GetTasksAsync();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading calendar data: {ex.Message}");
             }
         }
+
         isLoading = false;
-    }
-
-    public class CalendarItem
-    {
-        public string Title { get; set; } = "";
-        public DateTime Time { get; set; }
-        public string? Description { get; set; }
-        public string? Location { get; set; }
-        public bool IsCompleted { get; set; }
-        public CalendarItemType Type { get; set; }
-    }
-
-    public enum CalendarItemType
-    {
-        GoogleEvent,
-        Task
     }
 }

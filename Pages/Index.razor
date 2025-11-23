@@ -2,10 +2,12 @@
 @using DisciplineApp.Shared
 @using DisciplineApp.Services
 @using DisciplineApp.Models
+@using Google.Apis.Calendar.v3.Data
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject TaskService TaskService
 @inject ToastService ToastService
 @inject GamificationService GamificationService
+@inject CalendarService CalendarService
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 
 <PageTitle>@Localizer["Home"]</PageTitle>
@@ -24,7 +26,7 @@
             </div>
 
             <div class="row mb-4">
-                <div class="col-md-12">
+                <div class="col-md-6">
                     <div class="card">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">@Localizer["Tasks"] - Today</h5>
@@ -41,15 +43,16 @@
                             }
                             else
                             {
+                                var sortedTasks = todayTasks.OrderBy(t => !t.IsRoutine).ThenBy(t => t.Title).ToList();
                                 <ul class="list-group list-group-flush">
-                                    @foreach (var task in todayTasks.Take(5))
+                                    @foreach (var task in sortedTasks.Take(5))
                                     {
                                         <li class="list-group-item d-flex align-items-center @(task.IsCompleted ? "text-decoration-line-through text-muted" : "")" style="cursor: pointer;">
                                             <input type="checkbox" class="form-check-input me-2" checked="@task.IsCompleted" @onchange="() => ToggleTaskFromHome(task)">
                                             @task.Title
                                             @if (task.IsRoutine)
                                             {
-                                                <span class="badge bg-info ms-2">Routine</span>
+                                                <span class="badge bg-info text-dark ms-2">Routine</span>
                                             }
                                         </li>
                                     }
@@ -57,6 +60,48 @@
                                 @if (todayTasks.Count > 5)
                                 {
                                     <p class="text-muted mt-2 mb-0">+@(todayTasks.Count - 5) more tasks...</p>
+                                }
+                            }
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">📅 Calendar - Today</h5>
+                            <a href="calendar" class="btn btn-sm btn-outline-primary">View All</a>
+                        </div>
+                        <div class="card-body">
+                            @if (todayEvents == null)
+                            {
+                                <p class="text-muted">Loading events...</p>
+                            }
+                            else if (!todayEvents.Any())
+                            {
+                                <p class="text-muted">No events today.</p>
+                            }
+                            else
+                            {
+                                <ul class="list-group list-group-flush">
+                                    @foreach (var evt in todayEvents.Take(5))
+                                    {
+                                        <li class="list-group-item">
+                                            <strong>@evt.Summary</strong>
+                                            @if (evt.Start?.DateTime != null)
+                                            {
+                                                <br /><small class="text-muted">@evt.Start.DateTime.Value.ToString("h:mm tt")</small>
+                                            }
+                                            else if (evt.Start?.Date != null)
+                                            {
+                                                <br /><small class="text-muted">All day</small>
+                                            }
+                                        </li>
+                                    }
+                                </ul>
+                                @if (todayEvents.Count > 5)
+                                {
+                                    <p class="text-muted mt-2 mb-0">+@(todayEvents.Count - 5) more events...</p>
                                 }
                             }
                         </div>
@@ -90,10 +135,31 @@
         <div class="text-center mt-5">
             <h1>@Localizer["Welcome"]</h1>
             <p class="lead">Please log in to track your progress.</p>
-            <a href="Identity/Account/Login" class="btn btn-lg btn-primary">@Localizer["Login"]</a>
+            <button class="btn btn-lg btn-primary" @onclick="ShowLoginModal">@Localizer["Login"]</button>
         </div>
     </NotAuthorized>
 </AuthorizeView>
+
+@if (showLoginModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">@Localizer["Login"]</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="HideLoginModal"></button>
+                </div>
+                <div class="modal-body text-center p-5">
+                    <h4 class="mb-4">@Localizer["Welcome"]</h4>
+                    <a href="Account/LoginWithGoogle" class="btn btn-lg btn-light w-100 d-flex align-items-center justify-content-center gap-2">
+                        <img src="https://www.google.com/favicon.ico" alt="Google" width="20" height="20">
+                        Continue with Google
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 <style>
     .dashboard-container {
@@ -105,6 +171,8 @@
 @code {
     private List<UserTask>? todayTasks;
     private ApplicationUser? currentUser;
+    private bool showLoginModal = false;
+    private IList<Event>? todayEvents;
 
     protected override async Task OnInitializedAsync()
     {
@@ -118,6 +186,20 @@
             {
                 todayTasks = await TaskService.GetTasksForDateAsync(userId, DateTime.Today);
                 currentUser = await GamificationService.GetUserStatsAsync(userId);
+                
+                // Fetch today's calendar events
+                try
+                {
+                    var startOfDay = DateTime.Today;
+                    var endOfDay = DateTime.Today.AddDays(1);
+                    var allEvents = await CalendarService.GetEventsAsync(startOfDay, endOfDay);
+                    todayEvents = allEvents;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Error fetching calendar events: {ex.Message}");
+                    todayEvents = new List<Event>();
+                }
             }
         }
     }
@@ -149,4 +231,7 @@
             }
         }
     }
+
+    private void ShowLoginModal() => showLoginModal = true;
+    private void HideLoginModal() => showLoginModal = false;
 }

@@ -46,7 +46,28 @@ builder.Services.AddAuthentication()
         options.ClientId = googleAuthNSection["ClientId"];
         options.ClientSecret = googleAuthNSection["ClientSecret"];
         options.Scope.Add("https://www.googleapis.com/auth/calendar.readonly");
+        options.Scope.Add("https://www.googleapis.com/auth/tasks.readonly");
         options.SaveTokens = true;
+        
+        // Safely force consent to ensure new scopes are granted
+        options.Events.OnRedirectToAuthorizationEndpoint = context =>
+        {
+            var uri = context.RedirectUri;
+            // If prompt parameter exists, replace it. Otherwise append it.
+            if (uri.Contains("prompt="))
+            {
+                // Simple string replacement to avoid complex parsing dependencies
+                // This covers common cases like prompt=select_account
+                uri = System.Text.RegularExpressions.Regex.Replace(uri, "prompt=[^&]*", "prompt=consent");
+            }
+            else
+            {
+                uri += "&prompt=consent";
+            }
+            
+            context.Response.Redirect(uri);
+            return Task.CompletedTask;
+        };
         
         // Fix for "Correlation failed" on localhost/HTTP
         options.CorrelationCookie.SameSite = SameSiteMode.Lax;

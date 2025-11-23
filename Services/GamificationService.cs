@@ -76,12 +76,14 @@ public class GamificationService
 
     public async Task<Dictionary<DateTime, int>> GetActivityDataAsync(string userId, DateTime startDate)
     {
+        // Fetch data first
         var tasks = await _context.UserTasks
             .Where(t => t.UserId == userId && t.CompletedAt >= startDate && t.IsCompleted)
             .ToListAsync();
 
+        // Convert to Local Time for grouping (assuming server local time matches user for now)
         var tasksGrouped = tasks
-            .GroupBy(t => t.CompletedAt!.Value.Date)
+            .GroupBy(t => t.CompletedAt!.Value.ToLocalTime().Date)
             .Select(g => new { Date = g.Key, Count = g.Count() });
 
         var sessions = await _context.PomodoroSessions
@@ -89,7 +91,7 @@ public class GamificationService
             .ToListAsync();
 
         var sessionsGrouped = sessions
-            .GroupBy(s => s.CompletedAt.Date)
+            .GroupBy(s => s.CompletedAt.ToLocalTime().Date)
             .Select(g => new { Date = g.Key, Count = g.Count() });
 
         var activity = new Dictionary<DateTime, int>();

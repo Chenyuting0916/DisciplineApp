@@ -4,6 +4,7 @@
 @inject GamificationService GamificationService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject LocalStorageService LocalStorageService
+@inject IJSRuntime JSRuntime
 
 
 
@@ -41,6 +42,9 @@
         <button class="btn btn-outline-light @(CurrentMode == TimerMode.ShortBreak ? "active" : "")" @onclick="() => SetMode(TimerMode.ShortBreak)">Short Break (5m)</button>
         <button class="btn btn-outline-light @(CurrentMode == TimerMode.LongBreak ? "active" : "")" @onclick="() => SetMode(TimerMode.LongBreak)">Long Break (15m)</button>
     </div>
+    
+    <audio id="timerSound" src="sounds/alarm.mp3" preload="auto"></audio>
+    <audio id="startSound" src="sounds/start.mp3" preload="auto"></audio>
 </div>
 
 <style>
@@ -117,12 +121,22 @@
         StateHasChanged();
     }
 
-    private void StartTimer()
+    private async void StartTimer()
     {
         if (_timeLeft > 0)
         {
             IsRunning = true;
             _timer.Start();
+            
+            // Play start sound for ALL modes
+            try
+            {
+                await JSRuntime.InvokeVoidAsync("playAudio", "startSound");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error playing start sound: {ex.Message}");
+            }
         }
     }
 
@@ -174,7 +188,17 @@
                 await LocalStorageService.SetItemAsync("guest_pomodoro_sessions", guestSessions + 1);
             }
         }
-        // Play sound or notification here
+        
+        // Play completion sound for ALL modes (Focus, Short Break, Long Break)
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("playAudio", "timerSound");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error playing completion sound: {ex.Message}");
+        }
+        
         StateHasChanged();
     }
 

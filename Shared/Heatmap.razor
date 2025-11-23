@@ -11,28 +11,68 @@
     }
     else
     {
-        <div class="heatmap-grid">
-            @for (int i = 0; i < 53; i++) // 53 weeks
-            {
-                <div class="heatmap-week">
-                    @for (int j = 0; j < 7; j++) // 7 days
-                    {
-                        var date = StartDate.AddDays(i * 7 + j);
-                        if (date <= DateTime.Today)
+        <div class="heatmap-wrapper">
+            <!-- Day labels -->
+            <div class="day-labels">
+                <div class="day-label"></div>
+                <div class="day-label">Mon</div>
+                <div class="day-label"></div>
+                <div class="day-label">Wed</div>
+                <div class="day-label"></div>
+                <div class="day-label">Fri</div>
+                <div class="day-label"></div>
+            </div>
+            
+            <!-- Month labels and grid -->
+            <div class="heatmap-content">
+                <!-- Month labels -->
+                <div class="month-labels">
+                    @{
+                        var currentMonth = "";
+                        for (int i = 0; i < 53; i++)
                         {
-                            var count = ActivityData.ContainsKey(date) ? ActivityData[date] : 0;
-                            var level = GetLevel(count);
-                            <div class="heatmap-day level-@level" data-tooltip="@date.ToString("yyyy-MM-dd"): @count activities"></div>
-                        }
-                        else
-                        {
-                             <div class="heatmap-day empty"></div>
+                            var weekStart = StartDate.AddDays(i * 7);
+                            var monthName = weekStart.ToString("MMM");
+                            
+                            if (monthName != currentMonth && i % 4 == 0)
+                            {
+                                <div class="month-label">@monthName</div>
+                                currentMonth = monthName;
+                            }
+                            else
+                            {
+                                <div class="month-label"></div>
+                            }
                         }
                     }
                 </div>
-            }
+                
+                <!-- Heatmap grid -->
+                <div class="heatmap-grid">
+                    @for (int i = 0; i < 53; i++)
+                    {
+                        <div class="heatmap-week">
+                            @for (int j = 0; j < 7; j++)
+                            {
+                                var date = StartDate.AddDays(i * 7 + j);
+                                if (date <= DateTime.Today)
+                                {
+                                    var count = ActivityData.ContainsKey(date) ? ActivityData[date] : 0;
+                                    var level = GetLevel(count);
+                                    <div class="heatmap-day level-@level" data-tooltip="@date.ToString("yyyy-MM-dd"): @count activities"></div>
+                                }
+                                else
+                                {
+                                    <div class="heatmap-day empty"></div>
+                                }
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
-        <div class="heatmap-legend mt-2">
+        
+        <div class="heatmap-legend mt-3">
             <span class="text-muted small me-2">Less</span>
             <div class="heatmap-day level-0"></div>
             <div class="heatmap-day level-1"></div>
@@ -50,6 +90,46 @@
         background: var(--bg-secondary);
         border-radius: 1rem;
         overflow-x: auto;
+        max-width: 100%;
+    }
+    
+    .heatmap-wrapper {
+        display: flex;
+        gap: 8px;
+    }
+    
+    .day-labels {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        padding-top: 20px;
+        font-size: 10px;
+        color: var(--text-muted);
+    }
+    
+    .day-label {
+        height: 10px;
+        line-height: 10px;
+        text-align: right;
+        padding-right: 4px;
+    }
+    
+    .heatmap-content {
+        flex: 1;
+    }
+    
+    .month-labels {
+        display: flex;
+        gap: 3px;
+        margin-bottom: 4px;
+        height: 16px;
+    }
+    
+    .month-label {
+        font-size: 10px;
+        color: var(--text-muted);
+        width: 10px;
+        text-align: left;
     }
     
     .heatmap-grid {
@@ -64,34 +144,37 @@
     }
 
     .heatmap-day {
-        width: 12px;
-        height: 12px;
+        width: 10px;
+        height: 10px;
         border-radius: 2px;
-        background-color: rgba(255, 255, 255, 0.05); /* Default/Empty */
-        position: relative; /* For tooltip positioning */
+        background-color: var(--bg-tertiary);
+        cursor: pointer;
+        transition: all 0.2s;
+        position: relative;
     }
 
-    .heatmap-day.empty {
-        background-color: transparent;
+    .heatmap-day:hover {
+        outline: 2px solid rgba(255, 255, 255, 0.3);
+    }
+    .heatmap-day.level-2 {
+        background-color: #216e39; /* GitHub green level 2 */
     }
 
-    .heatmap-day.level-0 { background-color: rgba(255, 255, 255, 0.05); }
-    .heatmap-day.level-1 { background-color: #0e4429; }
-    .heatmap-day.level-2 { background-color: #006d32; }
-    .heatmap-day.level-3 { background-color: #26a641; }
-    .heatmap-day.level-4 { background-color: #39d353; }
+    .heatmap-day.level-3 {
+        background-color: #30a14e; /* GitHub green level 3 */
+    }
 
-    /* Dark mode adjustments if needed, assuming global dark theme */
-    :root[data-theme="dark"] .heatmap-day.level-1 { background-color: #0e4429; }
-    
+    .heatmap-day.level-4 {
+        background-color: #40c463; /* GitHub green level 4 */
+    }
+
     .heatmap-legend {
         display: flex;
         align-items: center;
-        gap: 3px;
+        gap: 4px;
         justify-content: flex-end;
     }
-
-    /* Custom Tooltip */
+    
     .heatmap-day[data-tooltip]:hover::after {
         content: attr(data-tooltip);
         position: absolute;
@@ -99,7 +182,7 @@
         left: 50%;
         transform: translateX(-50%);
         padding: 0.5rem 0.75rem;
-        background-color: #6e7681; /* Darker grey like GitHub */
+        background-color: #6e7681;
         color: #ffffff;
         border-radius: 6px;
         font-size: 12px;
@@ -128,13 +211,14 @@
     private Dictionary<DateTime, int> ActivityData = new();
     private DateTime StartDate;
     private bool isLoading = true;
+    private int maxActivity = 0;
 
     protected override async Task OnInitializedAsync()
     {
-        // Calculate start date (1 year ago, aligned to Sunday)
-        var oneYearAgo = DateTime.Today.AddYears(-1);
-        int diff = (7 + (oneYearAgo.DayOfWeek - DayOfWeek.Sunday)) % 7;
-        StartDate = oneYearAgo.AddDays(-diff);
+        // Calculate start date to ensure we show full year up to today
+        // Go back 52 weeks from this week's Sunday
+        var currentWeekSunday = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek);
+        StartDate = currentWeekSunday.AddDays(-52 * 7);
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
@@ -145,6 +229,7 @@
             if (!string.IsNullOrEmpty(userId))
             {
                 ActivityData = await GamificationService.GetActivityDataAsync(userId, StartDate);
+                maxActivity = ActivityData.Values.Any() ? ActivityData.Values.Max() : 0;
             }
         }
         isLoading = false;
@@ -153,9 +238,26 @@
     private int GetLevel(int count)
     {
         if (count == 0) return 0;
-        if (count <= 2) return 1;
-        if (count <= 5) return 2;
-        if (count <= 9) return 3;
+        
+        // If no max activity yet, use fixed thresholds
+        if (maxActivity == 0)
+        {
+            if (count <= 2) return 1;
+            if (count <= 5) return 2;
+            if (count <= 9) return 3;
+            return 4;
+        }
+        
+        // Use relative scaling based on max activity
+        // Level 1: 1-25% of max
+        // Level 2: 26-50% of max
+        // Level 3: 51-75% of max
+        // Level 4: 76-100% of max
+        double percentage = (double)count / maxActivity;
+        
+        if (percentage <= 0.25) return 1;
+        if (percentage <= 0.50) return 2;
+        if (percentage <= 0.75) return 3;
         return 4;
     }
 }
