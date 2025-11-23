@@ -22,7 +22,7 @@
                         {
                             var count = ActivityData.ContainsKey(date) ? ActivityData[date] : 0;
                             var level = GetLevel(count);
-                            <div class="heatmap-day level-@level" title="@date.ToShortDateString(): @count activities"></div>
+                            <div class="heatmap-day level-@level" data-tooltip="@date.ToString("yyyy-MM-dd"): @count activities"></div>
                         }
                         else
                         {
@@ -68,6 +68,7 @@
         height: 12px;
         border-radius: 2px;
         background-color: rgba(255, 255, 255, 0.05); /* Default/Empty */
+        position: relative; /* For tooltip positioning */
     }
 
     .heatmap-day.empty {
@@ -88,6 +89,38 @@
         align-items: center;
         gap: 3px;
         justify-content: flex-end;
+    }
+
+    /* Custom Tooltip */
+    .heatmap-day[data-tooltip]:hover::after {
+        content: attr(data-tooltip);
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 0.5rem 0.75rem;
+        background-color: #6e7681; /* Darker grey like GitHub */
+        color: #ffffff;
+        border-radius: 6px;
+        font-size: 12px;
+        white-space: nowrap;
+        z-index: 100;
+        margin-bottom: 8px;
+        pointer-events: none;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    .heatmap-day[data-tooltip]:hover::before {
+        content: '';
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 6px solid transparent;
+        border-top-color: #6e7681;
+        margin-bottom: -4px;
+        z-index: 100;
+        pointer-events: none;
     }
 </style>
 
