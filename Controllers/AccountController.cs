@@ -12,11 +12,16 @@ public class AccountController : Controller
 {
     private readonly SignInManager<ApplicationUser> _signInManager;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly DisciplineApp.Services.TokenProvider _tokenProvider;
 
-    public AccountController(SignInManager<ApplicationUser> signInManager, UserManager<ApplicationUser> userManager)
+    public AccountController(
+        SignInManager<ApplicationUser> signInManager, 
+        UserManager<ApplicationUser> userManager,
+        DisciplineApp.Services.TokenProvider tokenProvider)
     {
         _signInManager = signInManager;
         _userManager = userManager;
+        _tokenProvider = tokenProvider;
     }
 
     [HttpGet]
@@ -24,6 +29,12 @@ public class AccountController : Controller
     {
         var redirectUrl = Url.Action("GoogleCallback", "Account", new { returnUrl });
         var properties = _signInManager.ConfigureExternalAuthenticationProperties(GoogleDefaults.AuthenticationScheme, redirectUrl);
+        
+        // Request offline access to get refresh token and access to Calendar API
+        properties.Items["scope"] = "openid profile email https://www.googleapis.com/auth/calendar.readonly";
+        properties.Items["access_type"] = "offline";
+        properties.Items["prompt"] = "consent";
+        
         return new ChallengeResult(GoogleDefaults.AuthenticationScheme, properties);
     }
 
@@ -32,13 +43,27 @@ public class AccountController : Controller
     {
         if (remoteError != null)
         {
+            Console.WriteLine($"GoogleCallback - Remote error: {remoteError}");
             return Redirect("/"); // Handle error appropriately
         }
 
         var info = await _signInManager.GetExternalLoginInfoAsync();
         if (info == null)
         {
+            Console.WriteLine("GoogleCallback - No external login info");
             return Redirect("/");
+        }
+
+        // Extract and store the access token
+        var accessToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "access_token")?.Value;
+        if (!string.IsNullOrEmpty(accessToken))
+        {
+            _tokenProvider.AccessToken = accessToken;
+            Console.WriteLine($"GoogleCallback - Access token stored: {accessToken.Substring(0, Math.Min(20, accessToken.Length))}...");
+        }
+        else
+        {
+            Console.WriteLine("GoogleCallback - No access token found in authentication tokens");
         }
 
         // Sign in the user with this external login provider if the user already has a login.
@@ -94,4 +119,13 @@ public class AccountController : Controller
             return Redirect("/");
         }
     }
+    
+    [HttpGet]
+    public async Task<IActionResult> LogOut(string returnUrl = "/")
+    {
+        await _signInManager.SignOutAsync();
+        _tokenProvider.AccessToken = null; // Clear the token on logout
+        return LocalRedirect(returnUrl);
+    }
 }
+

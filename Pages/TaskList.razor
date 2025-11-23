@@ -26,15 +26,20 @@
         }
         else
         {
-            @foreach (var task in tasks)
+            var sortedTasks = tasks.OrderBy(t => !t.IsRoutine).ThenBy(t => t.Title).ToList();
+            @foreach (var task in sortedTasks)
             {
                 <div class="task-item card mb-2 p-3 @(task.IsCompleted ? "completed" : "")">
                     <div class="d-flex align-items-center justify-content-between">
-                        <div class="form-check">
+                        <div class="form-check d-flex align-items-center">
                             <input class="form-check-input" type="checkbox" checked="@task.IsCompleted" @onchange="() => ToggleTask(task)" id="task-@task.Id">
-                            <label class="form-check-label" for="task-@task.Id">
+                            <label class="form-check-label ms-2" for="task-@task.Id">
                                 @task.Title
                             </label>
+                            @if (task.IsRoutine)
+                            {
+                                <span class="badge bg-info text-dark ms-2">Routine</span>
+                            }
                         </div>
                         <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteTask(task)">
                             <span aria-hidden="true">&times;</span>
@@ -156,9 +161,25 @@
     {
         if (string.IsNullOrWhiteSpace(newTaskTitle)) return;
 
+        // Ensure we have userId for authenticated users
+        if (tasks == null)
+        {
+            Console.WriteLine("Tasks not initialized yet, loading...");
+            await LoadTasks();
+        }
+
         if (!string.IsNullOrEmpty(userId))
         {
-            await TaskService.AddTaskAsync(userId, newTaskTitle, DateTime.Today, isRoutineTask);
+            try
+            {
+                await TaskService.AddTaskAsync(userId, newTaskTitle, DateTime.Today, isRoutineTask);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error adding task: {ex.Message}");
+                ToastService.ShowError("Failed to add task. Please try again.");
+                return;
+            }
         }
         else
         {

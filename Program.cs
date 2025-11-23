@@ -7,13 +7,22 @@ using DisciplineApp.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-// Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddControllers(); // Required for CultureController
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-builder.Services.AddSingleton<WeatherForecastService>();
+// Add session support for token storage
+builder.Services.AddDistributedMemoryCache();
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromHours(24);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+// Add HttpContextAccessor for TokenProvider
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
@@ -88,6 +97,9 @@ app.UseHttpsRedirection();
 app.UseCookiePolicy();
 
 app.UseStaticFiles();
+
+// Enable session middleware
+app.UseSession();
 
 var supportedCultures = new[] { "zh-TW", "en", "ja" };
 var localizationOptions = new RequestLocalizationOptions()

@@ -1,21 +1,33 @@
 @using System.Globalization
 @inject NavigationManager NavigationManager
 
-<div class="language-selector">
-    <select class="form-select form-select-sm" @onchange="OnSelected">
-        <option value="zh-TW" selected="@(CultureInfo.CurrentCulture.Name == "zh-TW")">繁體中文</option>
-        <option value="en" selected="@(CultureInfo.CurrentCulture.Name == "en")">English</option>
-        <option value="ja" selected="@(CultureInfo.CurrentCulture.Name == "ja")">日本語</option>
-    </select>
+<div class="dropdown">
+    <button class="btn btn-link text-light text-decoration-none dropdown-toggle" type="button" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+        <span class="oi oi-globe me-1"></span> @CurrentCultureName
+    </button>
+    <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="languageDropdown">
+        <li><button class="dropdown-item @(CurrentCulture == "zh-TW" ? "active" : "")" @onclick='() => ChangeLanguage("zh-TW")'>繁體中文</button></li>
+        <li><button class="dropdown-item @(CurrentCulture == "en" ? "active" : "")" @onclick='() => ChangeLanguage("en")'>English</button></li>
+        <li><button class="dropdown-item @(CurrentCulture == "ja" ? "active" : "")" @onclick='() => ChangeLanguage("ja")'>日本語</button></li>
+    </ul>
 </div>
 
 @code {
-    private void OnSelected(ChangeEventArgs e)
+    private string CurrentCulture => CultureInfo.CurrentCulture.Name;
+    
+    private string CurrentCultureName => CurrentCulture switch
     {
-        var culture = e.Value?.ToString();
+        "zh-TW" => "繁體中文",
+        "en" => "English",
+        "ja" => "日本語",
+        _ => "Language"
+    };
+
+    private void ChangeLanguage(string culture)
+    {
         var uri = new Uri(NavigationManager.Uri)
             .GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
-        var query = $"?culture={Uri.EscapeDataString(culture ?? "zh-TW")}&redirectUri={Uri.EscapeDataString(uri)}";
+        var query = $"?culture={Uri.EscapeDataString(culture)}&redirectUri={Uri.EscapeDataString(uri)}";
 
         NavigationManager.NavigateTo("/Culture/Set" + query, forceLoad: true);
     }
