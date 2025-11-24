@@ -1,9 +1,6 @@
 name: Azure Web App Deploy
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
 
 jobs:
