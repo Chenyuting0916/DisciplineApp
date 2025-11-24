@@ -81,6 +81,12 @@
         TimerService.OnTick += UpdateUI;
         TimerService.OnTimerCompleted += HandleTimerCompleted;
         
+        // Restore state if timer is running or has a task set
+        if (!string.IsNullOrEmpty(TimerService.FocusTask))
+        {
+            customFocusTask = TimerService.FocusTask;
+        }
+        
         await LoadTasks();
     }
     
@@ -109,12 +115,26 @@
 
     private async Task StartTimer()
     {
-        string taskName = TimerService.FocusTask == "custom" ? customFocusTask : TimerService.FocusTask;
+        string taskName;
+        
+        // Determine the task name based on the current mode
+        if (todayTasks == null || !todayTasks.Any() || TimerService.FocusTask == "custom")
+        {
+            taskName = customFocusTask;
+        }
+        else
+        {
+            taskName = TimerService.FocusTask;
+        }
+
+        // If no task name is provided, default to "Focus Session"
         if (string.IsNullOrWhiteSpace(taskName))
         {
-            ToastService.ShowWarning("Please select or enter what you are focusing on!");
-            return;
+            taskName = "Focus Session";
         }
+        
+        // Update the service with the actual task name being used
+        TimerService.FocusTask = taskName;
         
         TimerService.Start();
         await PlaySound("startSound");
