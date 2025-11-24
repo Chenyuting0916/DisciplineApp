@@ -63,4 +63,22 @@
   <data name="LoadingRankings" xml:space="preserve">
     <value>ランキングを読み込み中...</value>
   </data>
+  <data name="Coins" xml:space="preserve">
+    <value>コイン</value>
+  </data>
+  <data name="FocusTime" xml:space="preserve">
+    <value>集中時間</value>
+  </data>
+  <data name="LevelAndXP" xml:space="preserve">
+    <value>レベル &amp; XP</value>
+  </data>
+  <data name="GoldCoins" xml:space="preserve">
+    <value>ゴールドコイン</value>
+  </data>
+  <data name="TotalFocusMinutes" xml:space="preserve">
+    <value>総集中時間</value>
+  </data>
+  <data name="WeeklyFocus" xml:space="preserve">
+    <value>今週の集中</value>
+  </data>
 </root>

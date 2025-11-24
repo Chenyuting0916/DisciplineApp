@@ -13,13 +13,13 @@
     <div class="d-flex justify-content-center mb-4">
         <div class="btn-group" role="group">
             <input type="radio" class="btn-check" name="sort" id="sort-xp" autocomplete="off" checked="@(sortBy == "xp")" @onchange="@(() => SortBy("xp"))">
-            <label class="btn btn-outline-warning" for="sort-xp">Level & XP</label>
+            <label class="btn btn-outline-warning" for="sort-xp">@Localizer["LevelAndXP"]</label>
 
             <input type="radio" class="btn-check" name="sort" id="sort-coins" autocomplete="off" checked="@(sortBy == "coins")" @onchange="@(() => SortBy("coins"))">
-            <label class="btn btn-outline-warning" for="sort-coins">Gold Coins</label>
+            <label class="btn btn-outline-warning" for="sort-coins">@Localizer["GoldCoins"]</label>
 
             <input type="radio" class="btn-check" name="sort" id="sort-focus" autocomplete="off" checked="@(sortBy == "focus")" @onchange="@(() => SortBy("focus"))">
-            <label class="btn btn-outline-warning" for="sort-focus">Focus Time</label>
+            <label class="btn btn-outline-warning" for="sort-focus">@Localizer["FocusTime"]</label>
         </div>
     </div>
 
@@ -39,8 +39,8 @@
                                 <th>@Localizer["User"]</th>
                                 <th class="text-center @(sortBy == "xp" ? "text-warning" : "")">@Localizer["Level"]</th>
                                 <th class="text-end @(sortBy == "xp" ? "text-warning" : "")">@Localizer["TotalXP"]</th>
-                                <th class="text-end @(sortBy == "coins" ? "text-warning" : "")">Coins</th>
-                                <th class="text-end pe-4 @(sortBy == "focus" ? "text-warning" : "")">Focus Time</th>
+                                <th class="text-end @(sortBy == "coins" ? "text-warning" : "")">@Localizer["Coins"]</th>
+                                <th class="text-end pe-4 @(sortBy == "focus" ? "text-warning" : "")">@Localizer["FocusTime"]</th>
                             </tr>
                         </thead>
                         <tbody>
