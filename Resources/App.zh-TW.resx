@@ -27,4 +27,40 @@
   <data name="Level" xml:space="preserve">
     <value>等級</value>
   </data>
+  <data name="ViewAll" xml:space="preserve">
+    <value>查看全部</value>
+  </data>
+  <data name="LoadingEvents" xml:space="preserve">
+    <value>載入活動中...</value>
+  </data>
+  <data name="NoEvents" xml:space="preserve">
+    <value>今天沒有活動。</value>
+  </data>
+  <data name="LoadingTasks" xml:space="preserve">
+    <value>載入任務中...</value>
+  </data>
+  <data name="NoTasks" xml:space="preserve">
+    <value>今天沒有任務。</value>
+  </data>
+  <data name="MoreEvents" xml:space="preserve">
+    <value>個更多活動...</value>
+  </data>
+  <data name="MoreTasks" xml:space="preserve">
+    <value>個更多任務...</value>
+  </data>
+  <data name="Rank" xml:space="preserve">
+    <value>排名</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>用戶</value>
+  </data>
+  <data name="TotalXP" xml:space="preserve">
+    <value>總經驗值</value>
+  </data>
+  <data name="You" xml:space="preserve">
+    <value>你</value>
+  </data>
+  <data name="LoadingRankings" xml:space="preserve">
+    <value>載入排名中...</value>
+  </data>
 </root>

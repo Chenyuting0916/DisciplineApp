@@ -27,4 +27,40 @@
   <data name="Level" xml:space="preserve">
     <value>レベル</value>
   </data>
+  <data name="ViewAll" xml:space="preserve">
+    <value>すべて見る</value>
+  </data>
+  <data name="LoadingEvents" xml:space="preserve">
+    <value>イベントを読み込み中...</value>
+  </data>
+  <data name="NoEvents" xml:space="preserve">
+    <value>今日のイベントはありません。</value>
+  </data>
+  <data name="LoadingTasks" xml:space="preserve">
+    <value>タスクを読み込み中...</value>
+  </data>
+  <data name="NoTasks" xml:space="preserve">
+    <value>今日のタスクはありません。</value>
+  </data>
+  <data name="MoreEvents" xml:space="preserve">
+    <value>件のイベント...</value>
+  </data>
+  <data name="MoreTasks" xml:space="preserve">
+    <value>件のタスク...</value>
+  </data>
+  <data name="Rank" xml:space="preserve">
+    <value>ランク</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>ユーザー</value>
+  </data>
+  <data name="TotalXP" xml:space="preserve">
+    <value>合計XP</value>
+  </data>
+  <data name="You" xml:space="preserve">
+    <value>あなた</value>
+  </data>
+  <data name="LoadingRankings" xml:space="preserve">
+    <value>ランキングを読み込み中...</value>
+  </data>
 </root>

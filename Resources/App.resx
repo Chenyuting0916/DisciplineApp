@@ -27,4 +27,40 @@
   <data name="Level" xml:space="preserve">
     <value>Level</value>
   </data>
+  <data name="ViewAll" xml:space="preserve">
+    <value>View All</value>
+  </data>
+  <data name="LoadingEvents" xml:space="preserve">
+    <value>Loading events...</value>
+  </data>
+  <data name="NoEvents" xml:space="preserve">
+    <value>No events today.</value>
+  </data>
+  <data name="LoadingTasks" xml:space="preserve">
+    <value>Loading tasks...</value>
+  </data>
+  <data name="NoTasks" xml:space="preserve">
+    <value>No tasks for today.</value>
+  </data>
+  <data name="MoreEvents" xml:space="preserve">
+    <value>more events...</value>
+  </data>
+  <data name="MoreTasks" xml:space="preserve">
+    <value>more tasks...</value>
+  </data>
+  <data name="Rank" xml:space="preserve">
+    <value>Rank</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>User</value>
+  </data>
+  <data name="TotalXP" xml:space="preserve">
+    <value>Total XP</value>
+  </data>
+  <data name="You" xml:space="preserve">
+    <value>You</value>
+  </data>
+  <data name="LoadingRankings" xml:space="preserve">
+    <value>Loading rankings...</value>
+  </data>
 </root>

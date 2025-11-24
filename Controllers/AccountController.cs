@@ -54,70 +54,111 @@ public class AccountController : Controller
             return Redirect("/");
         }
 
-        // Extract and store the access token
-        var accessToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "access_token")?.Value;
-        if (!string.IsNullOrEmpty(accessToken))
-        {
-            _tokenProvider.AccessToken = accessToken;
-            Console.WriteLine($"GoogleCallback - Access token stored: {accessToken.Substring(0, Math.Min(20, accessToken.Length))}...");
-        }
-        else
-        {
-            Console.WriteLine("GoogleCallback - No access token found in authentication tokens");
-        }
-
         // Sign in the user with this external login provider if the user already has a login.
         var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: true, bypassTwoFactor: true);
+        
+        ApplicationUser user = null;
+
         if (result.Succeeded)
         {
-            // Update DisplayName if it's not set
             var email = info.Principal.FindFirstValue(ClaimTypes.Email);
             if (email != null)
             {
-                var existingUser = await _userManager.FindByEmailAsync(email);
-                if (existingUser != null && string.IsNullOrEmpty(existingUser.DisplayName))
+                user = await _userManager.FindByEmailAsync(email);
+                if (user != null)
                 {
-                    var name = info.Principal.FindFirstValue(ClaimTypes.Name);
-                    existingUser.DisplayName = name ?? email;
-                    await _userManager.UpdateAsync(existingUser);
-                }
-            }
-            return LocalRedirect(returnUrl);
-        }
-        
-        // If the user does not have an account, then ask the user to create an account.
-        // Here we automatically create it for a smoother "popup" experience.
-        if (result.IsLockedOut)
-        {
-            return Redirect("/"); // Handle lockout
-        }
-        else
-        {
-            var email = info.Principal.FindFirstValue(ClaimTypes.Email);
-            var name = info.Principal.FindFirstValue(ClaimTypes.Name);
-            
-            if (email != null)
-            {
-                var user = new ApplicationUser 
-                { 
-                    UserName = email, 
-                    Email = email,
-                    DisplayName = name ?? email
-                };
-                var createResult = await _userManager.CreateAsync(user);
-                if (createResult.Succeeded)
-                {
-                    createResult = await _userManager.AddLoginAsync(user, info);
-                    if (createResult.Succeeded)
+                    // Update DisplayName if it's not set
+                    if (string.IsNullOrEmpty(user.DisplayName))
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: true);
-                        return LocalRedirect(returnUrl);
+                        var name = info.Principal.FindFirstValue(ClaimTypes.Name);
+                        user.DisplayName = name ?? email;
+                        
+                        // Update PhotoUrl
+                        var photoUrl = info.Principal.FindFirstValue("picture");
+                        if (!string.IsNullOrEmpty(photoUrl) && user.PhotoUrl != photoUrl)
+                        {
+                            user.PhotoUrl = photoUrl;
+                        }
+
+                        await _userManager.UpdateAsync(user);
+                    }
+                    else
+                    {
+                        // Update PhotoUrl even if DisplayName is already set
+                        var photoUrl = info.Principal.FindFirstValue("picture");
+                        if (!string.IsNullOrEmpty(photoUrl) && user.PhotoUrl != photoUrl)
+                        {
+                            user.PhotoUrl = photoUrl;
+                            await _userManager.UpdateAsync(user);
+                        }
                     }
                 }
             }
-            
-            return Redirect("/");
         }
+        else
+        {
+            // If the user does not have an account, then ask the user to create an account.
+            // Here we automatically create it for a smoother "popup" experience.
+            if (result.IsLockedOut)
+            {
+                return Redirect("/"); // Handle lockout
+            }
+            else
+            {
+                var email = info.Principal.FindFirstValue(ClaimTypes.Email);
+                var name = info.Principal.FindFirstValue(ClaimTypes.Name);
+                
+                if (email != null)
+                {
+                    user = new ApplicationUser 
+                    { 
+                        UserName = email, 
+                        Email = email,
+                        DisplayName = name ?? email,
+                        PhotoUrl = info.Principal.FindFirstValue("picture")
+                    };
+                    var createResult = await _userManager.CreateAsync(user);
+                    if (createResult.Succeeded)
+                    {
+                        createResult = await _userManager.AddLoginAsync(user, info);
+                        if (createResult.Succeeded)
+                        {
+                            await _signInManager.SignInAsync(user, isPersistent: true);
+                        }
+                        else
+                        {
+                             user = null; // Failed to add login
+                        }
+                    }
+                    else
+                    {
+                        user = null; // Failed to create user
+                    }
+                }
+            }
+        }
+
+        // Store tokens if user exists (either logged in or just created)
+        if (user != null)
+        {
+            var accessToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "access_token")?.Value;
+            var refreshToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "refresh_token")?.Value;
+
+            if (!string.IsNullOrEmpty(accessToken))
+            {
+                await _userManager.SetAuthenticationTokenAsync(user, "Google", "access_token", accessToken);
+                _tokenProvider.AccessToken = accessToken; // Also update session cache
+                Console.WriteLine($"GoogleCallback - Access token stored in DB");
+            }
+
+            if (!string.IsNullOrEmpty(refreshToken))
+            {
+                await _userManager.SetAuthenticationTokenAsync(user, "Google", "refresh_token", refreshToken);
+                Console.WriteLine($"GoogleCallback - Refresh token stored in DB");
+            }
+        }
+
+        return LocalRedirect(returnUrl);
     }
     
     [HttpGet]

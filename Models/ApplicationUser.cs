@@ -11,4 +11,5 @@ public class ApplicationUser : IdentityUser
     public int DailyXpEarned { get; set; } = 0;
     public DateTime? LastXpResetDate { get; set; }
     public DateTime JoinedDate { get; set; } = DateTime.UtcNow;
+    public string? PhotoUrl { get; set; }
 }
