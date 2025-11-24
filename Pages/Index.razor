@@ -8,7 +8,13 @@
 @inject GamificationService GamificationService
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 
-<PageTitle>@Localizer["Home"]</PageTitle>
+<PageTitle>DisciplineApp - @Localizer["Home"]</PageTitle>
+
+<HeadContent>
+    <meta property="og:title" content="DisciplineApp - @Localizer["Home"]" />
+    <meta property="og:description" content="A gamified productivity app to help you build discipline, track tasks, focus with Pomodoro timer, and compete on leaderboards." />
+    <meta property="og:image" content="https://disciplineapp.azurewebsites.net/og-image.png" />
+</HeadContent>
 
 <AuthorizeView>
     <Authorized>
