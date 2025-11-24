@@ -24,8 +24,21 @@ builder.Services.AddSession(options =>
 // Add HttpContextAccessor for TokenProvider
 builder.Services.AddHttpContextAccessor();
 
+// Configure DB Context with writable path for Azure
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Check if running in Azure (HOME environment variable exists)
+var homePath = Environment.GetEnvironmentVariable("HOME");
+if (!string.IsNullOrEmpty(homePath) && !builder.Environment.IsDevelopment())
+{
+    // In Azure, use a writable path
+    var dbPath = Path.Combine(homePath, "app.db");
+    connectionString = $"Data Source={dbPath}";
+    Console.WriteLine($"Using Azure DB Path: {dbPath}");
+}
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseSqlite(connectionString));
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -135,5 +148,22 @@ app.MapControllers(); // Required for CultureController
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");
+
+// Apply migrations on startup
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<ApplicationDbContext>();
+        context.Database.Migrate();
+        Console.WriteLine("Database migrated successfully.");
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+    }
+}
 
 app.Run();
