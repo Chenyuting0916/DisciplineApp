@@ -12,4 +12,8 @@ public class ApplicationUser : IdentityUser
     public DateTime? LastXpResetDate { get; set; }
     public DateTime JoinedDate { get; set; } = DateTime.UtcNow;
     public string? PhotoUrl { get; set; }
+
+    // New Gamification Properties
+    public int GoldCoins { get; set; }
+    public double TotalFocusMinutes { get; set; }
 }

@@ -64,18 +64,38 @@ public class TaskService
 
         if (task.IsCompleted)
         {
+            // Check if XP should be awarded
+            bool shouldAwardXp = false;
+
             if (task.IsRoutine)
             {
-                task.LastCompletedDate = DateTime.Today;
+                // For routines, check if already completed today
+                if (task.LastCompletedDate == null || task.LastCompletedDate.Value.Date < DateTime.Today)
+                {
+                    shouldAwardXp = true;
+                    task.LastCompletedDate = DateTime.Today;
+                }
+            }
+            else
+            {
+                // For one-off tasks, check if already awarded
+                if (!task.XpAwarded)
+                {
+                    shouldAwardXp = true;
+                }
             }
             
-            // Only award XP if not already awarded
-            if (!task.XpAwarded)
+            if (shouldAwardXp)
             {
                 var result = await _gamificationService.AddXpAsync(userId, 50);
-                task.XpAwarded = result.success;
+                
+                // Only mark as awarded if XP was actually added (or cap reached, but we still consider it "done" for the task)
+                // Actually, if cap reached, we don't want to award again today? 
+                // No, if cap reached, they shouldn't get XP, but the task is still "completed" and shouldn't give XP again if toggled.
+                
+                task.XpAwarded = true; 
                 await _context.SaveChangesAsync();
-                return (result.success, result.xpAwarded, result.remainingDaily, !result.success);
+                return (result.success, result.xpAwarded, result.remainingDaily, !result.success && result.remainingDaily <= 0);
             }
             else
             {
@@ -85,8 +105,19 @@ public class TaskService
         }
         else
         {
-            // Reset XpAwarded when uncompleting
-            task.XpAwarded = false;
+            // If uncompleting, we generally don't take away XP to avoid negative feelings, 
+            // but we should reset XpAwarded if it was a mistake?
+            // If we reset XpAwarded, they can toggle again to farm XP. 
+            // So we should NOT reset XpAwarded for one-off tasks if they uncomplete.
+            // But for routines, it resets daily anyway.
+            
+            // However, if they uncomplete a routine today, they can complete it again.
+            // If we don't reset LastCompletedDate, they won't get XP again (good).
+            // If we DO reset LastCompletedDate, they can farm XP.
+            
+            // So: Do NOT reset XpAwarded or LastCompletedDate when uncompleting.
+            // This prevents farming.
+            
             await _context.SaveChangesAsync();
             return (false, 0, 0, false);
         }

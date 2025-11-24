@@ -1,0 +1,75 @@
+@if (IsVisible)
+{
+    <div class="coin-reward-overlay">
+        <div class="coin-animation">
+            <div class="coin">💰</div>
+            <div class="reward-text">+@Coins Coins!</div>
+            @if (Xp > 0)
+            {
+                <div class="reward-text xp">+@Xp XP</div>
+            }
+        </div>
+    </div>
+}
+
+<style>
+    .coin-reward-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: rgba(0,0,0,0.7);
+        z-index: 2000;
+        animation: fadeIn 0.3s ease-out;
+    }
+
+    .coin-animation {
+        text-align: center;
+        animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .coin {
+        font-size: 8rem;
+        animation: spin 1s infinite linear;
+        margin-bottom: 1rem;
+        filter: drop-shadow(0 0 20px gold);
+    }
+
+    .reward-text {
+        font-size: 2.5rem;
+        font-weight: bold;
+        color: #ffd700;
+        text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+    }
+
+    .reward-text.xp {
+        font-size: 1.5rem;
+        color: #0dcaf0; /* Info Cyan */
+        margin-top: 0.5rem;
+    }
+
+    @@keyframes popIn {
+        from { transform: scale(0); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+
+    @@keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @@keyframes spin {
+        from { transform: rotateY(0deg); }
+        to { transform: rotateY(360deg); }
+    }
+</style>
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public int Coins { get; set; }
+    [Parameter] public int Xp { get; set; }
+}

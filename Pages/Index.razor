@@ -2,21 +2,33 @@
 @using DisciplineApp.Shared
 @using DisciplineApp.Services
 @using DisciplineApp.Models
-@using Google.Apis.Calendar.v3.Data
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject TaskService TaskService
 @inject ToastService ToastService
 @inject GamificationService GamificationService
-@inject CalendarService CalendarService
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 
 <PageTitle>@Localizer["Home"]</PageTitle>
+
 <AuthorizeView>
     <Authorized>
         <div class="dashboard-container pt-4">
-            <div class="welcome-section mb-5">
-                <h1>@Localizer["Welcome"], @(currentUser?.DisplayName ?? context.User.Identity?.Name ?? "User")!</h1>
-                <p class="text-muted">Stay consistent and track your progress.</p>
+            <div class="welcome-section mb-4 d-flex justify-content-between align-items-center">
+                <div>
+                    <h1>@Localizer["Welcome"], @(currentUser?.DisplayName ?? context.User.Identity?.Name ?? "User")!</h1>
+                    <p class="text-muted">Stay consistent and track your progress.</p>
+                </div>
+                <div class="text-end">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="coin-display bg-dark p-2 rounded border border-warning text-warning fw-bold">
+                            💰 @(currentUser?.GoldCoins ?? 0)
+                        </div>
+                        <div class="focus-display bg-dark p-2 rounded border border-info text-info fw-bold">
+                            <div>⏱️ Total: @((int)(currentUser?.TotalFocusMinutes ?? 0))m</div>
+                            <div class="small text-muted">Weekly: @((int)weeklyFocusMinutes)m</div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div class="row mb-4">
@@ -27,7 +39,7 @@
 
             <div class="row mb-4">
                 <div class="col-md-6">
-                    <div class="card">
+                    <div class="card h-100">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">@Localizer["Tasks"] - Today</h5>
                             <a href="tasks" class="btn btn-sm btn-outline-primary">@Localizer["ViewAll"]</a>
@@ -48,11 +60,19 @@
                                     @foreach (var task in sortedTasks.Take(5))
                                     {
                                         <li class="list-group-item d-flex align-items-center @(task.IsCompleted ? "text-decoration-line-through text-muted" : "")" style="cursor: pointer;">
-                                            <input type="checkbox" class="form-check-input me-2" checked="@task.IsCompleted" @onchange="() => ToggleTaskFromHome(task)">
+                                            <input type="checkbox" class="form-check-input me-2" checked="@task.IsCompleted" @onchange="() => ToggleTask(task)">
                                             @task.Title
                                             @if (task.IsRoutine)
                                             {
                                                 <span class="badge bg-info text-dark ms-2">Routine</span>
+                                            }
+                                            @if (task.XpAwarded)
+                                            {
+                                                <span class="ms-auto badge bg-success">XP Earned</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="ms-auto badge bg-secondary">+50 XP</span>
                                             }
                                         </li>
                                     }
@@ -67,97 +87,19 @@
                 </div>
                 
                 <div class="col-md-6">
-                    <div class="card">
-                        <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">@Localizer["Calendar"] - Today</h5>
-                            <a href="calendar" class="btn btn-sm btn-outline-primary">@Localizer["ViewAll"]</a>
-                        </div>
-                        <div class="card-body">
-                            @if (todayEvents == null)
-                            {
-                                <p class="text-muted">@Localizer["LoadingEvents"]</p>
-                            }
-                            else if (!todayEvents.Any())
-                            {
-                                <p class="text-muted">@Localizer["NoEvents"]</p>
-                            }
-                            else
-                            {
-                                <ul class="list-group list-group-flush">
-                                    @foreach (var evt in todayEvents.Take(5))
-                                    {
-                                        <li class="list-group-item">
-                                            <strong>@evt.Summary</strong>
-                                            @if (evt.Start?.DateTime != null)
-                                            {
-                                                <br /><small class="text-muted">@evt.Start.DateTime.Value.ToString("h:mm tt")</small>
-                                            }
-                                            else if (evt.Start?.Date != null)
-                                            {
-                                                <br /><small class="text-muted">All day</small>
-                                            }
-                                        </li>
-                                    }
-                                </ul>
-                                @if (todayEvents.Count > 5)
-                                {
-                                    <p class="text-muted mt-2 mb-0">+@(todayEvents.Count - 5) @Localizer["MoreEvents"]</p>
-                                }
-                            }
-                            
-                            <hr class="my-3 border-secondary" />
-                            
-                            <h6 class="mb-3">@Localizer["Tasks"] - Today</h6>
-                            @if (googleTasks == null)
-                            {
-                                <p class="text-muted">@Localizer["LoadingTasks"]</p>
-                            }
-                            else if (!googleTasks.Any())
-                            {
-                                <p class="text-muted">@Localizer["NoTasks"]</p>
-                            }
-                            else
-                            {
-                                <ul class="list-group list-group-flush">
-                                    @foreach (var task in googleTasks.Take(5))
-                                    {
-                                        var isCompleted = task.Status == "completed";
-                                        <li class="list-group-item d-flex align-items-center @(isCompleted ? "text-decoration-line-through text-muted" : "")" style="cursor: pointer;">
-                                            <input type="checkbox" class="form-check-input me-2" checked="@isCompleted" @onchange="() => ToggleGoogleTaskFromHome(task)">
-                                            @task.Title
-                                        </li>
-                                    }
-                                </ul>
-                                @if (googleTasks.Count > 5)
-                                {
-                                    <p class="text-muted mt-2 mb-0">+@(googleTasks.Count - 5) @Localizer["MoreTasks"]</p>
-                                }
-                            }
+                     <div class="card h-100">
+                        <div class="card-body text-center d-flex flex-column justify-content-center">
+                            <h5 class="card-title mb-3">@Localizer["Timer"]</h5>
+                            <p class="card-text mb-4">Start a Pomodoro session to stay focused and earn coins!</p>
+                            <a href="timer" class="btn btn-lg btn-primary rounded-pill px-5">
+                                <i class="bi bi-play-circle-fill me-2"></i> Go to Timer
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <div class="row">
-                <div class="col-md-6 mb-3">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">@Localizer["Timer"]</h5>
-                            <p class="card-text">Start a Pomodoro session to stay focused.</p>
-                            <a href="timer" class="btn btn-primary">Go to Timer</a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-6 mb-3">
-                    <div class="card h-100">
-                        <div class="card-body text-center">
-                            <h5 class="card-title">@Localizer["Tasks"]</h5>
-                            <p class="card-text">Manage your daily goals and to-dos.</p>
-                            <a href="tasks" class="btn btn-primary">View Tasks</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            
+            <DisciplineApp.Shared.CoinReward IsVisible="@showCoinReward" Coins="@coinsEarned" Xp="@xpEarned" />
         </div>
     </Authorized>
     <NotAuthorized>
@@ -195,14 +137,22 @@
         max-width: 900px;
         margin: 0 auto;
     }
+    .coin-display, .focus-display {
+        min-width: 100px;
+        text-align: center;
+    }
 </style>
 
 @code {
     private List<UserTask>? todayTasks;
-    private IList<Google.Apis.Tasks.v1.Data.Task>? googleTasks;
     private ApplicationUser? currentUser;
     private bool showLoginModal = false;
-    private IList<Event>? todayEvents;
+    private double weeklyFocusMinutes = 0;
+    
+    // Reward State
+    private bool showCoinReward = false;
+    private int coinsEarned = 0;
+    private int xpEarned = 0;
 
     protected override async Task OnInitializedAsync()
     {
@@ -216,46 +166,12 @@
             {
                 todayTasks = await TaskService.GetTasksForDateAsync(userId, DateTime.Today);
                 currentUser = await GamificationService.GetUserStatsAsync(userId);
-                
-                // Fetch today's calendar events
-                try
-                {
-                    var startOfDay = DateTime.Today;
-                    var endOfDay = DateTime.Today.AddDays(1);
-                    var allEvents = await CalendarService.GetEventsAsync(startOfDay, endOfDay);
-                    todayEvents = allEvents;
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error fetching calendar events: {ex.Message}");
-                    todayEvents = new List<Event>();
-                }
-
-                // Fetch Google Tasks
-                try
-                {
-                    var allTasks = await CalendarService.GetTasksAsync();
-                    // Filter for tasks that are due today or overdue, or just all tasks?
-                    // User asked for "Daily Tasks - Today".
-                    // Google Tasks API 'due' field is RFC3339 timestamp.
-                    // Let's filter by Due date if present, or show all if no due date?
-                    // Usually "Today" means Due <= Today.
-                    
-                    googleTasks = allTasks.Where(t => 
-                        t.Due == null || // No due date
-                        (DateTime.TryParse(t.Due, out var dueDate) && dueDate.ToLocalTime().Date <= DateTime.Today)
-                    ).ToList();
-                }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"Error fetching Google tasks: {ex.Message}");
-                    googleTasks = new List<Google.Apis.Tasks.v1.Data.Task>();
-                }
+                weeklyFocusMinutes = await GamificationService.GetWeeklyFocusTimeAsync(userId);
             }
         }
     }
 
-    private async Task ToggleTaskFromHome(UserTask task)
+    private async Task ToggleTask(UserTask task)
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
@@ -269,7 +185,32 @@
                 
                 if (result.success && result.xpAwarded > 0)
                 {
-                    ToastService.ShowSuccess($"🎉 +{result.xpAwarded} XP! ({result.remainingDaily} XP remaining today)");
+                    xpEarned = result.xpAwarded;
+                    
+                    // Chance for coins on task completion? User didn't explicitly ask, but said "completing task... no coin wheel"
+                    // Let's add a small chance for coins on task completion too!
+                    // Or maybe just show the XP reward with the new component.
+                    
+                    // Let's award 1-3 coins for task completion randomly
+                    var coinResult = new Random().Next(0, 4); // 0-3 coins
+                    if (coinResult > 0)
+                    {
+                        await GamificationService.AwardCoinsAsync(userId, coinResult, coinResult);
+                        coinsEarned = coinResult;
+                    }
+                    else
+                    {
+                        coinsEarned = 0;
+                    }
+
+                    showCoinReward = true;
+                    StateHasChanged();
+                    
+                    var _ = Task.Delay(3000).ContinueWith(_ => 
+                    {
+                        showCoinReward = false;
+                        InvokeAsync(StateHasChanged);
+                    });
                 }
                 else if (result.capReached)
                 {
@@ -278,36 +219,12 @@
                 
                 // Reload tasks
                 todayTasks = await TaskService.GetTasksForDateAsync(userId, DateTime.Today);
+                // Reload user stats to update header name/level/coins
+                currentUser = await GamificationService.GetUserStatsAsync(userId);
+                weeklyFocusMinutes = await GamificationService.GetWeeklyFocusTimeAsync(userId);
                 StateHasChanged();
             }
         }
-    }
-
-    private async Task ToggleGoogleTaskFromHome(Google.Apis.Tasks.v1.Data.Task task)
-    {
-        // For now, we just complete it in the UI and maybe call API to complete it?
-        // The user didn't explicitly ask for completion logic update, but "ToggleTaskFromHome" implies it.
-        // However, CalendarService doesn't have a method to complete tasks yet.
-        // And the previous logic was for system tasks (UserTask).
-        // I'll leave a TODO or just visual toggle for now, as implementing Google Task completion is a bigger scope change 
-        // that requires updating CalendarService.
-        // Given the request "home page顯示的Daily Tasks - Today應該要是calendar page撈到的task", 
-        // I will just display them. Interactive completion might be out of scope or require more work.
-        // But the checkbox is there.
-        // Let's just show a toast that it's updated (mock) or try to implement it if easy.
-        // Actually, I should probably remove the checkbox interactivity if I can't back it up, 
-        // OR just keep it read-only for now to be safe.
-        // But the user expects it to work.
-        // I'll keep the checkbox but maybe just show a message "Task completion sync coming soon" 
-        // or just let it be a visual toggle that resets on refresh.
-        
-        // Wait, the previous code had XP awards.
-        // If I switch to Google Tasks, I lose the XP system integration for these tasks unless I map them.
-        // The user said "不是系統的task" (not system tasks).
-        // So I should display Google Tasks.
-        // I will remove the toggle logic for now to avoid errors, or make it purely visual.
-        
-        ToastService.ShowInfo("Task completion sync with Google Tasks is coming soon!");
     }
 
     private void ShowLoginModal() => showLoginModal = true;

@@ -1,4 +1,6 @@
 ﻿@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
+@inject TimerService TimerService
+@implements IDisposable
 
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
@@ -9,31 +11,30 @@
     </div>
 </div>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+<div class="@NavMenuCssClass" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="oi oi-home" aria-hidden="true"></span> @Localizer["Home"]
+                <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </div>
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="timer">
-                <span class="oi oi-clock" aria-hidden="true"></span> @Localizer["Timer"]
+                <span class="oi oi-timer" aria-hidden="true"></span> Timer
+                @if (TimerService.IsRunning)
+                {
+                    <span class="badge bg-danger ms-2">@TimeDisplay</span>
+                }
             </NavLink>
         </div>
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="tasks">
-                <span class="oi oi-list" aria-hidden="true"></span> @Localizer["Tasks"]
+                <span class="oi oi-list" aria-hidden="true"></span> Tasks
             </NavLink>
         </div>
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="leaderboard">
-                <span class="oi oi-graph" aria-hidden="true"></span> @Localizer["Leaderboard"]
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="calendar">
-                <span class="oi oi-calendar" aria-hidden="true"></span> @Localizer["Calendar"]
+                <span class="oi oi-graph" aria-hidden="true"></span> Leaderboard
             </NavLink>
         </div>
     </nav>
@@ -47,5 +48,24 @@
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    protected override void OnInitialized()
+    {
+        TimerService.OnTick += UpdateUI;
+    }
+
+    private void UpdateUI()
+    {
+        InvokeAsync(StateHasChanged);
+    }
+
+    private string TimeDisplay => TimerService.IsPomodoroMode ? 
+        $"{(int)TimerService.TimeLeft.TotalMinutes:D2}:{TimerService.TimeLeft.Seconds:D2}" : 
+        $"{(int)TimerService.TimeElapsed.TotalMinutes:D2}:{TimerService.TimeElapsed.Seconds:D2}";
+
+    public void Dispose()
+    {
+        TimerService.OnTick -= UpdateUI;
     }
 }

@@ -1,216 +1,210 @@
 @page "/timer"
-@using System.Timers
 @using DisciplineApp.Services
+@using DisciplineApp.Models
 @inject GamificationService GamificationService
-@inject AuthenticationStateProvider AuthenticationStateProvider
-@inject LocalStorageService LocalStorageService
+@inject AuthenticationStateProvider _authStateProvider
+@inject ToastService ToastService
+@inject TaskService TaskService
 @inject IJSRuntime JSRuntime
+@inject TimerService TimerService
+@implements IDisposable
 
+<div class="container text-center mt-5">
+    <div class="mb-4">
+        <div class="btn-group" role="group">
+            <input type="radio" class="btn-check" name="mode" id="mode-pomodoro" autocomplete="off" checked="@TimerService.IsPomodoroMode" @onchange="@(() => TimerService.SetMode(true))">
+            <label class="btn btn-outline-primary" for="mode-pomodoro">Pomodoro</label>
 
+            <input type="radio" class="btn-check" name="mode" id="mode-stopwatch" autocomplete="off" checked="@(!TimerService.IsPomodoroMode)" @onchange="@(() => TimerService.SetMode(false))">
+            <label class="btn btn-outline-primary" for="mode-stopwatch">Stopwatch</label>
+        </div>
+    </div>
 
-<div class="timer-container pt-4">
-    <div class="timer-display">
-        <svg class="progress-ring" width="300" height="300">
-            <circle
-                class="progress-ring__circle"
-                stroke="var(--accent-color)"
-                stroke-width="10"
-                fill="transparent"
-                r="140"
-                cx="150"
-                cy="150"
-                style="stroke-dasharray: @Circumference @Circumference; stroke-dashoffset: @DashOffset;"
-            />
-        </svg>
-        <div class="time-text">@TimeDisplay</div>
+    <div class="mb-4" style="max-width: 400px; margin: 0 auto;">
+        @if (todayTasks != null && todayTasks.Any())
+        {
+            <select class="form-select bg-dark text-white border-secondary mb-2" @bind="TimerService.FocusTask" disabled="@TimerService.IsRunning">
+                <option value="">-- Select a Task to Focus On --</option>
+                @foreach (var task in todayTasks.Where(t => !t.IsCompleted))
+                {
+                    <option value="@task.Title">@task.Title</option>
+                }
+                <option value="custom">Custom Task...</option>
+            </select>
+        }
+        
+        @if (TimerService.FocusTask == "custom" || todayTasks == null || !todayTasks.Any())
+        {
+            <input type="text" class="form-control bg-dark text-white border-secondary text-center" 
+                   placeholder="What are you focusing on?" 
+                   @bind="customFocusTask" 
+                   disabled="@TimerService.IsRunning" />
+        }
+    </div>
+
+    <div class="timer-display mb-5" style="font-size: 6rem; font-weight: bold; font-family: monospace;">
+        @TimeDisplay
     </div>
 
     <div class="controls">
-        @if (!IsRunning)
+        @if (!TimerService.IsRunning)
         {
-            <button class="btn btn-primary btn-lg" @onclick="StartTimer">Start Focus</button>
+            <button class="btn btn-lg btn-success px-5 rounded-pill" @onclick="StartTimer">
+                <i class="bi bi-play-fill"></i> Start
+            </button>
         }
         else
         {
-            <button class="btn btn-warning btn-lg" @onclick="PauseTimer">Pause</button>
+            <button class="btn btn-lg btn-danger px-5 rounded-pill" @onclick="StopTimer">
+                <i class="bi bi-stop-fill"></i> Stop
+            </button>
         }
-        <button class="btn btn-secondary btn-lg" @onclick="ResetTimer">Reset</button>
     </div>
-
-    <div class="mode-selector mt-4">
-        <button class="btn btn-outline-light @(CurrentMode == TimerMode.Focus ? "active" : "")" @onclick="() => SetMode(TimerMode.Focus)">Focus (25m)</button>
-        <button class="btn btn-outline-light @(CurrentMode == TimerMode.ShortBreak ? "active" : "")" @onclick="() => SetMode(TimerMode.ShortBreak)">Short Break (5m)</button>
-        <button class="btn btn-outline-light @(CurrentMode == TimerMode.LongBreak ? "active" : "")" @onclick="() => SetMode(TimerMode.LongBreak)">Long Break (15m)</button>
-    </div>
+    
+    <DisciplineApp.Shared.CoinReward IsVisible="@showCoinReward" Coins="@coinsEarned" Xp="@xpEarned" />
     
     <audio id="timerSound" src="sounds/alarm.mp3" preload="auto"></audio>
     <audio id="startSound" src="sounds/start.mp3" preload="auto"></audio>
 </div>
 
-<style>
-    .timer-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 2rem;
-    }
-    .timer-display {
-        position: relative;
-        width: 300px;
-        height: 300px;
-        margin-bottom: 2rem;
-    }
-    .progress-ring__circle {
-        transition: stroke-dashoffset 0.35s;
-        transform: rotate(-90deg);
-        transform-origin: 50% 50%;
-    }
-    .time-text {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        font-size: 4rem;
-        font-weight: bold;
-        color: var(--text-primary);
-    }
-    .controls {
-        gap: 1rem;
-        display: flex;
-    }
-    .mode-selector {
-        gap: 0.5rem;
-        display: flex;
-    }
-</style>
-
 @code {
-    private System.Timers.Timer _timer = new(1000);
-    private int _timeLeft;
-    private int _totalTime;
-    private bool IsRunning = false;
-    private TimerMode CurrentMode = TimerMode.Focus;
+    private string customFocusTask = "";
+    private List<UserTask>? todayTasks;
     
-    private const double Radius = 140;
-    private const double Circumference = 2 * Math.PI * Radius;
-    private double DashOffset => Circumference - (_timeLeft / (double)_totalTime) * Circumference;
+    // Reward State
+    private bool showCoinReward = false;
+    private int coinsEarned = 0;
+    private int xpEarned = 0;
 
-    private string TimeDisplay => TimeSpan.FromSeconds(_timeLeft).ToString(@"mm\:ss");
-
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        SetMode(TimerMode.Focus);
-        _timer.Elapsed += OnTimerElapsed;
-    }
-
-    private void SetMode(TimerMode mode)
-    {
-        CurrentMode = mode;
-        IsRunning = false;
-        _timer.Stop();
+        TimerService.OnTick += UpdateUI;
+        TimerService.OnTimerCompleted += HandleTimerCompleted;
         
-        _totalTime = mode switch
-        {
-            TimerMode.Focus => 25 * 60,
-            TimerMode.ShortBreak => 5 * 60,
-            TimerMode.LongBreak => 15 * 60,
-            _ => 25 * 60
-        };
-        _timeLeft = _totalTime;
-        StateHasChanged();
+        await LoadTasks();
     }
-
-    private async void StartTimer()
+    
+    private async Task LoadTasks()
     {
-        if (_timeLeft > 0)
+        var authState = await _authStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity?.IsAuthenticated ?? false)
         {
-            IsRunning = true;
-            _timer.Start();
-            
-            // Play start sound for ALL modes
-            try
+            var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+            if (!string.IsNullOrEmpty(userId))
             {
-                await JSRuntime.InvokeVoidAsync("playAudio", "startSound");
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error playing start sound: {ex.Message}");
+                todayTasks = await TaskService.GetTasksForDateAsync(userId, DateTime.Today);
             }
         }
     }
 
-    private void PauseTimer()
+    private void UpdateUI()
     {
-        IsRunning = false;
-        _timer.Stop();
+        InvokeAsync(StateHasChanged);
     }
 
-    private void ResetTimer()
-    {
-        SetMode(CurrentMode);
-    }
+    private string TimeDisplay => TimerService.IsPomodoroMode ? 
+        $"{(int)TimerService.TimeLeft.TotalMinutes:D2}:{TimerService.TimeLeft.Seconds:D2}" : 
+        $"{(int)TimerService.TimeElapsed.TotalMinutes:D2}:{TimerService.TimeElapsed.Seconds:D2}";
 
-    private async void OnTimerElapsed(object? sender, ElapsedEventArgs e)
+    private async Task StartTimer()
     {
-        if (_timeLeft > 0)
+        string taskName = TimerService.FocusTask == "custom" ? customFocusTask : TimerService.FocusTask;
+        if (string.IsNullOrWhiteSpace(taskName))
         {
-            _timeLeft--;
-            await InvokeAsync(StateHasChanged);
+            ToastService.ShowWarning("Please select or enter what you are focusing on!");
+            return;
         }
-        else
-        {
-            IsRunning = false;
-            _timer.Stop();
-            await InvokeAsync(OnTimerComplete);
-        }
+        
+        TimerService.Start();
+        await PlaySound("startSound");
     }
 
-    private async Task OnTimerComplete()
+    private async Task StopTimer()
     {
-        if (CurrentMode == TimerMode.Focus)
-        {
-            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
+        TimerService.Stop();
+        
+        // Calculate duration
+        double durationMinutes = TimerService.IsPomodoroMode ? 
+            (TimerService.DefaultPomodoroTime - TimerService.TimeLeft).TotalMinutes : 
+            TimerService.TimeElapsed.TotalMinutes;
 
-            if (user.Identity?.IsAuthenticated ?? false)
+        // Only record if > 1 minute
+        if (durationMinutes >= 0.1) 
+        {
+            await RecordSession(durationMinutes);
+        }
+        
+        TimerService.ResetTimer();
+    }
+
+    private async void HandleTimerCompleted()
+    {
+        await InvokeAsync(async () => 
+        {
+            await PlaySound("timerSound");
+            await RecordSession(TimerService.DefaultPomodoroTime.TotalMinutes);
+            TimerService.ResetTimer();
+            ToastService.ShowSuccess("Pomodoro Completed!");
+        });
+    }
+
+    private async Task RecordSession(double minutes)
+    {
+        var authState = await _authStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+            if (!string.IsNullOrEmpty(userId))
             {
-                var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
-                if (!string.IsNullOrEmpty(userId))
+                string taskName = TimerService.FocusTask == "custom" ? customFocusTask : TimerService.FocusTask;
+                if (string.IsNullOrEmpty(taskName)) taskName = customFocusTask;
+                
+                var result = await GamificationService.RecordFocusSessionAsync(userId, minutes, taskName, TimerService.IsPomodoroMode);
+                
+                if (result.success)
                 {
-                    await GamificationService.RecordPomodoroSessionAsync(userId, 25);
+                    xpEarned = result.xpAwarded;
+                    coinsEarned = result.coinsAwarded;
+                    
+                    string msg = $"Session Recorded! +{xpEarned} XP";
+                    
+                    if (coinsEarned > 0)
+                    {
+                        showCoinReward = true;
+                        StateHasChanged();
+                        
+                        // Hide animation after 3 seconds
+                        var _ = Task.Delay(3000).ContinueWith(_ => 
+                        {
+                            showCoinReward = false;
+                            InvokeAsync(StateHasChanged);
+                        });
+                        
+                        msg += $" & +{coinsEarned} Coins!";
+                    }
+                    ToastService.ShowSuccess(msg);
                 }
             }
-            else
-            {
-                // Guest Mode: Save to LocalStorage
-                var guestSessions = await LocalStorageService.GetItemAsync<int>("guest_pomodoro_sessions");
-                await LocalStorageService.SetItemAsync("guest_pomodoro_sessions", guestSessions + 1);
-            }
         }
-        
-        // Play completion sound for ALL modes (Focus, Short Break, Long Break)
+    }
+    
+    private async Task PlaySound(string elementId)
+    {
         try
         {
-            await JSRuntime.InvokeVoidAsync("playAudio", "timerSound");
+            await JSRuntime.InvokeVoidAsync("playAudio", elementId);
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Error playing completion sound: {ex.Message}");
+            Console.WriteLine($"Error playing sound: {ex.Message}");
         }
-        
-        StateHasChanged();
     }
 
     public void Dispose()
     {
-        _timer?.Dispose();
-    }
-
-    enum TimerMode
-    {
-        Focus,
-        ShortBreak,
-        LongBreak
+        TimerService.OnTick -= UpdateUI;
+        TimerService.OnTimerCompleted -= HandleTimerCompleted;
     }
 }

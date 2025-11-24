@@ -49,6 +49,7 @@ builder.Services.AddScoped<DisciplineApp.Services.TokenProvider>();
 builder.Services.AddScoped<DisciplineApp.Services.CalendarService>();
 builder.Services.AddScoped<DisciplineApp.Services.LocalStorageService>();
 builder.Services.AddScoped<DisciplineApp.Services.ToastService>();
+builder.Services.AddScoped<DisciplineApp.Services.TimerService>();
 
 builder.Services.AddAuthentication()
     .AddGoogle(options =>
@@ -58,8 +59,8 @@ builder.Services.AddAuthentication()
 
         options.ClientId = googleAuthNSection["ClientId"];
         options.ClientSecret = googleAuthNSection["ClientSecret"];
-        options.Scope.Add("https://www.googleapis.com/auth/calendar.readonly");
-        options.Scope.Add("https://www.googleapis.com/auth/tasks.readonly");
+        // options.Scope.Add("https://www.googleapis.com/auth/calendar.readonly");
+        // options.Scope.Add("https://www.googleapis.com/auth/tasks.readonly");
         options.SaveTokens = true;
         
         // Safely force consent to ensure new scopes are granted

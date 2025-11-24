@@ -5,8 +5,23 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 
-<div class="leaderboard-container">
-    <h2 class="text-center mb-4">@Localizer["Leaderboard"]</h2>
+<PageTitle>@Localizer["Leaderboard"]</PageTitle>
+
+<div class="leaderboard-container pt-4">
+    <h2 class="text-center mb-4">🏆 @Localizer["Leaderboard"]</h2>
+
+    <div class="d-flex justify-content-center mb-4">
+        <div class="btn-group" role="group">
+            <input type="radio" class="btn-check" name="sort" id="sort-xp" autocomplete="off" checked="@(sortBy == "xp")" @onchange="@(() => SortBy("xp"))">
+            <label class="btn btn-outline-warning" for="sort-xp">Level & XP</label>
+
+            <input type="radio" class="btn-check" name="sort" id="sort-coins" autocomplete="off" checked="@(sortBy == "coins")" @onchange="@(() => SortBy("coins"))">
+            <label class="btn btn-outline-warning" for="sort-coins">Gold Coins</label>
+
+            <input type="radio" class="btn-check" name="sort" id="sort-focus" autocomplete="off" checked="@(sortBy == "focus")" @onchange="@(() => SortBy("focus"))">
+            <label class="btn btn-outline-warning" for="sort-focus">Focus Time</label>
+        </div>
+    </div>
 
     @if (users == null)
     {
@@ -14,16 +29,18 @@
     }
     else
     {
-        <div class="card shadow-sm">
+        <div class="card bg-dark border-secondary shadow-sm">
             <div class="card-body p-0">
                 <div class="table-responsive">
-                    <table class="table table-hover mb-0">
-                        <thead class="table-light">
+                    <table class="table table-dark table-hover mb-0">
+                        <thead>
                             <tr>
                                 <th class="text-center" style="width: 80px;">@Localizer["Rank"]</th>
                                 <th>@Localizer["User"]</th>
-                                <th class="text-center">@Localizer["Level"]</th>
-                                <th class="text-end pe-4">@Localizer["TotalXP"]</th>
+                                <th class="text-center @(sortBy == "xp" ? "text-warning" : "")">@Localizer["Level"]</th>
+                                <th class="text-end @(sortBy == "xp" ? "text-warning" : "")">@Localizer["TotalXP"]</th>
+                                <th class="text-end @(sortBy == "coins" ? "text-warning" : "")">Coins</th>
+                                <th class="text-end pe-4 @(sortBy == "focus" ? "text-warning" : "")">Focus Time</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -31,19 +48,19 @@
                             {
                                 var user = users[i];
                                 var isCurrentUser = user.Id == currentUserId;
-                                <tr class="@(isCurrentUser ? "table-active" : "")">
+                                <tr class="@(isCurrentUser ? "table-active border-start border-4 border-primary" : "")">
                                     <td class="text-center align-middle">
                                         @if (i == 0)
                                         {
-                                            <span class="badge bg-warning text-dark">🥇</span>
+                                            <span class="fs-4">🥇</span>
                                         }
                                         else if (i == 1)
                                         {
-                                            <span class="badge bg-secondary">🥈</span>
+                                            <span class="fs-4">🥈</span>
                                         }
                                         else if (i == 2)
                                         {
-                                            <span class="badge bg-danger">🥉</span> // Bronze-ish
+                                            <span class="fs-4">🥉</span>
                                         }
                                         else
                                         {
@@ -58,24 +75,32 @@
                                             }
                                             else
                                             {
-                                                <div class="avatar-circle me-2">
-                                                    @user.UserName?.Substring(0, 1).ToUpper()
+                                                <div class="avatar-circle me-2 bg-secondary text-white">
+                                                    @(user.DisplayName?.FirstOrDefault() ?? user.UserName?.FirstOrDefault() ?? '?')
                                                 </div>
                                             }
                                             <div>
-                                                <div class="fw-bold @(isCurrentUser ? "text-white" : "")">@(user.DisplayName ?? user.UserName)</div>
-                                                @if (isCurrentUser)
-                                                {
-                                                    <small class="text-white-50">@Localizer["You"]</small>
-                                                }
+                                                <div class="fw-bold @(isCurrentUser ? "text-primary" : "")">
+                                                    @(user.DisplayName ?? user.UserName) 
+                                                    @if (isCurrentUser)
+                                                    {
+                                                        <span class="small text-muted ms-1">(@Localizer["You"])</span>
+                                                    }
+                                                </div>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="text-center align-middle">
+                                    <td class="text-center align-middle @(sortBy == "xp" ? "fw-bold" : "")">
                                         <span class="badge bg-info text-dark">Lvl @user.Level</span>
                                     </td>
-                                    <td class="text-end align-middle pe-4">
-                                        <span class="fw-bold text-white">@user.TotalXP.ToString("N0")</span>
+                                    <td class="text-end align-middle @(sortBy == "xp" ? "fw-bold" : "")">
+                                        @user.TotalXP.ToString("N0")
+                                    </td>
+                                    <td class="text-end align-middle text-warning @(sortBy == "coins" ? "fw-bold" : "")">
+                                        💰 @user.GoldCoins
+                                    </td>
+                                    <td class="text-end align-middle pe-4 @(sortBy == "focus" ? "fw-bold" : "")">
+                                        @((int)user.TotalFocusMinutes)m
                                     </td>
                                 </tr>
                             }
@@ -89,7 +114,7 @@
 
 <style>
     .leaderboard-container {
-        max-width: 800px;
+        max-width: 900px;
         margin: 0 auto;
         padding: 1rem;
     }
@@ -97,29 +122,44 @@
     .avatar-circle {
         width: 36px;
         height: 36px;
-        background-color: var(--accent-color, #007bff);
-        color: white;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         font-weight: bold;
+        font-size: 1.2rem;
+    }
+    
+    .table-active {
+        --bs-table-accent-bg: rgba(13, 110, 253, 0.1);
     }
 </style>
 
 @code {
     private List<ApplicationUser>? users;
     private string currentUserId = "";
+    private string sortBy = "xp";
 
     protected override async Task OnInitializedAsync()
     {
-        users = await GamificationService.GetLeaderboardAsync(20);
-        
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         if (user.Identity?.IsAuthenticated ?? false)
         {
             currentUserId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value ?? "";
         }
+        
+        await LoadLeaderboard();
+    }
+
+    private async Task SortBy(string sort)
+    {
+        sortBy = sort;
+        await LoadLeaderboard();
+    }
+
+    private async Task LoadLeaderboard()
+    {
+        users = await GamificationService.GetLeaderboardAsync(20, sortBy);
     }
 }
