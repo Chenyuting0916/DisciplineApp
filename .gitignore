@@ -33,7 +33,8 @@ bld/
 *.db-wal
 
 # Sensitive configuration files
-appsettings.json
+# Sensitive configuration files
+# appsettings.json
 appsettings.Development.json
 appsettings.Production.json
 
