@@ -141,8 +141,33 @@
 
     private async Task LoadGuestTasks()
     {
-        tasks = await LocalStorageService.GetItemAsync<List<UserTask>>("guest_tasks") ?? new List<UserTask>();
-        tasks = tasks.Where(t => t.Date.Date == DateTime.Today).ToList();
+        var allTasks = await LocalStorageService.GetItemAsync<List<UserTask>>("guest_tasks") ?? new List<UserTask>();
+        
+        // Filter for today's tasks OR routine tasks
+        tasks = allTasks.Where(t => t.Date.Date == DateTime.Today || (t.IsRoutine && t.Date.Date <= DateTime.Today)).ToList();
+
+        // Reset routine tasks if they were completed before today
+        bool needsSave = false;
+        foreach (var task in tasks.Where(t => t.IsRoutine && t.IsCompleted))
+        {
+            // For guest tasks, we might not have LastCompletedDate tracked perfectly if we didn't save it before.
+            // But let's assume if it's completed and date is old, it needs reset.
+            // Actually, we need to check if it was completed TODAY.
+            // If CompletedAt is set, we can check that.
+            
+            if (task.CompletedAt.HasValue && task.CompletedAt.Value.Date < DateTime.Today)
+            {
+                task.IsCompleted = false;
+                task.CompletedAt = null;
+                task.XpAwarded = false;
+                needsSave = true;
+            }
+        }
+
+        if (needsSave)
+        {
+            await LocalStorageService.SetItemAsync("guest_tasks", allTasks);
+        }
     }
 
     private async Task LoadTasks()

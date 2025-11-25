@@ -21,7 +21,9 @@ public class TaskService
         var endOfDay = startOfDay.AddDays(1);
 
         var tasks = await _context.UserTasks
-            .Where(t => t.UserId == userId && t.Date >= startOfDay && t.Date < endOfDay)
+            .Where(t => t.UserId == userId && 
+                        ((t.Date >= startOfDay && t.Date < endOfDay) || 
+                         (t.IsRoutine && t.Date < endOfDay)))
             .ToListAsync();
 
         // Reset routine tasks if they were completed before today
@@ -31,6 +33,7 @@ public class TaskService
             {
                 task.IsCompleted = false;
                 task.CompletedAt = null;
+                task.XpAwarded = false;
             }
         }
 
