@@ -177,6 +177,24 @@ public class GamificationService
             .SumAsync(s => s.DurationMinutes);
     }
 
+    public async Task<Dictionary<string, double>> GetWeeklyFocusBreakdownAsync(string userId)
+    {
+        // Calculate start of week (Sunday)
+        var today = DateTime.UtcNow.Date;
+        var diff = (7 + (today.DayOfWeek - DayOfWeek.Sunday)) % 7;
+        var startOfWeek = today.AddDays(-1 * diff);
+
+        var sessions = await _context.FocusSessions
+            .Where(s => s.UserId == userId && s.EndTime >= startOfWeek)
+            .ToListAsync();
+
+        var breakdown = sessions
+            .GroupBy(s => string.IsNullOrEmpty(s.TaskTag) ? "Uncategorized" : s.TaskTag)
+            .ToDictionary(g => g.Key, g => g.Sum(s => s.DurationMinutes));
+
+        return breakdown;
+    }
+
     public async Task<ApplicationUser?> GetUserStatsAsync(string userId)
     {
         return await _userManager.FindByIdAsync(userId);

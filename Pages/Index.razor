@@ -94,12 +94,34 @@
                 
                 <div class="col-md-6">
                      <div class="card h-100">
-                        <div class="card-body text-center d-flex flex-column justify-content-center">
-                            <h5 class="card-title mb-3">@Localizer["Timer"]</h5>
-                            <p class="card-text mb-4">Start a Pomodoro session to stay focused and earn coins!</p>
-                            <a href="timer" class="btn btn-lg btn-primary rounded-pill px-5">
-                                <i class="bi bi-play-circle-fill me-2"></i> Go to Timer
-                            </a>
+                        <div class="card-header">
+                            <h5 class="mb-0">@Localizer["Weekly Focus"]</h5>
+                        </div>
+                        <div class="card-body d-flex flex-column">
+                            @if (weeklyFocusBreakdown.Any())
+                            {
+                                <ul class="list-group list-group-flush mb-3 flex-grow-1">
+                                    @foreach (var item in weeklyFocusBreakdown.OrderByDescending(x => x.Value))
+                                    {
+                                        <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0">
+                                            <span>@item.Key</span>
+                                            <span class="badge bg-secondary rounded-pill">@((int)item.Value)m</span>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p class="text-muted text-center flex-grow-1 d-flex align-items-center justify-content-center">
+                                    No focus sessions this week.
+                                </p>
+                            }
+                            
+                            <div class="text-center mt-auto">
+                                <a href="timer" class="btn btn-primary w-100">
+                                    <i class="bi bi-play-circle-fill me-2"></i> Start Focus Session
+                                </a>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -154,6 +176,7 @@
     private ApplicationUser? currentUser;
     private bool showLoginModal = false;
     private double weeklyFocusMinutes = 0;
+    private Dictionary<string, double> weeklyFocusBreakdown = new();
     
     // Reward State
     private bool showCoinReward = false;
@@ -173,6 +196,7 @@
                 todayTasks = await TaskService.GetTasksForDateAsync(userId, DateTime.Today);
                 currentUser = await GamificationService.GetUserStatsAsync(userId);
                 weeklyFocusMinutes = await GamificationService.GetWeeklyFocusTimeAsync(userId);
+                weeklyFocusBreakdown = await GamificationService.GetWeeklyFocusBreakdownAsync(userId);
             }
         }
     }
@@ -226,8 +250,10 @@
                 // Reload tasks
                 todayTasks = await TaskService.GetTasksForDateAsync(userId, DateTime.Today);
                 // Reload user stats to update header name/level/coins
+                // Reload user stats to update header name/level/coins
                 currentUser = await GamificationService.GetUserStatsAsync(userId);
                 weeklyFocusMinutes = await GamificationService.GetWeeklyFocusTimeAsync(userId);
+                weeklyFocusBreakdown = await GamificationService.GetWeeklyFocusBreakdownAsync(userId);
                 StateHasChanged();
             }
         }
