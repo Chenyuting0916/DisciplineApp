@@ -25,7 +25,7 @@
         {
             <select class="form-select bg-dark text-white border-secondary mb-2" @bind="TimerService.FocusTask" disabled="@TimerService.IsRunning">
                 <option value="">-- Select a Task to Focus On --</option>
-                @foreach (var task in todayTasks.Where(t => !t.IsCompleted))
+                @foreach (var task in todayTasks.Where(t => !t.IsCompleted || t.IsRoutine))
                 {
                     <option value="@task.Title">@task.Title</option>
                 }
