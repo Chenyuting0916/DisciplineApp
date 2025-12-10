@@ -22,7 +22,7 @@
             <div class="welcome-section mb-4 d-flex justify-content-between align-items-center">
                 <div>
                     <h1>@Localizer["Welcome"], @(currentUser?.DisplayName ?? context.User.Identity?.Name ?? "User")!</h1>
-                    <p class="text-muted">Stay consistent and track your progress.</p>
+                    <p class="text-muted">@Localizer["StayConsistent"]</p>
                 </div>
                 <div class="text-end">
                     <div class="d-flex align-items-center gap-3">
@@ -53,11 +53,11 @@
                         <div class="card-body">
                             @if (todayTasks == null)
                             {
-                                <p class="text-muted">Loading tasks...</p>
+                                <p class="text-muted">@Localizer["LoadingTasks"]</p>
                             }
                             else if (!todayTasks.Any())
                             {
-                                <p class="text-muted">No tasks for today. <a href="tasks">Add one</a>!</p>
+                                <p class="text-muted">@Localizer["NoTasks"] <a href="tasks">Add one</a>!</p>
                             }
                             else
                             {
@@ -85,7 +85,7 @@
                                 </ul>
                                 @if (todayTasks.Count > 5)
                                 {
-                                    <p class="text-muted mt-2 mb-0">+@(todayTasks.Count - 5) more tasks...</p>
+                                    <p class="text-muted mt-2 mb-0">+@(todayTasks.Count - 5) @Localizer["MoreTasks"]</p>
                                 }
                             }
                         </div>
@@ -94,8 +94,17 @@
                 
                 <div class="col-md-6">
                      <div class="card h-100">
-                        <div class="card-header">
+                        <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">@Localizer["Weekly Focus"]</h5>
+                            <div class="d-flex align-items-center gap-2">
+                                <button class="btn btn-sm btn-outline-secondary" @onclick="PreviousWeek">
+                                    <i class="bi bi-chevron-left"></i>
+                                </button>
+                                <span class="small text-muted">@weekRangeDisplay</span>
+                                <button class="btn btn-sm btn-outline-secondary" @onclick="NextWeek" disabled="@isCurrentWeek">
+                                    <i class="bi bi-chevron-right"></i>
+                                </button>
+                            </div>
                         </div>
                         <div class="card-body d-flex flex-column">
                             @if (weeklyFocusBreakdown.Any())
@@ -113,13 +122,13 @@
                             else
                             {
                                 <p class="text-muted text-center flex-grow-1 d-flex align-items-center justify-content-center">
-                                    No focus sessions this week.
+                                    @Localizer["NoFocusSessions"]
                                 </p>
                             }
                             
                             <div class="text-center mt-auto">
                                 <a href="timer" class="btn btn-primary w-100">
-                                    <i class="bi bi-play-circle-fill me-2"></i> Start Focus Session
+                                    <i class="bi bi-play-circle-fill me-2"></i> @Localizer["StartFocusSession"]
                                 </a>
                             </div>
                         </div>
@@ -133,7 +142,7 @@
     <NotAuthorized>
         <div class="text-center mt-5">
             <h1>@Localizer["Welcome"]</h1>
-            <p class="lead">Please log in to track your progress.</p>
+            <p class="lead">@Localizer["PleaseLoginTrack"]</p>
             <button class="btn btn-lg btn-primary" @onclick="ShowLoginModal">@Localizer["Login"]</button>
         </div>
     </NotAuthorized>
@@ -152,7 +161,7 @@
                     <h4 class="mb-4">@Localizer["Welcome"]</h4>
                     <a href="Account/LoginWithGoogle" class="btn btn-lg btn-light w-100 d-flex align-items-center justify-content-center gap-2">
                         <img src="https://www.google.com/favicon.ico" alt="Google" width="20" height="20">
-                        Continue with Google
+                        @Localizer["ContinueWithGoogle"]
                     </a>
                 </div>
             </div>
@@ -177,7 +186,11 @@
     private bool showLoginModal = false;
     private double weeklyFocusMinutes = 0;
     private Dictionary<string, double> weeklyFocusBreakdown = new();
+    private DateTime currentWeekStart = DateTime.UtcNow.Date;
     
+    private bool isCurrentWeek => currentWeekStart >= GetStartOfWeek(DateTime.UtcNow.Date);
+    private string weekRangeDisplay => $"{currentWeekStart:MM/dd} - {currentWeekStart.AddDays(6):MM/dd}";
+
     // Reward State
     private bool showCoinReward = false;
     private int coinsEarned = 0;
@@ -187,6 +200,9 @@
     {
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
+        
+        // Initialize current week start
+        currentWeekStart = GetStartOfWeek(DateTime.UtcNow.Date);
 
         if (user.Identity?.IsAuthenticated ?? false)
         {
@@ -195,10 +211,47 @@
             {
                 todayTasks = await TaskService.GetTasksForDateAsync(userId, DateTime.Today);
                 currentUser = await GamificationService.GetUserStatsAsync(userId);
-                weeklyFocusMinutes = await GamificationService.GetWeeklyFocusTimeAsync(userId);
-                weeklyFocusBreakdown = await GamificationService.GetWeeklyFocusBreakdownAsync(userId);
+                // Load for current week
+                await LoadWeeklyStats(userId);
             }
         }
+    }
+    
+    private DateTime GetStartOfWeek(DateTime date)
+    {
+        var diff = (7 + (date.DayOfWeek - DayOfWeek.Sunday)) % 7;
+        return date.AddDays(-1 * diff).Date;
+    }
+    
+    private async Task PreviousWeek()
+    {
+        currentWeekStart = currentWeekStart.AddDays(-7);
+        await ReloadWeeklyStats();
+    }
+    
+    private async Task NextWeek()
+    {
+        if (isCurrentWeek) return;
+        currentWeekStart = currentWeekStart.AddDays(7);
+        await ReloadWeeklyStats();
+    }
+    
+    private async Task ReloadWeeklyStats()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            await LoadWeeklyStats(userId);
+        }
+    }
+    
+    private async Task LoadWeeklyStats(string userId)
+    {
+        // Pass currentWeekStart as the reference date
+        weeklyFocusMinutes = await GamificationService.GetWeeklyFocusTimeAsync(userId, currentWeekStart);
+        weeklyFocusBreakdown = await GamificationService.GetWeeklyFocusBreakdownAsync(userId, currentWeekStart);
     }
 
     private async Task ToggleTask(UserTask task)
@@ -217,11 +270,6 @@
                 {
                     xpEarned = result.xpAwarded;
                     
-                    // Chance for coins on task completion? User didn't explicitly ask, but said "completing task... no coin wheel"
-                    // Let's add a small chance for coins on task completion too!
-                    // Or maybe just show the XP reward with the new component.
-                    
-                    // Let's award 1-3 coins for task completion randomly
                     var coinResult = new Random().Next(0, 4); // 0-3 coins
                     if (coinResult > 0)
                     {
@@ -250,10 +298,10 @@
                 // Reload tasks
                 todayTasks = await TaskService.GetTasksForDateAsync(userId, DateTime.Today);
                 // Reload user stats to update header name/level/coins
-                // Reload user stats to update header name/level/coins
                 currentUser = await GamificationService.GetUserStatsAsync(userId);
-                weeklyFocusMinutes = await GamificationService.GetWeeklyFocusTimeAsync(userId);
-                weeklyFocusBreakdown = await GamificationService.GetWeeklyFocusBreakdownAsync(userId);
+                // Reload weekly stats just in case (though tasks don't affect focus time, XP does)
+                // actually we don't strictly need to reload focus stats here if completing a task doesn't change focus time.
+                // But let's leave as is or simplify.
                 StateHasChanged();
             }
         }

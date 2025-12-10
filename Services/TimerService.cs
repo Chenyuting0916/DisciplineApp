@@ -51,6 +51,8 @@ public class TimerService : IDisposable
         }
     }
 
+    public bool IsPaused => !IsRunning && (IsPomodoroMode ? TimeLeft < DefaultPomodoroTime : TimeElapsed > TimeSpan.Zero);
+
     public void ResetTimer()
     {
         TimeLeft = DefaultPomodoroTime;

@@ -81,4 +81,88 @@
   <data name="WeeklyFocus" xml:space="preserve">
     <value>今週の集中</value>
   </data>
+  <data name="History" xml:space="preserve">
+    <value>履歴</value>
+  </data>
+  <data name="ActivityHistory" xml:space="preserve">
+    <value>活動履歴</value>
+  </data>
+  <data name="ThisWeek" xml:space="preserve">
+    <value>今週</value>
+  </data>
+  <data name="LastWeek" xml:space="preserve">
+    <value>先週</value>
+  </data>
+  <data name="FocusActivity" xml:space="preserve">
+    <value>集中活動 (過去14日間)</value>
+  </data>
+  <data name="RecentSessions" xml:space="preserve">
+    <value>最近のセッション</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>日付</value>
+  </data>
+  <data name="Task" xml:space="preserve">
+    <value>タスク</value>
+  </data>
+  <data name="Duration" xml:space="preserve">
+    <value>時間</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>タイプ</value>
+  </data>
+  <data name="Pomodoro" xml:space="preserve">
+    <value>ポモドーロ</value>
+  </data>
+  <data name="Stopwatch" xml:space="preserve">
+    <value>ストップウォッチ</value>
+  </data>
+  <data name="FocusMinutes" xml:space="preserve">
+    <value>集中時間 (分)</value>
+  </data>
+  <data name="PleaseLoginHistory" xml:space="preserve">
+    <value>履歴を表示するにはログインしてください。</value>
+  </data>
+  <data name="SelectTask" xml:space="preserve">
+    <value>-- 集中するタスクを選択 --</value>
+  </data>
+  <data name="CustomTask" xml:space="preserve">
+    <value>カスタムタスク...</value>
+  </data>
+  <data name="FocusPlaceholder" xml:space="preserve">
+    <value>何に集中しますか？</value>
+  </data>
+  <data name="Start" xml:space="preserve">
+    <value>開始</value>
+  </data>
+  <data name="Pause" xml:space="preserve">
+    <value>一時停止</value>
+  </data>
+  <data name="Resume" xml:space="preserve">
+    <value>再開</value>
+  </data>
+  <data name="Finish" xml:space="preserve">
+    <value>終了</value>
+  </data>
+  <data name="PomodoroCompleted" xml:space="preserve">
+    <value>ポモドーロ完了！</value>
+  </data>
+  <data name="SessionRecorded" xml:space="preserve">
+    <value>セッションが記録されました！</value>
+  </data>
+  <data name="StartFocusSession" xml:space="preserve">
+    <value>集中セッションを開始</value>
+  </data>
+  <data name="StayConsistent" xml:space="preserve">
+    <value>一貫性を保ち、進捗を追跡しましょう。</value>
+  </data>
+  <data name="NoFocusSessions" xml:space="preserve">
+    <value>今週の集中セッションはありません。</value>
+  </data>
+  <data name="PleaseLoginTrack" xml:space="preserve">
+    <value>進捗を追跡するにはログインしてください。</value>
+  </data>
+  <data name="ContinueWithGoogle" xml:space="preserve">
+    <value>Googleで続行</value>
+  </data>
 </root>

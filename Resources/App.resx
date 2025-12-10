@@ -81,4 +81,88 @@
   <data name="WeeklyFocus" xml:space="preserve">
     <value>Weekly Focus</value>
   </data>
+  <data name="History" xml:space="preserve">
+    <value>History</value>
+  </data>
+  <data name="ActivityHistory" xml:space="preserve">
+    <value>Activity History</value>
+  </data>
+  <data name="ThisWeek" xml:space="preserve">
+    <value>This Week</value>
+  </data>
+  <data name="LastWeek" xml:space="preserve">
+    <value>Last Week</value>
+  </data>
+  <data name="FocusActivity" xml:space="preserve">
+    <value>Focus Activity (Last 14 Days)</value>
+  </data>
+  <data name="RecentSessions" xml:space="preserve">
+    <value>Recent Sessions</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Date</value>
+  </data>
+  <data name="Task" xml:space="preserve">
+    <value>Task</value>
+  </data>
+  <data name="Duration" xml:space="preserve">
+    <value>Duration</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="Pomodoro" xml:space="preserve">
+    <value>Pomodoro</value>
+  </data>
+  <data name="Stopwatch" xml:space="preserve">
+    <value>Stopwatch</value>
+  </data>
+  <data name="FocusMinutes" xml:space="preserve">
+    <value>Focus Minutes</value>
+  </data>
+  <data name="PleaseLoginHistory" xml:space="preserve">
+    <value>Please login to view your history.</value>
+  </data>
+  <data name="SelectTask" xml:space="preserve">
+    <value>-- Select a Task to Focus On --</value>
+  </data>
+  <data name="CustomTask" xml:space="preserve">
+    <value>Custom Task...</value>
+  </data>
+  <data name="FocusPlaceholder" xml:space="preserve">
+    <value>What are you focusing on?</value>
+  </data>
+  <data name="Start" xml:space="preserve">
+    <value>Start</value>
+  </data>
+  <data name="Pause" xml:space="preserve">
+    <value>Pause</value>
+  </data>
+  <data name="Resume" xml:space="preserve">
+    <value>Resume</value>
+  </data>
+  <data name="Finish" xml:space="preserve">
+    <value>Finish</value>
+  </data>
+  <data name="PomodoroCompleted" xml:space="preserve">
+    <value>Pomodoro Completed!</value>
+  </data>
+  <data name="SessionRecorded" xml:space="preserve">
+    <value>Session Recorded!</value>
+  </data>
+  <data name="StartFocusSession" xml:space="preserve">
+    <value>Start Focus Session</value>
+  </data>
+  <data name="StayConsistent" xml:space="preserve">
+    <value>Stay consistent and track your progress.</value>
+  </data>
+  <data name="NoFocusSessions" xml:space="preserve">
+    <value>No focus sessions this week.</value>
+  </data>
+  <data name="PleaseLoginTrack" xml:space="preserve">
+    <value>Please log in to track your progress.</value>
+  </data>
+  <data name="ContinueWithGoogle" xml:space="preserve">
+    <value>Continue with Google</value>
+  </data>
 </root>

@@ -7,16 +7,17 @@
 @inject TaskService TaskService
 @inject IJSRuntime JSRuntime
 @inject TimerService TimerService
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 @implements IDisposable
 
 <div class="container text-center mt-5">
     <div class="mb-4">
         <div class="btn-group" role="group">
             <input type="radio" class="btn-check" name="mode" id="mode-pomodoro" autocomplete="off" checked="@TimerService.IsPomodoroMode" @onchange="@(() => TimerService.SetMode(true))">
-            <label class="btn btn-outline-primary" for="mode-pomodoro">Pomodoro</label>
+            <label class="btn btn-outline-primary" for="mode-pomodoro">@Localizer["Pomodoro"]</label>
 
             <input type="radio" class="btn-check" name="mode" id="mode-stopwatch" autocomplete="off" checked="@(!TimerService.IsPomodoroMode)" @onchange="@(() => TimerService.SetMode(false))">
-            <label class="btn btn-outline-primary" for="mode-stopwatch">Stopwatch</label>
+            <label class="btn btn-outline-primary" for="mode-stopwatch">@Localizer["Stopwatch"]</label>
         </div>
     </div>
 
@@ -24,19 +25,19 @@
         @if (todayTasks != null && todayTasks.Any())
         {
             <select class="form-select bg-dark text-white border-secondary mb-2" @bind="TimerService.FocusTask" disabled="@TimerService.IsRunning">
-                <option value="">-- Select a Task to Focus On --</option>
+                <option value="">@Localizer["SelectTask"]</option>
                 @foreach (var task in todayTasks.Where(t => !t.IsCompleted || t.IsRoutine))
                 {
                     <option value="@task.Title">@task.Title</option>
                 }
-                <option value="custom">Custom Task...</option>
+                <option value="custom">@Localizer["CustomTask"]</option>
             </select>
         }
         
         @if (TimerService.FocusTask == "custom" || todayTasks == null || !todayTasks.Any())
         {
             <input type="text" class="form-control bg-dark text-white border-secondary text-center" 
-                   placeholder="What are you focusing on?" 
+                   placeholder="@Localizer["FocusPlaceholder"]" 
                    @bind="customFocusTask" 
                    disabled="@TimerService.IsRunning" />
         }
@@ -46,18 +47,34 @@
         @TimeDisplay
     </div>
 
-    <div class="controls">
-        @if (!TimerService.IsRunning)
+    <div class="controls d-flex flex-column align-items-center gap-3">
+        @if (!TimerService.IsRunning && !TimerService.IsPaused)
         {
             <button class="btn btn-lg btn-success px-5 rounded-pill" @onclick="StartTimer">
-                <i class="bi bi-play-fill"></i> Start
+                <i class="bi bi-play-fill"></i> @Localizer["Start"]
             </button>
         }
-        else
+        else if (TimerService.IsRunning)
         {
-            <button class="btn btn-lg btn-danger px-5 rounded-pill" @onclick="StopTimer">
-                <i class="bi bi-stop-fill"></i> Stop
-            </button>
+            <div class="d-flex gap-2">
+                <button class="btn btn-lg btn-warning px-4 rounded-pill" @onclick="PauseTimer">
+                    <i class="bi bi-pause-fill"></i> @Localizer["Pause"]
+                </button>
+                <button class="btn btn-lg btn-danger px-4 rounded-pill" @onclick="StopTimer">
+                    <i class="bi bi-stop-fill"></i> @Localizer["Finish"]
+                </button>
+            </div>
+        }
+        else if (TimerService.IsPaused)
+        {
+             <div class="d-flex gap-2">
+                <button class="btn btn-lg btn-success px-4 rounded-pill" @onclick="StartTimer">
+                    <i class="bi bi-play-fill"></i> @Localizer["Resume"]
+                </button>
+                <button class="btn btn-lg btn-danger px-4 rounded-pill" @onclick="StopTimer">
+                    <i class="bi bi-stop-fill"></i> @Localizer["Finish"]
+                </button>
+            </div>
         }
     </div>
     
@@ -130,7 +147,7 @@
         // If no task name is provided, default to "Focus Session"
         if (string.IsNullOrWhiteSpace(taskName))
         {
-            taskName = "Focus Session";
+            taskName = Localizer["Focus Session"] ?? "Focus Session";
         }
         
         // Update the service with the actual task name being used
@@ -138,6 +155,11 @@
         
         TimerService.Start();
         await PlaySound("startSound");
+    }
+
+    private void PauseTimer()
+    {
+        TimerService.Stop();
     }
 
     private async Task StopTimer()

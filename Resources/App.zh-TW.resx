@@ -81,4 +81,88 @@
   <data name="WeeklyFocus" xml:space="preserve">
     <value>本週專注</value>
   </data>
+  <data name="History" xml:space="preserve">
+    <value>歷史紀錄</value>
+  </data>
+  <data name="ActivityHistory" xml:space="preserve">
+    <value>活動紀錄</value>
+  </data>
+  <data name="ThisWeek" xml:space="preserve">
+    <value>本週</value>
+  </data>
+  <data name="LastWeek" xml:space="preserve">
+    <value>上週</value>
+  </data>
+  <data name="FocusActivity" xml:space="preserve">
+    <value>專注活動 (過去14天)</value>
+  </data>
+  <data name="RecentSessions" xml:space="preserve">
+    <value>近期專注</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>日期</value>
+  </data>
+  <data name="Task" xml:space="preserve">
+    <value>任務</value>
+  </data>
+  <data name="Duration" xml:space="preserve">
+    <value>時間</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>類型</value>
+  </data>
+  <data name="Pomodoro" xml:space="preserve">
+    <value>番茄鐘</value>
+  </data>
+  <data name="Stopwatch" xml:space="preserve">
+    <value>碼表</value>
+  </data>
+  <data name="FocusMinutes" xml:space="preserve">
+    <value>專注分鐘數</value>
+  </data>
+  <data name="PleaseLoginHistory" xml:space="preserve">
+    <value>請登入以查看您的歷史紀錄。</value>
+  </data>
+  <data name="SelectTask" xml:space="preserve">
+    <value>-- 選擇專注任務 --</value>
+  </data>
+  <data name="CustomTask" xml:space="preserve">
+    <value>自訂任務...</value>
+  </data>
+  <data name="FocusPlaceholder" xml:space="preserve">
+    <value>您現在專注於什麼？</value>
+  </data>
+  <data name="Start" xml:space="preserve">
+    <value>開始</value>
+  </data>
+  <data name="Pause" xml:space="preserve">
+    <value>暫停</value>
+  </data>
+  <data name="Resume" xml:space="preserve">
+    <value>繼續</value>
+  </data>
+  <data name="Finish" xml:space="preserve">
+    <value>結束</value>
+  </data>
+  <data name="PomodoroCompleted" xml:space="preserve">
+    <value>番茄鐘完成！</value>
+  </data>
+  <data name="SessionRecorded" xml:space="preserve">
+    <value>專注紀錄已儲存！</value>
+  </data>
+  <data name="StartFocusSession" xml:space="preserve">
+    <value>開始專注</value>
+  </data>
+  <data name="StayConsistent" xml:space="preserve">
+    <value>保持一致並追蹤您的進度。</value>
+  </data>
+  <data name="NoFocusSessions" xml:space="preserve">
+    <value>本週沒有專注紀錄。</value>
+  </data>
+  <data name="PleaseLoginTrack" xml:space="preserve">
+    <value>請登入以追蹤您的進度。</value>
+  </data>
+  <data name="ContinueWithGoogle" xml:space="preserve">
+    <value>使用 Google 繼續</value>
+  </data>
 </root>

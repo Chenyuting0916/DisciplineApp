@@ -1,0 +1,229 @@
+@page "/history"
+@using DisciplineApp.Services
+@using DisciplineApp.Models
+@using Microsoft.AspNetCore.Components.Authorization
+@inject GamificationService GamificationService
+@inject AuthenticationStateProvider _authStateProvider
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
+@inject IJSRuntime JSRuntime
+
+<PageTitle>@Localizer["History"] - DisciplineApp</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="container mt-4">
+            <h1 class="mb-4">@Localizer["ActivityHistory"]</h1>
+
+            @if (isLoading)
+            {
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">@Localizer["LoadingRankings"]</span>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        <div class="card bg-dark text-white border-primary mb-3 h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-muted">@Localizer["TotalFocusMinutes"]</h5>
+                                <h2 class="display-4 fw-bold text-primary">@((int)totalFocusMinutes)m</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-dark text-white border-success mb-3 h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-muted">@Localizer["ThisWeek"]</h5>
+                                <h2 class="display-4 fw-bold text-success">@((int)thisWeekMinutes)m</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card bg-dark text-white border-info mb-3 h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-muted">@Localizer["LastWeek"]</h5>
+                                <h2 class="display-4 fw-bold text-info">@((int)lastWeekMinutes)m</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row mb-4">
+                    <div class="col-12">
+                        <div class="card bg-dark border-secondary">
+                            <div class="card-header border-secondary">
+                                <h5 class="mb-0 text-white">@Localizer["FocusActivity"]</h5>
+                            </div>
+                            <div class="card-body">
+                                <canvas id="activityChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-12">
+                        <div class="card bg-dark border-secondary">
+                            <div class="card-header border-secondary">
+                                <h5 class="mb-0 text-white">@Localizer["RecentSessions"]</h5>
+                            </div>
+                            <div class="card-body p-0">
+                                <div class="table-responsive">
+                                    <table class="table table-dark table-hover mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>@Localizer["Date"]</th>
+                                                <th>@Localizer["Task"]</th>
+                                                <th>@Localizer["Duration"]</th>
+                                                <th>@Localizer["Type"]</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var session in recentSessions)
+                                            {
+                                                <tr>
+                                                    <td>@session.EndTime.ToLocalTime().ToString("g")</td>
+                                                    <td>@session.TaskTag</td>
+                                                    <td>@((int)session.DurationMinutes) min</td>
+                                                    <td>
+                                                        @if (session.IsPomodoro)
+                                                        {
+                                                            <span class="badge bg-danger">@Localizer["Pomodoro"]</span>
+                                                        }
+                                                        else
+                                                        {
+                                                            <span class="badge bg-secondary">@Localizer["Stopwatch"]</span>
+                                                        }
+                                                    </td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div class="text-center mt-5">
+            <h3>@Localizer["PleaseLoginHistory"]</h3>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+@code {
+    private bool isLoading = true;
+    private double totalFocusMinutes;
+    private double thisWeekMinutes;
+    private double lastWeekMinutes;
+    private List<FocusSession> recentSessions = new();
+    private Dictionary<string, double> activityData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await _authStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+            if (!string.IsNullOrEmpty(userId))
+            {
+                // Load parallel data
+                var userStats = await GamificationService.GetUserStatsAsync(userId);
+                totalFocusMinutes = userStats?.TotalFocusMinutes ?? 0;
+                
+                thisWeekMinutes = await GamificationService.GetWeeklyFocusTimeAsync(userId);
+                lastWeekMinutes = await GamificationService.GetWeeklyFocusTimeAsync(userId, DateTime.UtcNow.AddDays(-7));
+                
+                recentSessions = await GamificationService.GetFocusSessionsAsync(userId, 20); // Top 20
+                activityData = await GamificationService.GetDailyFocusActivityAsync(userId, 14); // Last 14 days
+                
+                isLoading = false;
+            }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!isLoading && activityData.Any())
+        {
+            await RenderChart();
+        }
+    }
+
+    private async Task RenderChart()
+    {
+        var labels = activityData.Keys.ToArray();
+        var data = activityData.Values.ToArray();
+        
+        var config = new
+        {
+            type = "bar",
+            data = new
+            {
+                labels = labels,
+                datasets = new[]
+                {
+                    new
+                    {
+                        label = "Focus Minutes",
+                        data = data,
+                        backgroundColor = "rgba(54, 162, 235, 0.5)",
+                        borderColor = "rgba(54, 162, 235, 1)",
+                        borderWidth = 1
+                    }
+                }
+            },
+            options = new
+            {
+                responsive = true,
+                maintainAspectRatio = false,
+                scales = new
+                {
+                    y = new
+                    {
+                        beginAtZero = true,
+                        grid = new
+                        {
+                            color = "rgba(255, 255, 255, 0.1)"
+                        },
+                        ticks = new
+                        {
+                            color = "#aaa"
+                        }
+                    },
+                    x = new
+                    {
+                        grid = new
+                        {
+                             color = "rgba(255, 255, 255, 0.1)"
+                        },
+                        ticks = new
+                        {
+                            color = "#aaa"
+                        }
+                    }
+                },
+                plugins = new 
+                {
+                    legend = new
+                    {
+                        labels = new
+                        {
+                            color = "#fff"
+                        }
+                    }
+                }
+            }
+        };
+
+        await JSRuntime.InvokeVoidAsync("renderChart", "activityChart", config);
+    }
+}

@@ -165,27 +165,29 @@ public class GamificationService
         return await query.Take(count).ToListAsync();
     }
 
-    public async Task<double> GetWeeklyFocusTimeAsync(string userId)
+    public async Task<double> GetWeeklyFocusTimeAsync(string userId, DateTime? referenceDate = null)
     {
         // Calculate start of week (Sunday)
-        var today = DateTime.UtcNow.Date;
+        var today = referenceDate?.Date ?? DateTime.UtcNow.Date;
         var diff = (7 + (today.DayOfWeek - DayOfWeek.Sunday)) % 7;
         var startOfWeek = today.AddDays(-1 * diff);
+        var endOfWeek = startOfWeek.AddDays(7);
 
         return await _context.FocusSessions
-            .Where(s => s.UserId == userId && s.EndTime >= startOfWeek)
+            .Where(s => s.UserId == userId && s.EndTime >= startOfWeek && s.EndTime < endOfWeek)
             .SumAsync(s => s.DurationMinutes);
     }
 
-    public async Task<Dictionary<string, double>> GetWeeklyFocusBreakdownAsync(string userId)
+    public async Task<Dictionary<string, double>> GetWeeklyFocusBreakdownAsync(string userId, DateTime? referenceDate = null)
     {
         // Calculate start of week (Sunday)
-        var today = DateTime.UtcNow.Date;
+        var today = referenceDate?.Date ?? DateTime.UtcNow.Date;
         var diff = (7 + (today.DayOfWeek - DayOfWeek.Sunday)) % 7;
         var startOfWeek = today.AddDays(-1 * diff);
+        var endOfWeek = startOfWeek.AddDays(7);
 
         var sessions = await _context.FocusSessions
-            .Where(s => s.UserId == userId && s.EndTime >= startOfWeek)
+            .Where(s => s.UserId == userId && s.EndTime >= startOfWeek && s.EndTime < endOfWeek)
             .ToListAsync();
 
         var breakdown = sessions
@@ -193,6 +195,30 @@ public class GamificationService
             .ToDictionary(g => g.Key, g => g.Sum(s => s.DurationMinutes));
 
         return breakdown;
+    }
+    
+    public async Task<List<FocusSession>> GetFocusSessionsAsync(string userId, int limit)
+    {
+        return await _context.FocusSessions
+            .Where(s => s.UserId == userId)
+            .OrderByDescending(s => s.EndTime)
+            .Take(limit)
+            .ToListAsync();
+    }
+
+    public async Task<Dictionary<string, double>> GetDailyFocusActivityAsync(string userId, int days = 7)
+    {
+        var startDate = DateTime.UtcNow.Date.AddDays(-(days - 1));
+        
+        var sessions = await _context.FocusSessions
+            .Where(s => s.UserId == userId && s.EndTime >= startDate)
+            .ToListAsync();
+
+        var activity = sessions
+            .GroupBy(s => s.EndTime.ToLocalTime().Date)
+            .ToDictionary(g => g.Key.ToString("MM/dd"), g => g.Sum(s => s.DurationMinutes));
+            
+        return activity;
     }
 
     public async Task<ApplicationUser?> GetUserStatsAsync(string userId)
