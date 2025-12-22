@@ -78,6 +78,61 @@
         }
     </div>
     
+    <div class="mt-4">
+        <button class="btn btn-link text-muted text-decoration-none" @onclick="ShowManualEntryModal">
+            <small>@Localizer["ForgotToTrack"]</small>
+        </button>
+    </div>
+
+    @if (showManualEntry)
+    {
+        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content bg-dark text-white border-secondary">
+                    <div class="modal-header border-secondary">
+                        <h5 class="modal-title">@Localizer["AddManualEntry"]</h5>
+                        <button type="button" class="btn-close btn-close-white" @onclick="CloseManualEntryModal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer["Task"]</label>
+                             @if (todayTasks != null && todayTasks.Any())
+                            {
+                                <select class="form-select bg-dark text-white border-secondary mb-2" @bind="manualTaskSelection">
+                                    <option value="">@Localizer["SelectTask"]</option>
+                                    @foreach (var task in todayTasks.Where(t => !t.IsCompleted || t.IsRoutine))
+                                    {
+                                        <option value="@task.Title">@task.Title</option>
+                                    }
+                                    <option value="custom">@Localizer["CustomTask"]</option>
+                                </select>
+                            }
+                            
+                            @if (manualTaskSelection == "custom" || todayTasks == null || !todayTasks.Any())
+                            {
+                                <input type="text" class="form-control bg-dark text-white border-secondary" 
+                                       placeholder="@Localizer["EnterTaskName"]" 
+                                       @bind="manualCustomTask" />
+                            }
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer["DurationMinutes"]</label>
+                            <input type="number" class="form-control bg-dark text-white border-secondary" @bind="manualDuration" min="1" max="1440" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">@Localizer["When"]</label>
+                            <input type="datetime-local" class="form-control bg-dark text-white border-secondary" @bind="manualDate" />
+                        </div>
+                    </div>
+                    <div class="modal-footer border-secondary">
+                        <button type="button" class="btn btn-secondary" @onclick="CloseManualEntryModal">@Localizer["Cancel"]</button>
+                        <button type="button" class="btn btn-primary" @onclick="SaveManualEntry">@Localizer["Save"]</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    
     <DisciplineApp.Shared.CoinReward IsVisible="@showCoinReward" Coins="@coinsEarned" Xp="@xpEarned" />
     
     <audio id="timerSound" src="sounds/alarm.mp3" preload="auto"></audio>
@@ -92,6 +147,13 @@
     private bool showCoinReward = false;
     private int coinsEarned = 0;
     private int xpEarned = 0;
+    
+    // Manual Entry State
+    private bool showManualEntry = false;
+    private string manualTaskSelection = "";
+    private string manualCustomTask = "";
+    private int manualDuration = 30;
+    private DateTime manualDate = DateTime.Now;
 
     protected override async Task OnInitializedAsync()
     {
@@ -241,6 +303,54 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Error playing sound: {ex.Message}");
+        }
+    }
+
+    private void ShowManualEntryModal()
+    {
+        manualDate = DateTime.Now;
+        manualDuration = 30;
+        manualTaskSelection = "";
+        manualCustomTask = "";
+        showManualEntry = true;
+    }
+
+    private void CloseManualEntryModal()
+    {
+        showManualEntry = false;
+    }
+
+    private async Task SaveManualEntry()
+    {
+        if (manualDuration <= 0)
+        {
+             ToastService.ShowError("Duration must be positive.");
+             return;
+        }
+
+        string taskName = manualTaskSelection == "custom" ? manualCustomTask : manualTaskSelection;
+        if (string.IsNullOrWhiteSpace(taskName))
+        {
+            // Try to use custom task buffer if selection is empty/null which might happen if "custom" logic isn't perfectly mutually exclusive
+            if (!string.IsNullOrWhiteSpace(manualCustomTask)) taskName = manualCustomTask;
+            else taskName = "Manual Session";
+        }
+
+        var authState = await _authStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+             var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+             if (!string.IsNullOrEmpty(userId))
+             {
+                 var result = await GamificationService.RecordFocusSessionAsync(userId, manualDuration, taskName, false, manualDate);
+                 
+                 if (result.success)
+                 {
+                     ToastService.ShowSuccess($"Manual Entry Saved! +{result.xpAwarded} XP");
+                     showManualEntry = false;
+                 }
+             }
         }
     }
 

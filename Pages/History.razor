@@ -6,6 +6,7 @@
 @inject AuthenticationStateProvider _authStateProvider
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 @inject IJSRuntime JSRuntime
+@inject ToastService ToastService
 
 <PageTitle>@Localizer["History"] - DisciplineApp</PageTitle>
 
@@ -79,6 +80,7 @@
                                                 <th>@Localizer["Task"]</th>
                                                 <th>@Localizer["Duration"]</th>
                                                 <th>@Localizer["Type"]</th>
+                                                <th>@Localizer["Actions"]</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -97,6 +99,11 @@
                                                         {
                                                             <span class="badge bg-secondary">@Localizer["Stopwatch"]</span>
                                                         }
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-outline-danger" @onclick="@(() => DeleteSession(session))">
+                                                            <i class="bi bi-trash"></i> @Localizer["Delete"]
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             }
@@ -136,14 +143,7 @@
             if (!string.IsNullOrEmpty(userId))
             {
                 // Load parallel data
-                var userStats = await GamificationService.GetUserStatsAsync(userId);
-                totalFocusMinutes = userStats?.TotalFocusMinutes ?? 0;
-                
-                thisWeekMinutes = await GamificationService.GetWeeklyFocusTimeAsync(userId);
-                lastWeekMinutes = await GamificationService.GetWeeklyFocusTimeAsync(userId, DateTime.UtcNow.AddDays(-7));
-                
-                recentSessions = await GamificationService.GetFocusSessionsAsync(userId, 20); // Top 20
-                activityData = await GamificationService.GetDailyFocusActivityAsync(userId, 14); // Last 14 days
+                await LoadData(userId);
                 
                 isLoading = false;
             }
@@ -225,5 +225,51 @@
         };
 
         await JSRuntime.InvokeVoidAsync("renderChart", "activityChart", config);
+    }
+    
+    private async Task DeleteSession(FocusSession session)
+    {
+        bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", $"Are you sure you want to delete this session ({session.TaskTag}, {session.DurationMinutes}m)?");
+        if (confirmed)
+        {
+            var authState = await _authStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+            var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+
+            if (userId != null)
+            {
+                bool success = await GamificationService.DeleteFocusSessionAsync(session.Id, userId);
+                if (success)
+                {
+                    recentSessions.Remove(session);
+                    // Also update stats manually in UI or reload? Reloading is safer for consistent state.
+                    // For now, let's just subtract from local variables to avoid full reload if possible, 
+                    // but recalculating "ThisWeek" etc locally is hard.
+                    // Simple approach: reload all stats.
+                    
+                    await LoadData(userId);
+                    
+                    ToastService.ShowSuccess("Session deleted.");
+                    StateHasChanged();
+                }
+                else
+                {
+                    ToastService.ShowError("Failed to delete session.");
+                }
+            }
+        }
+    }
+    
+    private async Task LoadData(string userId)
+    {
+         // Refactoring OnInitialized to reusable method
+         var userStats = await GamificationService.GetUserStatsAsync(userId);
+         totalFocusMinutes = userStats?.TotalFocusMinutes ?? 0;
+         
+         thisWeekMinutes = await GamificationService.GetWeeklyFocusTimeAsync(userId);
+         lastWeekMinutes = await GamificationService.GetWeeklyFocusTimeAsync(userId, DateTime.UtcNow.AddDays(-7));
+         
+         recentSessions = await GamificationService.GetFocusSessionsAsync(userId, 20); 
+         activityData = await GamificationService.GetDailyFocusActivityAsync(userId, 14); 
     }
 }

@@ -71,7 +71,7 @@ public class GamificationService
         }
     }
 
-    public async Task<(bool success, int xpAwarded, int coinsAwarded)> RecordFocusSessionAsync(string userId, double minutes, string taskTag, bool isPomodoro)
+    public async Task<(bool success, int xpAwarded, int coinsAwarded)> RecordFocusSessionAsync(string userId, double minutes, string taskTag, bool isPomodoro, DateTime? endTime = null)
     {
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null) return (false, 0, 0);
@@ -80,8 +80,8 @@ public class GamificationService
         var session = new FocusSession
         {
             UserId = userId,
-            StartTime = DateTime.UtcNow.AddMinutes(-minutes),
-            EndTime = DateTime.UtcNow,
+            StartTime = (endTime ?? DateTime.UtcNow).AddMinutes(-minutes),
+            EndTime = endTime ?? DateTime.UtcNow,
             DurationMinutes = minutes,
             TaskTag = taskTag,
             IsPomodoro = isPomodoro
@@ -260,5 +260,43 @@ public class GamificationService
         }
 
         return activity;
+    }
+    public async Task<bool> DeleteFocusSessionAsync(int sessionId, string userId)
+    {
+        var session = await _context.FocusSessions.FindAsync(sessionId);
+        if (session == null || session.UserId != userId)
+        {
+            return false;
+        }
+
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user != null)
+        {
+            // Revert totals
+            user.TotalFocusMinutes = Math.Max(0, user.TotalFocusMinutes - session.DurationMinutes);
+            
+            // Revert XP (Estimate: 1 XP per minute)
+            // Note: This is an approximation. If we want exact reversion we'd need to store XP earned per session.
+            // For now, simple reversion:
+            int xpReversal = (int)session.DurationMinutes;
+            
+            // Revert daily stats if session was today
+            // But checking "Today" is tricky if the session was backdated or from a different day.
+            // Current simple logic: Just subtract from totals. 
+            // Correcting "Daily" stats for *past* days isn't stored in User table easily (User table only has current day's tracked XP).
+            // So we primarily focus on Total Record.
+            
+            user.TotalXP = Math.Max(0, user.TotalXP - xpReversal);
+            user.CurrentXP = Math.Max(0, user.CurrentXP - xpReversal);
+             
+            // We won't de-level users to avoid negative feelings/complexity, 
+            // but we will remove the XP.
+            
+            await _userManager.UpdateAsync(user);
+        }
+
+        _context.FocusSessions.Remove(session);
+        await _context.SaveChangesAsync();
+        return true;
     }
 }
