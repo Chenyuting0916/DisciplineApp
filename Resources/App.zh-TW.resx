@@ -165,4 +165,46 @@
   <data name="ContinueWithGoogle" xml:space="preserve">
     <value>使用 Google 繼續</value>
   </data>
+  <data name="ForgotToTrack" xml:space="preserve">
+    <value>忘記登記？</value>
+  </data>
+  <data name="AddManualEntry" xml:space="preserve">
+    <value>新增手動紀錄</value>
+  </data>
+  <data name="EnterTaskName" xml:space="preserve">
+    <value>輸入任務名稱...</value>
+  </data>
+  <data name="DurationMinutes" xml:space="preserve">
+    <value>持續時間 (分鐘)</value>
+  </data>
+  <data name="When" xml:space="preserve">
+    <value>時間點</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>取消</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>儲存</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>操作</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>刪除</value>
+  </data>
+  <data name="AreYouSureDeleteSession" xml:space="preserve">
+    <value>您確定要刪除此紀錄嗎 ({0}, {1}分鐘)?</value>
+  </data>
+  <data name="SessionDeleted" xml:space="preserve">
+    <value>紀錄已刪除。</value>
+  </data>
+  <data name="DeleteFailed" xml:space="preserve">
+    <value>刪除失敗。</value>
+  </data>
+  <data name="DurationPositive" xml:space="preserve">
+    <value>持續時間必須大於0。</value>
+  </data>
+  <data name="ManualEntrySaved" xml:space="preserve">
+    <value>手動紀錄已儲存！ +{0} XP</value>
+  </data>
 </root>

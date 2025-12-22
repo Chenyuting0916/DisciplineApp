@@ -324,7 +324,7 @@
     {
         if (manualDuration <= 0)
         {
-             ToastService.ShowError("Duration must be positive.");
+             ToastService.ShowError(Localizer["DurationPositive"]);
              return;
         }
 
@@ -347,7 +347,8 @@
                  
                  if (result.success)
                  {
-                     ToastService.ShowSuccess($"Manual Entry Saved! +{result.xpAwarded} XP");
+                     string msg = string.Format(Localizer["ManualEntrySaved"], result.xpAwarded);
+                     ToastService.ShowSuccess(msg);
                      showManualEntry = false;
                  }
              }

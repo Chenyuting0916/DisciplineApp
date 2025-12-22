@@ -165,4 +165,46 @@
   <data name="ContinueWithGoogle" xml:space="preserve">
     <value>Googleで続行</value>
   </data>
+  <data name="ForgotToTrack" xml:space="preserve">
+    <value>記録し忘れ？</value>
+  </data>
+  <data name="AddManualEntry" xml:space="preserve">
+    <value>手動記録を追加</value>
+  </data>
+  <data name="EnterTaskName" xml:space="preserve">
+    <value>タスク名を入力...</value>
+  </data>
+  <data name="DurationMinutes" xml:space="preserve">
+    <value>時間 (分)</value>
+  </data>
+  <data name="When" xml:space="preserve">
+    <value>日時</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>保存</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>操作</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>削除</value>
+  </data>
+  <data name="AreYouSureDeleteSession" xml:space="preserve">
+    <value>このセッションを削除してもよろしいですか ({0}, {1}分)?</value>
+  </data>
+  <data name="SessionDeleted" xml:space="preserve">
+    <value>セッションを削除しました。</value>
+  </data>
+  <data name="DeleteFailed" xml:space="preserve">
+    <value>削除に失敗しました。</value>
+  </data>
+  <data name="DurationPositive" xml:space="preserve">
+    <value>時間は正の数である必要があります。</value>
+  </data>
+  <data name="ManualEntrySaved" xml:space="preserve">
+    <value>手動記録を保存しました！ +{0} XP</value>
+  </data>
 </root>

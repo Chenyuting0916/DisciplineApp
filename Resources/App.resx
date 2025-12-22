@@ -165,4 +165,46 @@
   <data name="ContinueWithGoogle" xml:space="preserve">
     <value>Continue with Google</value>
   </data>
+  <data name="ForgotToTrack" xml:space="preserve">
+    <value>Forgot to track?</value>
+  </data>
+  <data name="AddManualEntry" xml:space="preserve">
+    <value>Add Manual Entry</value>
+  </data>
+  <data name="EnterTaskName" xml:space="preserve">
+    <value>Enter task name...</value>
+  </data>
+  <data name="DurationMinutes" xml:space="preserve">
+    <value>Duration (Minutes)</value>
+  </data>
+  <data name="When" xml:space="preserve">
+    <value>When</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Actions</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="AreYouSureDeleteSession" xml:space="preserve">
+    <value>Are you sure you want to delete this session ({0}, {1}m)?</value>
+  </data>
+  <data name="SessionDeleted" xml:space="preserve">
+    <value>Session deleted.</value>
+  </data>
+  <data name="DeleteFailed" xml:space="preserve">
+    <value>Failed to delete session.</value>
+  </data>
+  <data name="DurationPositive" xml:space="preserve">
+    <value>Duration must be positive.</value>
+  </data>
+  <data name="ManualEntrySaved" xml:space="preserve">
+    <value>Manual Entry Saved! +{0} XP</value>
+  </data>
 </root>
