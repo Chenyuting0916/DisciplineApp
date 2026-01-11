@@ -1,5 +1,6 @@
 ﻿@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 @inject TimerService TimerService
+@inject LocalStorageService LocalStorageService
 @implements IDisposable
 
 <div class="top-row ps-3 navbar navbar-dark">
@@ -25,6 +26,10 @@
                 {
                     <span class="badge bg-danger ms-2">@TimeDisplay</span>
                 }
+                else if (showNewBadges)
+                {
+                    <span class="badge bg-warning text-dark ms-2">New</span>
+                }
             </NavLink>
         </div>
         <div class="nav-item px-3">
@@ -35,6 +40,10 @@
         <div class="nav-item px-3">
             <NavLink class="nav-link" href="leaderboard">
                 <span class="oi oi-graph" aria-hidden="true"></span> @Localizer["Leaderboard"]
+                @if (showNewBadges)
+                {
+                    <span class="badge bg-warning text-dark ms-2">New</span>
+                }
             </NavLink>
         </div>
         <div class="nav-item px-3">
@@ -47,12 +56,31 @@
 
 @code {
     private bool collapseNavMenu = true;
+    private bool showNewBadges = false;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
 
     private void ToggleNavMenu()
     {
         collapseNavMenu = !collapseNavMenu;
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            var hasSeen = await LocalStorageService.GetItemAsync<bool?>("nav_walkthrough_seen");
+            if (hasSeen != true)
+            {
+                showNewBadges = true;
+                StateHasChanged();
+                // Mark as seen so they disappear next time (or we can keep them until clicked? The requirement implies "Simple hint", let's show once or until dismissed. 
+                // For simplicity, let's mark seen now so they don't persist forever, or maybe better, mark seen when they CLICK them? 
+                // But tracking clicks on NavLink is harder. Let's just show them for the first session.
+                
+                await LocalStorageService.SetItemAsync("nav_walkthrough_seen", true);
+            }
+        }
     }
 
     protected override void OnInitialized()

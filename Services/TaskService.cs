@@ -70,10 +70,10 @@ public class TaskService : ITaskService
         return task;
     }
 
-    public async Task<(bool success, int xpAwarded, int remainingDaily, bool capReached)> ToggleTaskCompletionAsync(int taskId, string userId)
+    public async Task<(bool success, int xpAwarded, int remainingDaily, bool capReached, bool levelUp)> ToggleTaskCompletionAsync(int taskId, string userId)
     {
         var task = await _context.UserTasks.FindAsync(taskId);
-        if (task == null || task.UserId != userId) return (false, 0, 0, false);
+        if (task == null || task.UserId != userId) return (false, 0, 0, false, false);
 
         task.IsCompleted = !task.IsCompleted;
         task.CompletedAt = task.IsCompleted ? DateTime.UtcNow : null;
@@ -111,12 +111,12 @@ public class TaskService : ITaskService
                 
                 task.XpAwarded = true; 
                 await _context.SaveChangesAsync();
-                return (result.success, result.xpAwarded, result.remainingDaily, !result.success && result.remainingDaily <= 0);
+                return (result.success, result.xpAwarded, result.remainingDaily, !result.success && result.remainingDaily <= 0, result.levelUp);
             }
             else
             {
                 await _context.SaveChangesAsync();
-                return (false, 0, 0, false); // Already awarded
+                return (false, 0, 0, false, false); // Already awarded
             }
         }
         else
@@ -135,7 +135,7 @@ public class TaskService : ITaskService
             // This prevents farming.
             
             await _context.SaveChangesAsync();
-            return (false, 0, 0, false);
+            return (false, 0, 0, false, false);
         }
     }
 

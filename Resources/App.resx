@@ -207,4 +207,67 @@
   <data name="ManualEntrySaved" xml:space="preserve">
     <value>Manual Entry Saved! +{0} XP</value>
   </data>
+  <data name="SessionRecordedXP" xml:space="preserve">
+    <value>Session Recorded! +{0} XP</value>
+  </data>
+  <data name="PlusCoins" xml:space="preserve">
+    <value> &amp; +{0} Coins!</value>
+  </data>
+  <data name="ManualSession" xml:space="preserve">
+    <value>Manual Session</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>Loading...</value>
+  </data>
+  <data name="AddTask" xml:space="preserve">
+    <value>Add Task</value>
+  </data>
+  <data name="TaskTitle" xml:space="preserve">
+    <value>Task Title</value>
+  </data>
+  <data name="EnterTaskTitle" xml:space="preserve">
+    <value>Enter task title...</value>
+  </data>
+  <data name="Category" xml:space="preserve">
+    <value>Category</value>
+  </data>
+  <data name="Uncategorized" xml:space="preserve">
+    <value>Uncategorized</value>
+  </data>
+  <data name="RoutineLabel" xml:space="preserve">
+    <value>Routine (repeats daily)</value>
+  </data>
+  <data name="RoutineBadge" xml:space="preserve">
+    <value>Routine</value>
+  </data>
+  <data name="GuestTask1" xml:space="preserve">
+    <value>🎯 Try creating a new task</value>
+  </data>
+  <data name="GuestTask2" xml:space="preserve">
+    <value>🍅 Complete a Pomodoro (25m)</value>
+  </data>
+  <data name="GuestTask3" xml:space="preserve">
+    <value>🎉 Happy with this list?</value>
+  </data>
+  <data name="TaskCompletedGuest" xml:space="preserve">
+    <value>✓ Task completed! (Login to earn XP)</value>
+  </data>
+  <data name="FailedAddTask" xml:space="preserve">
+    <value>Failed to add task. Please try again.</value>
+  </data>
+  <data name="XPEarnedRemaining" xml:space="preserve">
+    <value>🎉 +{0} XP! ({1} XP remaining today)</value>
+  </data>
+  <data name="DailyCapReached" xml:space="preserve">
+    <value>⚠️ Daily XP cap reached (500 XP)</value>
+  </data>
+  <data name="TasksToday" xml:space="preserve">
+    <value>Tasks - Today</value>
+  </data>
+  <data name="AddOne" xml:space="preserve">
+    <value>Add one</value>
+  </data>
+  <data name="XPEarned" xml:space="preserve">
+    <value>XP Earned</value>
+  </data>
 </root>

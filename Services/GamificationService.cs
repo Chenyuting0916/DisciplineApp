@@ -17,10 +17,10 @@ public class GamificationService : IGamificationService
         _userManager = userManager;
     }
 
-    public async Task<(bool success, int xpAwarded, int remainingDaily)> AddXpAsync(string userId, int xpAmount)
+    public async Task<(bool success, int xpAwarded, int remainingDaily, bool levelUp)> AddXpAsync(string userId, int xpAmount)
     {
         var user = await _userManager.FindByIdAsync(userId);
-        if (user == null) return (false, 0, 0);
+        if (user == null) return (false, 0, 0, false);
 
         // Reset daily XP if it's a new day
         if (user.LastXpResetDate == null || user.LastXpResetDate.Value.Date < DateTime.UtcNow.Date)
@@ -35,7 +35,7 @@ public class GamificationService : IGamificationService
         
         if (remainingDaily <= 0)
         {
-            return (false, 0, 0); // Daily cap reached
+            return (false, 0, 0, false); // Daily cap reached
         }
 
         // Award XP up to the daily cap
@@ -46,6 +46,7 @@ public class GamificationService : IGamificationService
         user.DailyXpEarned += actualXpAwarded;
 
         // Simple leveling logic: Level * 100 XP required for next level
+        int initialLevel = user.Level;
         int xpRequired = user.Level * 100;
         while (user.CurrentXP >= xpRequired)
         {
@@ -55,11 +56,13 @@ public class GamificationService : IGamificationService
             // Bonus coins for leveling up
             user.GoldCoins += 50;
         }
+        
+        bool levelUp = user.Level > initialLevel;
 
         await _userManager.UpdateAsync(user);
         
         remainingDaily = DAILY_XP_CAP - user.DailyXpEarned;
-        return (true, actualXpAwarded, remainingDaily);
+        return (true, actualXpAwarded, remainingDaily, levelUp);
     }
 
     public async Task AwardCoinsAsync(string userId, int min, int max)
@@ -73,10 +76,10 @@ public class GamificationService : IGamificationService
         }
     }
 
-    public async Task<(bool success, int xpAwarded, int coinsAwarded)> RecordFocusSessionAsync(string userId, double minutes, string taskTag, bool isPomodoro, DateTime? endTime = null)
+    public async Task<(bool success, int xpAwarded, int coinsAwarded, bool levelUp)> RecordFocusSessionAsync(string userId, double minutes, string taskTag, bool isPomodoro, DateTime? endTime = null)
     {
         var user = await _userManager.FindByIdAsync(userId);
-        if (user == null) return (false, 0, 0);
+        if (user == null) return (false, 0, 0, false);
 
         // Save Session
         var session = new FocusSession
@@ -120,6 +123,7 @@ public class GamificationService : IGamificationService
 
         const int DAILY_XP_CAP = 500;
         int actualXpAwarded = 0;
+        int initialLevel = user.Level;
         if (user.DailyXpEarned < DAILY_XP_CAP)
         {
             int remainingCap = DAILY_XP_CAP - user.DailyXpEarned;
@@ -143,7 +147,9 @@ public class GamificationService : IGamificationService
         await _userManager.UpdateAsync(user);
         await _context.SaveChangesAsync();
 
-        return (true, actualXpAwarded, coinsToAward);
+        bool levelUp = user.Level > initialLevel;
+
+        return (true, actualXpAwarded, coinsToAward, levelUp);
     }
 
     public async Task<List<ApplicationUser>> GetLeaderboardAsync(int count = 10, string sortBy = "xp")

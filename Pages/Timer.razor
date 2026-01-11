@@ -249,7 +249,7 @@
             await PlaySound("timerSound");
             await RecordSession(TimerService.DefaultPomodoroTime.TotalMinutes);
             TimerService.ResetTimer();
-            ToastService.ShowSuccess("Pomodoro Completed!");
+            ToastService.ShowSuccess(Localizer["PomodoroCompleted"]);
         });
     }
 
@@ -272,7 +272,7 @@
                     xpEarned = result.xpAwarded;
                     coinsEarned = result.coinsAwarded;
                     
-                    string msg = $"Session Recorded! +{xpEarned} XP";
+                    string msg = string.Format(Localizer["SessionRecordedXP"], xpEarned);
                     
                     if (coinsEarned > 0)
                     {
@@ -286,7 +286,7 @@
                             InvokeAsync(StateHasChanged);
                         });
                         
-                        msg += $" & +{coinsEarned} Coins!";
+                        msg += string.Format(Localizer["PlusCoins"], coinsEarned);
                     }
                     ToastService.ShowSuccess(msg);
                 }
@@ -333,7 +333,7 @@
         {
             // Try to use custom task buffer if selection is empty/null which might happen if "custom" logic isn't perfectly mutually exclusive
             if (!string.IsNullOrWhiteSpace(manualCustomTask)) taskName = manualCustomTask;
-            else taskName = "Manual Session";
+            else taskName = Localizer["ManualSession"];
         }
 
         var authState = await _authStateProvider.GetAuthenticationStateAsync();

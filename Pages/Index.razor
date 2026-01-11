@@ -47,7 +47,7 @@
                 <div class="col-md-6">
                     <div class="card h-100">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">@Localizer["Tasks"] - Today</h5>
+                            <h5 class="mb-0">@Localizer["TasksToday"]</h5>
                             <a href="tasks" class="btn btn-sm btn-outline-primary">@Localizer["ViewAll"]</a>
                         </div>
                         <div class="card-body">
@@ -57,7 +57,7 @@
                             }
                             else if (!todayTasks.Any())
                             {
-                                <p class="text-muted">@Localizer["NoTasks"] <a href="tasks">Add one</a>!</p>
+                                <p class="text-muted">@Localizer["NoTasks"] <a href="tasks">@Localizer["AddOne"]</a>!</p>
                             }
                             else
                             {
@@ -70,11 +70,11 @@
                                             @task.Title
                                             @if (task.IsRoutine)
                                             {
-                                                <span class="badge bg-info text-dark ms-2">Routine</span>
+                                                <span class="badge bg-info text-dark ms-2">@Localizer["RoutineBadge"]</span>
                                             }
                                             @if (task.XpAwarded)
                                             {
-                                                <span class="ms-auto badge bg-success">XP Earned</span>
+                                                <span class="ms-auto badge bg-success">@Localizer["XPEarned"]</span>
                                             }
                                             else
                                             {
@@ -292,7 +292,7 @@
                 }
                 else if (result.capReached)
                 {
-                    ToastService.ShowWarning("⚠️ Daily XP cap reached (500 XP)");
+                    ToastService.ShowWarning(Localizer["DailyCapReached"]);
                 }
                 
                 // Reload tasks

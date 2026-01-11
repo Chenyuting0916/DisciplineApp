@@ -207,4 +207,67 @@
   <data name="ManualEntrySaved" xml:space="preserve">
     <value>手動紀錄已儲存！ +{0} XP</value>
   </data>
+  <data name="SessionRecordedXP" xml:space="preserve">
+    <value>專注紀錄已儲存！ +{0} XP</value>
+  </data>
+  <data name="PlusCoins" xml:space="preserve">
+    <value> &amp; +{0} 金幣！</value>
+  </data>
+  <data name="ManualSession" xml:space="preserve">
+    <value>手動專注</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>載入中...</value>
+  </data>
+  <data name="AddTask" xml:space="preserve">
+    <value>新增任務</value>
+  </data>
+  <data name="TaskTitle" xml:space="preserve">
+    <value>任務標題</value>
+  </data>
+  <data name="EnterTaskTitle" xml:space="preserve">
+    <value>輸入任務標題...</value>
+  </data>
+  <data name="Category" xml:space="preserve">
+    <value>類別</value>
+  </data>
+  <data name="Uncategorized" xml:space="preserve">
+    <value>未分類</value>
+  </data>
+  <data name="RoutineLabel" xml:space="preserve">
+    <value>例行事項 (每日重複)</value>
+  </data>
+  <data name="RoutineBadge" xml:space="preserve">
+    <value>例行</value>
+  </data>
+  <data name="GuestTask1" xml:space="preserve">
+    <value>🎯 嘗試建立一個新任務</value>
+  </data>
+  <data name="GuestTask2" xml:space="preserve">
+    <value>🍅 完成一個番茄鐘 (25分鐘)</value>
+  </data>
+  <data name="GuestTask3" xml:space="preserve">
+    <value>🎉 對這個清單感到滿意嗎？</value>
+  </data>
+  <data name="TaskCompletedGuest" xml:space="preserve">
+    <value>✓ 任務已完成！(登入以賺取 XP)</value>
+  </data>
+  <data name="FailedAddTask" xml:space="preserve">
+    <value>新增任務失敗，請重試。</value>
+  </data>
+  <data name="XPEarnedRemaining" xml:space="preserve">
+    <value>🎉 +{0} XP! (今日剩餘 {1} XP)</value>
+  </data>
+  <data name="DailyCapReached" xml:space="preserve">
+    <value>⚠️ 已達每日 XP 上限 (500 XP)</value>
+  </data>
+  <data name="TasksToday" xml:space="preserve">
+    <value>今日任務</value>
+  </data>
+  <data name="AddOne" xml:space="preserve">
+    <value>新增一個</value>
+  </data>
+  <data name="XPEarned" xml:space="preserve">
+    <value>已獲得 XP</value>
+  </data>
 </root>

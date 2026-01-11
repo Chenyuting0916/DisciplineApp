@@ -2,10 +2,13 @@
 @using DisciplineApp.Services
 @using DisciplineApp.Models
 @inject ITaskService TaskService
+@inject IGamificationService GamificationService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 @inject LocalStorageService LocalStorageService
 @inject ToastService ToastService
+
+@using DisciplineApp.Shared
 
 <div class="task-container pt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -18,11 +21,11 @@
     <div class="task-list">
         @if (tasks == null)
         {
-            <p>Loading...</p>
+            <p>@Localizer["Loading"]</p>
         }
         else if (!tasks.Any())
         {
-            <p class="text-muted">No tasks for today. Add one above!</p>
+            <p class="text-muted">@Localizer["NoTasks"]</p>
         }
         else
         {
@@ -38,7 +41,7 @@
                             </label>
                             @if (task.IsRoutine)
                             {
-                                <span class="badge bg-info text-dark ms-2">Routine</span>
+                                <span class="badge bg-info text-dark ms-2">@Localizer["RoutineBadge"]</span>
                             }
                             @if (task.Category != null)
                             {
@@ -55,24 +58,26 @@
     </div>
 </div>
 
+<LevelUpOverlay @bind-IsVisible="showLevelUp" Level="newLevel" />
+
 @if (showAddTaskModal)
 {
     <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content bg-dark text-light border-secondary">
                 <div class="modal-header border-secondary">
-                    <h5 class="modal-title">Add New Task</h5>
+                    <h5 class="modal-title">@Localizer["AddTask"]</h5>
                     <button type="button" class="btn-close btn-close-white" @onclick="HideAddTaskModal"></button>
                 </div>
                 <div class="modal-body">
                     <div class="mb-3">
-                        <label class="form-label">Task Title</label>
-                        <input type="text" class="form-control" @bind="newTaskTitle" placeholder="Enter task title..." />
+                        <label class="form-label">@Localizer["TaskTitle"]</label>
+                        <input type="text" class="form-control" @bind="newTaskTitle" placeholder="@Localizer["EnterTaskTitle"]" />
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Category</label>
+                        <label class="form-label">@Localizer["Category"]</label>
                         <select class="form-select" @bind="selectedCategoryId">
-                            <option value="">Uncategorized</option>
+                            <option value="">@Localizer["Uncategorized"]</option>
                             @if (categories != null)
                             {
                                 @foreach (var category in categories)
@@ -85,13 +90,13 @@
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" @bind="isRoutineTask" id="modalRoutineCheck">
                         <label class="form-check-label" for="modalRoutineCheck">
-                            Routine (repeats daily)
+                            @Localizer["RoutineLabel"]
                         </label>
                     </div>
                 </div>
                 <div class="modal-footer border-secondary">
-                    <button type="button" class="btn btn-secondary" @onclick="HideAddTaskModal">Cancel</button>
-                    <button type="button" class="btn btn-primary" @onclick="AddTaskFromModal">Add Task</button>
+                    <button type="button" class="btn btn-secondary" @onclick="HideAddTaskModal">@Localizer["Cancel"]</button>
+                    <button type="button" class="btn btn-primary" @onclick="AddTaskFromModal">@Localizer["AddTask"]</button>
                 </div>
             </div>
         </div>
@@ -118,6 +123,9 @@
     private bool showAddTaskModal = false;
     private string userId = "";
     private bool _hasRendered = false;
+
+    private bool showLevelUp = false;
+    private int newLevel = 1;
 
     private void ShowAddTaskModal() => showAddTaskModal = true;
     private void HideAddTaskModal()
@@ -165,7 +173,57 @@
 
     private async Task LoadGuestTasks()
     {
-        var allTasks = await LocalStorageService.GetItemAsync<List<UserTask>>("guest_tasks") ?? new List<UserTask>();
+        var allTasks = await LocalStorageService.GetItemAsync<List<UserTask>>("guest_tasks");
+
+        if (allTasks == null || !allTasks.Any())
+        {
+            // First time guest! Initialize with default onboarding tasks
+            allTasks = new List<UserTask>();
+            
+            // Helper to find category or fallback
+            // We assume categories are loaded in OnInitializedAsync, but if we are here early or they failed, we hardcode defaults
+            var workCat = categories?.FirstOrDefault(c => c.Id == 1) ?? new Category { Id = 1, Name = "Work", ColorCode = "#3B82F6" };
+            var personalCat = categories?.FirstOrDefault(c => c.Id == 2) ?? new Category { Id = 2, Name = "Personal", ColorCode = "#10B981" };
+            var learningCat = categories?.FirstOrDefault(c => c.Id == 4) ?? new Category { Id = 4, Name = "Learning", ColorCode = "#F59E0B" };
+
+            // Task 1: Try adding a task (Learning)
+            allTasks.Add(new UserTask
+            {
+                Id = 1,
+                UserId = "guest",
+                Title = Localizer["GuestTask1"],
+                Date = DateTime.Today,
+                IsRoutine = false,
+                CategoryId = 4,
+                Category = learningCat
+            });
+
+            // Task 2: Pomodoro (Work)
+            allTasks.Add(new UserTask
+            {
+                Id = 2,
+                UserId = "guest",
+                Title = Localizer["GuestTask2"],
+                Date = DateTime.Today,
+                IsRoutine = false,
+                CategoryId = 1,
+                Category = workCat
+            });
+
+            // Task 3: Satisfaction (Personal)
+            allTasks.Add(new UserTask
+            {
+                Id = 3,
+                UserId = "guest",
+                Title = Localizer["GuestTask3"],
+                Date = DateTime.Today,
+                IsRoutine = false,
+                CategoryId = 2,
+                Category = personalCat
+            });
+
+            await LocalStorageService.SetItemAsync("guest_tasks", allTasks);
+        }
         
         // Filter for today's tasks OR routine tasks
         tasks = allTasks.Where(t => t.Date.Date == DateTime.Today || (t.IsRoutine && t.Date.Date <= DateTime.Today)).ToList();
@@ -174,11 +232,6 @@
         bool needsSave = false;
         foreach (var task in tasks.Where(t => t.IsRoutine && t.IsCompleted))
         {
-            // For guest tasks, we might not have LastCompletedDate tracked perfectly if we didn't save it before.
-            // But let's assume if it's completed and date is old, it needs reset.
-            // Actually, we need to check if it was completed TODAY.
-            // If CompletedAt is set, we can check that.
-            
             if (task.CompletedAt.HasValue && task.CompletedAt.Value.Date < DateTime.Today)
             {
                 task.IsCompleted = false;
@@ -226,7 +279,7 @@
             catch (Exception ex)
             {
                 Console.WriteLine($"Error adding task: {ex.Message}");
-                ToastService.ShowError("Failed to add task. Please try again.");
+                ToastService.ShowError(Localizer["FailedAddTask"]);
                 return;
             }
         }
@@ -260,13 +313,25 @@
         {
             var result = await TaskService.ToggleTaskCompletionAsync(task.Id, userId);
             
-            if (result.success && result.xpAwarded > 0)
+                if (result.success && result.xpAwarded > 0)
             {
-                ToastService.ShowSuccess($"🎉 +{result.xpAwarded} XP! ({result.remainingDaily} XP remaining today)");
+                string msg = string.Format(Localizer["XPEarnedRemaining"], result.xpAwarded, result.remainingDaily);
+                ToastService.ShowSuccess(msg);
+                
+                if (result.levelUp)
+                {
+                    // Fetch updated user to get new level
+                    var user = await GamificationService.GetUserStatsAsync(userId);
+                    if (user != null)
+                    {
+                        newLevel = user.Level;
+                        showLevelUp = true;
+                    }
+                }
             }
             else if (result.capReached)
             {
-                ToastService.ShowWarning("⚠️ Daily XP cap reached (500 XP)");
+                ToastService.ShowWarning(Localizer["DailyCapReached"]);
             }
         }
         else
@@ -281,7 +346,7 @@
                 
                 if (target.IsCompleted)
                 {
-                    ToastService.ShowInfo("✓ Task completed! (Login to earn XP)");
+                    ToastService.ShowInfo(Localizer["TaskCompletedGuest"]);
                 }
             }
         }

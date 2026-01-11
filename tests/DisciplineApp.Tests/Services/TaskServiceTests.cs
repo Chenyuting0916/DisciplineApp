@@ -26,7 +26,7 @@ public class TaskServiceTests
 
         // Setup default mock behavior
         _mockGamificationService.Setup(s => s.AddXpAsync(It.IsAny<string>(), It.IsAny<int>()))
-            .ReturnsAsync((true, 50, 450)); 
+            .ReturnsAsync((true, 50, 450, false)); 
 
         _taskService = new TaskService(_context, _mockGamificationService.Object);
     }
@@ -95,5 +95,50 @@ public class TaskServiceTests
         
         var dbTask = await _context.UserTasks.FindAsync(task.Id);
         Assert.True(dbTask.IsCompleted);
+    }
+    [Fact]
+    public async Task AddTaskAsync_WithCategory_ShouldAssignCategory()
+    {
+        // Arrange
+        string userId = "user1";
+        string title = "Task with Category";
+        DateTime date = DateTime.Today;
+        var category = new Category { Name = "Work", UserId = userId };
+        _context.Categories.Add(category);
+        await _context.SaveChangesAsync();
+        
+        // Act
+        var result = await _taskService.AddTaskAsync(userId, title, date, categoryId: category.Id);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(category.Id, result.CategoryId);
+        
+        var dbTask = await _context.UserTasks.FindAsync(result.Id);
+        Assert.Equal(category.Id, dbTask.CategoryId);
+    }
+
+    [Fact]
+    public async Task GetCategoriesAsync_ShouldReturnSystemAndUserCategories()
+    {
+        // Arrange
+        string userId = "user1";
+        
+        // System category
+        _context.Categories.Add(new Category { Name = "System Cat", UserId = null });
+        // User category
+        _context.Categories.Add(new Category { Name = "User Cat", UserId = userId });
+        // Other user category
+        _context.Categories.Add(new Category { Name = "Other Cat", UserId = "other" });
+        await _context.SaveChangesAsync();
+
+        // Act
+        var categories = await _taskService.GetCategoriesAsync(userId);
+
+        // Assert
+        Assert.Equal(2, categories.Count); // System + User
+        Assert.Contains(categories, c => c.Name == "System Cat");
+        Assert.Contains(categories, c => c.Name == "User Cat");
+        Assert.DoesNotContain(categories, c => c.Name == "Other Cat");
     }
 }
