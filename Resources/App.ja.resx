@@ -270,4 +270,130 @@
   <data name="XPEarned" xml:space="preserve">
     <value>XP獲得</value>
   </data>
+  <data name="Challenge" xml:space="preserve">
+    <value>チャレンジ</value>
+  </data>
+  <data name="ShareChallenge" xml:space="preserve">
+    <value>チャレンジを共有</value>
+  </data>
+  <data name="ShareChallengeDesc" xml:space="preserve">
+    <value>友達とチャレンジして、一緒により良い習慣を築きましょう！</value>
+  </data>
+  <data name="GenerateLink" xml:space="preserve">
+    <value>チャレンジリンクを生成</value>
+  </data>
+  <data name="LinkReady" xml:space="preserve">
+    <value>チャレンジリンクの準備ができました！</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>コピー</value>
+  </data>
+  <data name="LinkCopied" xml:space="preserve">
+    <value>リンクをクリップボードにコピーしました！</value>
+  </data>
+  <data name="ShareInstructions" xml:space="preserve">
+    <value>このリンクを友達と共有してください：</value>
+  </data>
+  <data name="ShareVia1" xml:space="preserve">
+    <value>メッセージアプリで送信</value>
+  </data>
+  <data name="ShareVia2" xml:space="preserve">
+    <value>ソーシャルメディアに投稿</value>
+  </data>
+  <data name="ShareVia3" xml:space="preserve">
+    <value>友達にメールで送信</value>
+  </data>
+  <data name="ChallengeNotFound" xml:space="preserve">
+    <value>チャレンジが見つかりません</value>
+  </data>
+  <data name="ChallengeInvalidOrExpired" xml:space="preserve">
+    <value>このチャレンジリンクは無効または期限切れです。</value>
+  </data>
+  <data name="GoHome" xml:space="preserve">
+    <value>ホームに戻る</value>
+  </data>
+  <data name="ChallengeAccepted" xml:space="preserve">
+    <value>チャレンジを受け入れました！</value>
+  </data>
+  <data name="ChallengeTasksCreated" xml:space="preserve">
+    <value>チャレンジタスクが作成されました。頑張ってください！</value>
+  </data>
+  <data name="ViewTasks" xml:space="preserve">
+    <value>タスクを表示</value>
+  </data>
+  <data name="YouveBeenChallenged" xml:space="preserve">
+    <value>チャレンジされました！</value>
+  </data>
+  <data name="ChallengesYou" xml:space="preserve">
+    <value>があなたにチャレンジ：</value>
+  </data>
+  <data name="WhatYouGet" xml:space="preserve">
+    <value>得られるもの：</value>
+  </data>
+  <data name="Challenge7Tasks" xml:space="preserve">
+    <value>習慣を築くための7日間のタスク</value>
+  </data>
+  <data name="ChallengeBuildHabit" xml:space="preserve">
+    <value>一貫したルーティンを構築</value>
+  </data>
+  <data name="ChallengeEarnXP" xml:space="preserve">
+    <value>XPを獲得してレベルアップ（ログイン時）</value>
+  </data>
+  <data name="AcceptChallenge" xml:space="preserve">
+    <value>チャレンジを受け入れる</value>
+  </data>
+  <data name="ChallengeGuestNote" xml:space="preserve">
+    <value>ゲストとして受け入れることができますが</value>
+  </data>
+  <data name="Challenge7DayDesc" xml:space="preserve">
+    <value>7日間、1日に少なくとも1つのタスクを完了する</value>
+  </data>
+  <data name="ChallengeUnknown" xml:space="preserve">
+    <value>不明なチャレンジタイプ</value>
+  </data>
+  <data name="ChallengeTask7Day" xml:space="preserve">
+    <value>{0}日目/7: {1}からのチャレンジ</value>
+  </data>
+  <data name="ManageCategories" xml:space="preserve">
+    <value>カテゴリ管理</value>
+  </data>
+  <data name="AddCategory" xml:space="preserve">
+    <value>カテゴリを追加</value>
+  </data>
+  <data name="EditCategory" xml:space="preserve">
+    <value>カテゴリを編集</value>
+  </data>
+  <data name="DeleteCategory" xml:space="preserve">
+    <value>カテゴリを削除</value>
+  </data>
+  <data name="CategoryName" xml:space="preserve">
+    <value>カテゴリ名</value>
+  </data>
+  <data name="CategoryColor" xml:space="preserve">
+    <value>カテゴリの色</value>
+  </data>
+  <data name="SystemCategory" xml:space="preserve">
+    <value>システムカテゴリ</value>
+  </data>
+  <data name="CustomCategory" xml:space="preserve">
+    <value>カスタムカテゴリ</value>
+  </data>
+  <data name="CategoryInUse" xml:space="preserve">
+    <value>タスクで使用中のカテゴリは削除できません</value>
+  </data>
+  <data name="CategoryCreated" xml:space="preserve">
+    <value>カテゴリを作成しました！</value>
+  </data>
+  <data name="CategoryUpdated" xml:space="preserve">
+    <value>カテゴリを更新しました！</value>
+  </data>
+  <data name="CategoryDeleted" xml:space="preserve">
+    <value>カテゴリを削除しました！</value>
+  </data>
+  <data name="ConfirmDeleteCategory" xml:space="preserve">
+    <value>このカテゴリを削除してもよろしいですか？</value>
+  </data>
+  <data name="EnterCategoryName" xml:space="preserve">
+    <value>カテゴリ名を入力...</value>
+  </data>
 </root>

@@ -42,9 +42,9 @@
                                         <div class="d-flex justify-content-between align-items-start">
                                             <div>
                                                 <strong>@evt.Summary</strong>
-                                                @if (evt.Start?.DateTime != null)
+                                                @if (evt.Start?.DateTimeDateTimeOffset != null)
                                                 {
-                                                    <br /><small class="text-muted">@evt.Start.DateTime.Value.ToString("MMM dd, yyyy h:mm tt")</small>
+                                                    <br /><small class="text-muted">@evt.Start.DateTimeDateTimeOffset.Value.ToString("MMM dd, yyyy h:mm tt")</small>
                                                 }
                                                 else if (evt.Start?.Date != null)
                                                 {

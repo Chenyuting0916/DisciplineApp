@@ -32,8 +32,8 @@ namespace DisciplineApp.Services
             });
 
             var request = service.Events.List("primary");
-            request.TimeMin = startDate;
-            request.TimeMax = endDate;
+            request.TimeMinDateTimeOffset = new DateTimeOffset(startDate);
+            request.TimeMaxDateTimeOffset = new DateTimeOffset(endDate);
             request.SingleEvents = true;
             request.OrderBy = EventsResource.ListRequest.OrderByEnum.StartTime;
 

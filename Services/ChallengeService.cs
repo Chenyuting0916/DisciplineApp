@@ -10,17 +10,20 @@ public class ChallengeService : IChallengeService
 {
     private readonly ApplicationDbContext _context;
     private readonly ITaskService _taskService;
+    private readonly ICategoryService _categoryService;
     private readonly GuestTaskService _guestTaskService;
     private readonly IStringLocalizer<App> _localizer;
 
     public ChallengeService(
         ApplicationDbContext context, 
         ITaskService taskService,
+        ICategoryService categoryService,
         GuestTaskService guestTaskService,
         IStringLocalizer<App> localizer)
     {
         _context = context;
         _taskService = taskService;
+        _categoryService = categoryService;
         _guestTaskService = guestTaskService;
         _localizer = localizer;
     }
@@ -120,7 +123,7 @@ public class ChallengeService : IChallengeService
         if (challenge.Type == "7-day-focus")
         {
             var startDate = DateTime.Today;
-            var categories = await _taskService.GetCategoriesAsync(userId ?? "");
+            var categories = await _categoryService.GetCategoriesAsync(userId ?? "");
 
             for (int i = 0; i < 7; i++)
             {

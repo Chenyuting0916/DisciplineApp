@@ -1,7 +1,9 @@
 @page "/tasks"
 @using DisciplineApp.Services
 @using DisciplineApp.Models
+@using Microsoft.JSInterop
 @inject ITaskService TaskService
+@inject ICategoryService CategoryService
 @inject IGamificationService GamificationService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
@@ -9,15 +11,24 @@
 @inject ToastService ToastService
 @inject GuestTaskService GuestTaskService
 @inject IAnalyticsService AnalyticsService
+@inject IJSRuntime JSRuntime
 
 @using DisciplineApp.Shared
 
 <div class="task-container pt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h3>@Localizer["Tasks"]</h3>
-        <button class="btn btn-primary" @onclick="ShowAddTaskModal">
-            <span class="oi oi-plus"></span> Add Task
-        </button>
+        <div>
+            @if (!string.IsNullOrEmpty(userId))
+            {
+                <button class="btn btn-outline-secondary me-2" @onclick="ShowManageCategoriesModal">
+                    <span class="oi oi-tag"></span> @Localizer["ManageCategories"]
+                </button>
+            }
+            <button class="btn btn-primary" @onclick="ShowAddTaskModal">
+                <span class="oi oi-plus"></span> Add Task
+            </button>
+        </div>
     </div>
 
     <div class="task-list">
@@ -105,6 +116,90 @@
     </div>
 }
 
+@if (showManageCategoriesModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content bg-dark text-light border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">@Localizer["ManageCategories"]</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="HideManageCategoriesModal"></button>
+                </div>
+                <div class="modal-body">
+                    @if (categories != null)
+                    {
+                        <div class="mb-3">
+                            <button class="btn btn-sm btn-success" @onclick="ShowAddCategoryForm">
+                                <span class="oi oi-plus"></span> @Localizer["AddCategory"]
+                            </button>
+                        </div>
+
+                        @if (showAddCategoryForm)
+                        {
+                            <div class="card mb-3 p-3 bg-secondary">
+                                <div class="mb-2">
+                                    <label class="form-label">@Localizer["CategoryName"]</label>
+                                    <input type="text" class="form-control" @bind="newCategoryName" placeholder="@Localizer["EnterCategoryName"]" />
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">@Localizer["CategoryColor"]</label>
+                                    <input type="color" class="form-control form-control-color" @bind="newCategoryColor" />
+                                </div>
+                                <div>
+                                    <button class="btn btn-sm btn-primary me-2" @onclick="CreateCategory">@Localizer["Save"]</button>
+                                    <button class="btn btn-sm btn-secondary" @onclick="HideAddCategoryForm">@Localizer["Cancel"]</button>
+                                </div>
+                            </div>
+                        }
+
+                        <div class="list-group">
+                            @foreach (var category in categories)
+                            {
+                                <div class="list-group-item bg-dark border-secondary d-flex justify-content-between align-items-center">
+                                    <div class="d-flex align-items-center">
+                                        <span class="badge me-2" style="background-color: @category.ColorCode; width: 30px; height: 30px;"></span>
+                                        @if (editingCategoryId == category.Id)
+                                        {
+                                            <input type="text" class="form-control form-control-sm me-2" style="width: 150px;" @bind="editCategoryName" />
+                                            <input type="color" class="form-control form-control-color form-control-sm" @bind="editCategoryColor" />
+                                        }
+                                        else
+                                        {
+                                            <span>@category.Name</span>
+                                            @if (category.UserId == null)
+                                            {
+                                                <span class="badge bg-info text-dark ms-2">@Localizer["SystemCategory"]</span>
+                                            }
+                                        }
+                                    </div>
+                                    <div>
+                                        @if (editingCategoryId == category.Id)
+                                        {
+                                            <button class="btn btn-sm btn-success me-1" @onclick="SaveCategoryEdit">@Localizer["Save"]</button>
+                                            <button class="btn btn-sm btn-secondary" @onclick="CancelCategoryEdit">@Localizer["Cancel"]</button>
+                                        }
+                                        else
+                                        {
+                                            @if (category.UserId != null)
+                                            {
+                                                <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEditCategory(category)">@Localizer["EditCategory"]</button>
+                                            }
+                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteCategory(category)">@Localizer["DeleteCategory"]</button>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" @onclick="HideManageCategoriesModal">@Localizer["Cancel"]</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <style>
     .task-item.completed .form-check-label {
         text-decoration: line-through;
@@ -124,7 +219,6 @@
     private bool isRoutineTask = false;
     private bool showAddTaskModal = false;
     private string userId = "";
-    private bool _hasRendered = false;
 
     private bool showLevelUp = false;
     private int newLevel = 1;
@@ -155,7 +249,7 @@
         }
         
         // Load categories (system defaults + user specific)
-        categories = await TaskService.GetCategoriesAsync(userId);
+        categories = await CategoryService.GetCategoriesAsync(userId);
 
         if (!string.IsNullOrEmpty(userId))
         {
@@ -163,11 +257,91 @@
         }
     }
 
+    // Category management state
+    private bool showManageCategoriesModal = false;
+    private bool showAddCategoryForm = false;
+    private string newCategoryName = "";
+    private string newCategoryColor = "#808080";
+    private int? editingCategoryId = null;
+    private string editCategoryName = "";
+    private string editCategoryColor = "";
+
+    private void ShowManageCategoriesModal() => showManageCategoriesModal = true;
+    private void HideManageCategoriesModal()
+    {
+        showManageCategoriesModal = false;
+        showAddCategoryForm = false;
+        editingCategoryId = null;
+    }
+
+    private void ShowAddCategoryForm() => showAddCategoryForm = true;
+    private void HideAddCategoryForm()
+    {
+        showAddCategoryForm = false;
+        newCategoryName = "";
+        newCategoryColor = "#808080";
+    }
+
+    private async Task CreateCategory()
+    {
+        if (string.IsNullOrWhiteSpace(newCategoryName)) return;
+
+        await CategoryService.CreateCategoryAsync(userId, newCategoryName, newCategoryColor);
+        ToastService.ShowSuccess(Localizer["CategoryCreated"]);
+        
+        categories = await CategoryService.GetCategoriesAsync(userId);
+        HideAddCategoryForm();
+    }
+
+    private void StartEditCategory(Category category)
+    {
+        editingCategoryId = category.Id;
+        editCategoryName = category.Name;
+        editCategoryColor = category.ColorCode;
+    }
+
+    private void CancelCategoryEdit()
+    {
+        editingCategoryId = null;
+        editCategoryName = "";
+        editCategoryColor = "";
+    }
+
+    private async Task SaveCategoryEdit()
+    {
+        if (editingCategoryId == null || string.IsNullOrWhiteSpace(editCategoryName)) return;
+
+        var result = await CategoryService.UpdateCategoryAsync(editingCategoryId.Value, userId, editCategoryName, editCategoryColor);
+        if (result != null)
+        {
+            ToastService.ShowSuccess(Localizer["CategoryUpdated"]);
+            categories = await CategoryService.GetCategoriesAsync(userId);
+        }
+        
+        CancelCategoryEdit();
+    }
+
+    private async Task DeleteCategory(Category category)
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", Localizer["ConfirmDeleteCategory"].Value))
+            return;
+
+        var success = await CategoryService.DeleteCategoryAsync(category.Id, userId);
+        if (success)
+        {
+            ToastService.ShowSuccess(Localizer["CategoryDeleted"]);
+            categories = await CategoryService.GetCategoriesAsync(userId);
+        }
+        else
+        {
+            ToastService.ShowError(Localizer["CategoryInUse"]);
+        }
+    }
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender && string.IsNullOrEmpty(userId))
         {
-            _hasRendered = true;
             await LoadGuestTasks();
             StateHasChanged();
         }

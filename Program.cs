@@ -49,6 +49,7 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 
 builder.Services.AddScoped<IGamificationService, GamificationService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<IChallengeService, ChallengeService>();
 builder.Services.AddScoped<TokenProvider>();
 builder.Services.AddScoped<CalendarService>();
@@ -64,8 +65,8 @@ builder.Services.AddAuthentication()
         IConfigurationSection googleAuthNSection =
             builder.Configuration.GetSection("Authentication:Google");
 
-        options.ClientId = googleAuthNSection["ClientId"];
-        options.ClientSecret = googleAuthNSection["ClientSecret"];
+        options.ClientId = googleAuthNSection["ClientId"] ?? "";
+        options.ClientSecret = googleAuthNSection["ClientSecret"] ?? "";
         // Removed calendar and tasks scopes to avoid "Unverified App" warning
         // options.Scope.Add("https://www.googleapis.com/auth/calendar.readonly");
         // options.Scope.Add("https://www.googleapis.com/auth/tasks.readonly");

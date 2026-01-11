@@ -50,15 +50,6 @@ public class TaskService : ITaskService
         return tasks;
     }
 
-
-
-    public async Task<List<Category>> GetCategoriesAsync(string userId)
-    {
-        return await _context.Categories
-            .Where(c => c.UserId == null || c.UserId == userId)
-            .ToListAsync();
-    }
-
     public async Task<UserTask> AddTaskAsync(string userId, string title, DateTime date, bool isRoutine = false, int? categoryId = null)
     {
         var task = new UserTask

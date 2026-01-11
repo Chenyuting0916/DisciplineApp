@@ -270,4 +270,130 @@
   <data name="XPEarned" xml:space="preserve">
     <value>已獲得 XP</value>
   </data>
+  <data name="Challenge" xml:space="preserve">
+    <value>挑戰</value>
+  </data>
+  <data name="ShareChallenge" xml:space="preserve">
+    <value>分享挑戰</value>
+  </data>
+  <data name="ShareChallengeDesc" xml:space="preserve">
+    <value>挑戰你的朋友，一起建立更好的習慣！</value>
+  </data>
+  <data name="GenerateLink" xml:space="preserve">
+    <value>生成挑戰連結</value>
+  </data>
+  <data name="LinkReady" xml:space="preserve">
+    <value>您的挑戰連結已準備好！</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>複製</value>
+  </data>
+  <data name="LinkCopied" xml:space="preserve">
+    <value>連結已複製到剪貼簿！</value>
+  </data>
+  <data name="ShareInstructions" xml:space="preserve">
+    <value>與您的朋友分享此連結：</value>
+  </data>
+  <data name="ShareVia1" xml:space="preserve">
+    <value>透過訊息應用程式發送</value>
+  </data>
+  <data name="ShareVia2" xml:space="preserve">
+    <value>在社群媒體上發布</value>
+  </data>
+  <data name="ShareVia3" xml:space="preserve">
+    <value>透過電子郵件發送給朋友</value>
+  </data>
+  <data name="ChallengeNotFound" xml:space="preserve">
+    <value>找不到挑戰</value>
+  </data>
+  <data name="ChallengeInvalidOrExpired" xml:space="preserve">
+    <value>此挑戰連結無效或已過期。</value>
+  </data>
+  <data name="GoHome" xml:space="preserve">
+    <value>返回首頁</value>
+  </data>
+  <data name="ChallengeAccepted" xml:space="preserve">
+    <value>已接受挑戰！</value>
+  </data>
+  <data name="ChallengeTasksCreated" xml:space="preserve">
+    <value>您的挑戰任務已建立。祝您好運！</value>
+  </data>
+  <data name="ViewTasks" xml:space="preserve">
+    <value>查看我的任務</value>
+  </data>
+  <data name="YouveBeenChallenged" xml:space="preserve">
+    <value>您被挑戰了！</value>
+  </data>
+  <data name="ChallengesYou" xml:space="preserve">
+    <value>向您發起挑戰：</value>
+  </data>
+  <data name="WhatYouGet" xml:space="preserve">
+    <value>您將獲得：</value>
+  </data>
+  <data name="Challenge7Tasks" xml:space="preserve">
+    <value>7 個每日任務來建立您的習慣</value>
+  </data>
+  <data name="ChallengeBuildHabit" xml:space="preserve">
+    <value>建立一致的例行事項</value>
+  </data>
+  <data name="ChallengeEarnXP" xml:space="preserve">
+    <value>賺取 XP 並升級（如果已登入）</value>
+  </data>
+  <data name="AcceptChallenge" xml:space="preserve">
+    <value>接受挑戰</value>
+  </data>
+  <data name="ChallengeGuestNote" xml:space="preserve">
+    <value>您可以以訪客身份接受，但</value>
+  </data>
+  <data name="Challenge7DayDesc" xml:space="preserve">
+    <value>連續 7 天每天至少完成 1 個任務</value>
+  </data>
+  <data name="ChallengeUnknown" xml:space="preserve">
+    <value>未知的挑戰類型</value>
+  </data>
+  <data name="ChallengeTask7Day" xml:space="preserve">
+    <value>第 {0}/7 天：來自 {1} 的挑戰</value>
+  </data>
+  <data name="ManageCategories" xml:space="preserve">
+    <value>管理類別</value>
+  </data>
+  <data name="AddCategory" xml:space="preserve">
+    <value>新增類別</value>
+  </data>
+  <data name="EditCategory" xml:space="preserve">
+    <value>編輯類別</value>
+  </data>
+  <data name="DeleteCategory" xml:space="preserve">
+    <value>刪除類別</value>
+  </data>
+  <data name="CategoryName" xml:space="preserve">
+    <value>類別名稱</value>
+  </data>
+  <data name="CategoryColor" xml:space="preserve">
+    <value>類別顏色</value>
+  </data>
+  <data name="SystemCategory" xml:space="preserve">
+    <value>系統類別</value>
+  </data>
+  <data name="CustomCategory" xml:space="preserve">
+    <value>自訂類別</value>
+  </data>
+  <data name="CategoryInUse" xml:space="preserve">
+    <value>無法刪除正在使用的類別</value>
+  </data>
+  <data name="CategoryCreated" xml:space="preserve">
+    <value>類別已建立！</value>
+  </data>
+  <data name="CategoryUpdated" xml:space="preserve">
+    <value>類別已更新！</value>
+  </data>
+  <data name="CategoryDeleted" xml:space="preserve">
+    <value>類別已刪除！</value>
+  </data>
+  <data name="ConfirmDeleteCategory" xml:space="preserve">
+    <value>確定要刪除此類別嗎？</value>
+  </data>
+  <data name="EnterCategoryName" xml:space="preserve">
+    <value>輸入類別名稱...</value>
+  </data>
 </root>

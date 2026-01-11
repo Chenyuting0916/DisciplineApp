@@ -57,7 +57,7 @@ public class AccountController : Controller
         // Sign in the user with this external login provider if the user already has a login.
         var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: true, bypassTwoFactor: true);
         
-        ApplicationUser user = null;
+        ApplicationUser? user = null;
 
         if (result.Succeeded)
         {
