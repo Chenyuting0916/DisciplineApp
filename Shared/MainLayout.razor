@@ -6,6 +6,8 @@
 @inject IGamificationService GamificationService
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 @inject ToastService ToastService
+@inject IAnalyticsService AnalyticsService
+@inject NavigationManager NavigationManager
 
 <PageTitle>DisciplineApp</PageTitle>
 
@@ -109,6 +111,9 @@
     protected override void OnInitialized()
     {
         ToastService.OnShow += ShowToast;
+        NavigationManager.LocationChanged += OnLocationChanged;
+        // Track initial page load
+        _ = TrackPageView(NavigationManager.Uri);
     }
 
     private void ShowToast(string message, string type)
@@ -131,11 +136,6 @@
     {
         toasts.Remove(toast);
         StateHasChanged();
-    }
-
-    public void Dispose()
-    {
-        ToastService.OnShow -= ShowToast;
     }
 
     private class ToastMessage
@@ -176,5 +176,23 @@
         if (currentUser == null || currentUser.Level == 0) return 0;
         int required = currentUser.Level * 100;
         return (int)((double)currentUser.CurrentXP / required * 100);
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        _ = TrackPageView(e.Location);
+    }
+
+    private async Task TrackPageView(string url)
+    {
+        try
+        {
+            var uri = new Uri(url);
+            await AnalyticsService.TrackEventAsync("Page_View", "Navigation", uri.AbsolutePath);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error tracking page view: {ex.Message}");
+        }
     }
 }

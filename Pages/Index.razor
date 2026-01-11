@@ -6,6 +6,9 @@
 @inject ITaskService TaskService
 @inject ToastService ToastService
 @inject IGamificationService GamificationService
+@inject IChallengeService ChallengeService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 
 <PageTitle>DisciplineApp - @Localizer["Home"]</PageTitle>
@@ -26,6 +29,9 @@
                 </div>
                 <div class="text-end">
                     <div class="d-flex align-items-center gap-3">
+                        <button class="btn btn-outline-primary" @onclick="ShowShareChallengeModal">
+                            <i class="bi bi-share"></i> @Localizer["ShareChallenge"]
+                        </button>
                         <div class="coin-display bg-dark p-2 rounded border border-warning text-warning fw-bold">
                             💰 @(currentUser?.GoldCoins ?? 0)
                         </div>
@@ -169,6 +175,59 @@
     </div>
 }
 
+@if (showShareChallengeModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-light border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">
+                        <i class="bi bi-share"></i> @Localizer["ShareChallenge"]
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="HideShareChallengeModal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <p class="text-muted mb-3">@Localizer["ShareChallengeDesc"]</p>
+                    
+                    @if (shareLink == null)
+                    {
+                        <button class="btn btn-primary w-100" @onclick="GenerateShareLink" disabled="@isGeneratingLink">
+                            @if (isGeneratingLink)
+                            {
+                                <span class="spinner-border spinner-border-sm me-2"></span>
+                            }
+                            @Localizer["GenerateLink"]
+                        </button>
+                    }
+                    else
+                    {
+                        <div class="alert alert-success mb-3">
+                            <strong>@Localizer["LinkReady"]</strong>
+                        </div>
+                        
+                        <div class="input-group mb-3">
+                            <input type="text" class="form-control" value="@shareLink" readonly>
+                            <button class="btn btn-outline-light" @onclick="CopyToClipboard">
+                                <i class="bi bi-clipboard"></i> @Localizer["Copy"]
+                            </button>
+                        </div>
+                        
+                        <div class="text-muted small">
+                            <p class="mb-1">@Localizer["ShareInstructions"]</p>
+                            <ul class="mb-0">
+                                <li>@Localizer["ShareVia1"]</li>
+                                <li>@Localizer["ShareVia2"]</li>
+                                <li>@Localizer["ShareVia3"]</li>
+                            </ul>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+
 <style>
     .dashboard-container {
         max-width: 900px;
@@ -309,4 +368,45 @@
 
     private void ShowLoginModal() => showLoginModal = true;
     private void HideLoginModal() => showLoginModal = false;
+
+    // Share Challenge Modal
+    private bool showShareChallengeModal = false;
+    private string? shareLink;
+    private bool isGeneratingLink = false;
+
+    private void ShowShareChallengeModal() => showShareChallengeModal = true;
+    private void HideShareChallengeModal()
+    {
+        showShareChallengeModal = false;
+        shareLink = null;
+    }
+
+    private async Task GenerateShareLink()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        
+        if (user.Identity?.IsAuthenticated ?? false)
+        {
+            var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+            var userName = currentUser?.DisplayName ?? user.Identity?.Name ?? "User";
+            
+            if (!string.IsNullOrEmpty(userId))
+            {
+                isGeneratingLink = true;
+                var token = await ChallengeService.CreateChallengeAsync(userId, userName);
+                shareLink = $"{NavigationManager.BaseUri}challenge/{token}";
+                isGeneratingLink = false;
+                StateHasChanged();
+            }
+        }
+    }
+
+    private async Task CopyToClipboard()
+    {        if (!string.IsNullOrEmpty(shareLink))
+        {
+            await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", shareLink);
+            ToastService.ShowSuccess(Localizer["LinkCopied"]);
+        }
+    }
 }

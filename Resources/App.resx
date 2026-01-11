@@ -270,4 +270,88 @@
   <data name="XPEarned" xml:space="preserve">
     <value>XP Earned</value>
   </data>
+  <data name="Challenge" xml:space="preserve">
+    <value>Challenge</value>
+  </data>
+  <data name="ShareChallenge" xml:space="preserve">
+    <value>Share Challenge</value>
+  </data>
+  <data name="ShareChallengeDesc" xml:space="preserve">
+    <value>Challenge your friends to build better habits together!</value>
+  </data>
+  <data name="GenerateLink" xml:space="preserve">
+    <value>Generate Challenge Link</value>
+  </data>
+  <data name="LinkReady" xml:space="preserve">
+    <value>Your challenge link is ready!</value>
+  </data>
+  <data name="Copy" xml:space="preserve">
+    <value>Copy</value>
+  </data>
+  <data name="LinkCopied" xml:space="preserve">
+    <value>Link copied to clipboard!</value>
+  </data>
+  <data name="ShareInstructions" xml:space="preserve">
+    <value>Share this link with your friends:</value>
+  </data>
+  <data name="ShareVia1" xml:space="preserve">
+    <value>Send via messaging apps</value>
+  </data>
+  <data name="ShareVia2" xml:space="preserve">
+    <value>Post on social media</value>
+  </data>
+  <data name="ShareVia3" xml:space="preserve">
+    <value>Email to friends</value>
+  </data>
+  <data name="ChallengeNotFound" xml:space="preserve">
+    <value>Challenge Not Found</value>
+  </data>
+  <data name="ChallengeInvalidOrExpired" xml:space="preserve">
+    <value>This challenge link is invalid or has expired.</value>
+  </data>
+  <data name="GoHome" xml:space="preserve">
+    <value>Go to Home</value>
+  </data>
+  <data name="ChallengeAccepted" xml:space="preserve">
+    <value>Challenge Accepted!</value>
+  </data>
+  <data name="ChallengeTasksCreated" xml:space="preserve">
+    <value>Your challenge tasks have been created. Good luck!</value>
+  </data>
+  <data name="ViewTasks" xml:space="preserve">
+    <value>View My Tasks</value>
+  </data>
+  <data name="YouveBeenChallenged" xml:space="preserve">
+    <value>You've Been Challenged!</value>
+  </data>
+  <data name="ChallengesYou" xml:space="preserve">
+    <value>challenges you to:</value>
+  </data>
+  <data name="WhatYouGet" xml:space="preserve">
+    <value>What you'll get:</value>
+  </data>
+  <data name="Challenge7Tasks" xml:space="preserve">
+    <value>7 daily tasks to build your habit</value>
+  </data>
+  <data name="ChallengeBuildHabit" xml:space="preserve">
+    <value>Build a consistent routine</value>
+  </data>
+  <data name="ChallengeEarnXP" xml:space="preserve">
+    <value>Earn XP and level up (if logged in)</value>
+  </data>
+  <data name="AcceptChallenge" xml:space="preserve">
+    <value>Accept Challenge</value>
+  </data>
+  <data name="ChallengeGuestNote" xml:space="preserve">
+    <value>You can accept as a guest, but</value>
+  </data>
+  <data name="Challenge7DayDesc" xml:space="preserve">
+    <value>Complete at least 1 task per day for 7 days</value>
+  </data>
+  <data name="ChallengeUnknown" xml:space="preserve">
+    <value>Unknown challenge type</value>
+  </data>
+  <data name="ChallengeTask7Day" xml:space="preserve">
+    <value>Day {0}/7: Challenge from {1}</value>
+  </data>
 </root>

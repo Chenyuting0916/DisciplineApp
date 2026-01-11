@@ -15,6 +15,8 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<PomodoroSession> PomodoroSessions { get; set; }
     public DbSet<FocusSession> FocusSessions { get; set; }
     public DbSet<Category> Categories { get; set; }
+    public DbSet<AnalyticsEvent> AnalyticsEvents { get; set; }
+    public DbSet<Challenge> Challenges { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

@@ -49,11 +49,14 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.R
 
 builder.Services.AddScoped<IGamificationService, GamificationService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<IChallengeService, ChallengeService>();
 builder.Services.AddScoped<TokenProvider>();
 builder.Services.AddScoped<CalendarService>();
 builder.Services.AddScoped<DisciplineApp.Services.LocalStorageService>();
 builder.Services.AddScoped<DisciplineApp.Services.ToastService>();
 builder.Services.AddScoped<DisciplineApp.Services.TimerService>();
+builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
+builder.Services.AddScoped<GuestTaskService>();
 
 builder.Services.AddAuthentication()
     .AddGoogle(options =>

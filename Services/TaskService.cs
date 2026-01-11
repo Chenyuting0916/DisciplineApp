@@ -30,6 +30,8 @@ public class TaskService : ITaskService
             .ToListAsync();
 
         // Reset routine tasks if they were completed before today
+        bool hasChanges = false;
+        // Reset routine tasks if they were completed before today
         foreach (var task in tasks.Where(t => t.IsRoutine && t.IsCompleted))
         {
             if (task.LastCompletedDate.HasValue && task.LastCompletedDate.Value.Date < DateTime.Today)
@@ -37,10 +39,14 @@ public class TaskService : ITaskService
                 task.IsCompleted = false;
                 task.CompletedAt = null;
                 task.XpAwarded = false;
+                hasChanges = true;
             }
         }
 
-        await _context.SaveChangesAsync();
+        if (hasChanges)
+        {
+            await _context.SaveChangesAsync();
+        }
         return tasks;
     }
 

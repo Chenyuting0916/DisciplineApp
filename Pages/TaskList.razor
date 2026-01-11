@@ -7,6 +7,8 @@
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 @inject LocalStorageService LocalStorageService
 @inject ToastService ToastService
+@inject GuestTaskService GuestTaskService
+@inject IAnalyticsService AnalyticsService
 
 @using DisciplineApp.Shared
 
@@ -173,78 +175,7 @@
 
     private async Task LoadGuestTasks()
     {
-        var allTasks = await LocalStorageService.GetItemAsync<List<UserTask>>("guest_tasks");
-
-        if (allTasks == null || !allTasks.Any())
-        {
-            // First time guest! Initialize with default onboarding tasks
-            allTasks = new List<UserTask>();
-            
-            // Helper to find category or fallback
-            // We assume categories are loaded in OnInitializedAsync, but if we are here early or they failed, we hardcode defaults
-            var workCat = categories?.FirstOrDefault(c => c.Id == 1) ?? new Category { Id = 1, Name = "Work", ColorCode = "#3B82F6" };
-            var personalCat = categories?.FirstOrDefault(c => c.Id == 2) ?? new Category { Id = 2, Name = "Personal", ColorCode = "#10B981" };
-            var learningCat = categories?.FirstOrDefault(c => c.Id == 4) ?? new Category { Id = 4, Name = "Learning", ColorCode = "#F59E0B" };
-
-            // Task 1: Try adding a task (Learning)
-            allTasks.Add(new UserTask
-            {
-                Id = 1,
-                UserId = "guest",
-                Title = Localizer["GuestTask1"],
-                Date = DateTime.Today,
-                IsRoutine = false,
-                CategoryId = 4,
-                Category = learningCat
-            });
-
-            // Task 2: Pomodoro (Work)
-            allTasks.Add(new UserTask
-            {
-                Id = 2,
-                UserId = "guest",
-                Title = Localizer["GuestTask2"],
-                Date = DateTime.Today,
-                IsRoutine = false,
-                CategoryId = 1,
-                Category = workCat
-            });
-
-            // Task 3: Satisfaction (Personal)
-            allTasks.Add(new UserTask
-            {
-                Id = 3,
-                UserId = "guest",
-                Title = Localizer["GuestTask3"],
-                Date = DateTime.Today,
-                IsRoutine = false,
-                CategoryId = 2,
-                Category = personalCat
-            });
-
-            await LocalStorageService.SetItemAsync("guest_tasks", allTasks);
-        }
-        
-        // Filter for today's tasks OR routine tasks
-        tasks = allTasks.Where(t => t.Date.Date == DateTime.Today || (t.IsRoutine && t.Date.Date <= DateTime.Today)).ToList();
-
-        // Reset routine tasks if they were completed before today
-        bool needsSave = false;
-        foreach (var task in tasks.Where(t => t.IsRoutine && t.IsCompleted))
-        {
-            if (task.CompletedAt.HasValue && task.CompletedAt.Value.Date < DateTime.Today)
-            {
-                task.IsCompleted = false;
-                task.CompletedAt = null;
-                task.XpAwarded = false;
-                needsSave = true;
-            }
-        }
-
-        if (needsSave)
-        {
-            await LocalStorageService.SetItemAsync("guest_tasks", allTasks);
-        }
+        tasks = await GuestTaskService.GetTasksForTodayAsync(categories);
     }
 
     private async Task LoadTasks()
@@ -285,22 +216,16 @@
         }
         else
         {
-            var allGuestTasks = await LocalStorageService.GetItemAsync<List<UserTask>>("guest_tasks") ?? new List<UserTask>();
-            var newTask = new UserTask 
-            { 
-                Id = allGuestTasks.Any() ? allGuestTasks.Max(t => t.Id) + 1 : 1,
-                UserId = "guest", 
-                Title = newTaskTitle, 
-                Date = DateTime.Today,
-                IsRoutine = isRoutineTask,
-                CategoryId = selectedCategoryId,
-                Category = categories?.FirstOrDefault(c => c.Id == selectedCategoryId)
-            };
-            allGuestTasks.Add(newTask);
-            await LocalStorageService.SetItemAsync("guest_tasks", allGuestTasks);
+            await GuestTaskService.AddTaskAsync(newTaskTitle, isRoutineTask, selectedCategoryId, categories);
         }
         
-        
+        // Track analytics
+        var trackData = System.Text.Json.JsonSerializer.Serialize(new { 
+            Category = categories?.FirstOrDefault(c => c.Id == selectedCategoryId)?.Name ?? "Uncategorized",
+            IsRoutine = isRoutineTask 
+        });
+        await AnalyticsService.TrackEventAsync("Task_Created", "Task", trackData);
+
         newTaskTitle = "";
         selectedCategoryId = null;
         isRoutineTask = false;
@@ -336,18 +261,10 @@
         }
         else
         {
-            var allGuestTasks = await LocalStorageService.GetItemAsync<List<UserTask>>("guest_tasks") ?? new List<UserTask>();
-            var target = allGuestTasks.FirstOrDefault(t => t.Id == task.Id);
-            if (target != null)
+            var wasCompleted = await GuestTaskService.ToggleTaskAsync(task.Id);
+            if (wasCompleted)
             {
-                target.IsCompleted = !target.IsCompleted;
-                target.CompletedAt = target.IsCompleted ? DateTime.UtcNow : null;
-                await LocalStorageService.SetItemAsync("guest_tasks", allGuestTasks);
-                
-                if (target.IsCompleted)
-                {
-                    ToastService.ShowInfo(Localizer["TaskCompletedGuest"]);
-                }
+                ToastService.ShowInfo(Localizer["TaskCompletedGuest"]);
             }
         }
         await LoadTasks(); 
@@ -361,13 +278,7 @@
         }
         else
         {
-            var allGuestTasks = await LocalStorageService.GetItemAsync<List<UserTask>>("guest_tasks") ?? new List<UserTask>();
-            var target = allGuestTasks.FirstOrDefault(t => t.Id == task.Id);
-            if (target != null)
-            {
-                allGuestTasks.Remove(target);
-                await LocalStorageService.SetItemAsync("guest_tasks", allGuestTasks);
-            }
+            await GuestTaskService.DeleteTaskAsync(task.Id);
         }
         await LoadTasks();
     }

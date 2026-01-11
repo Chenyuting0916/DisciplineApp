@@ -3,6 +3,7 @@ using System;
 using DisciplineApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DisciplineApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260111140518_AddAnalyticsEvents")]
+    partial class AddAnalyticsEvents
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.14");
@@ -186,58 +189,6 @@ namespace DisciplineApp.Migrations
                             ColorCode = "#F59E0B",
                             Name = "Learning"
                         });
-                });
-
-            modelBuilder.Entity("DisciplineApp.Models.Challenge", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime?>("AcceptedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("AcceptedById")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("AcceptedByUserId")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime?>("CompletedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CreatedById")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CreatedByName")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("CreatedByUserId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("ShareToken")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("AcceptedById");
-
-                    b.HasIndex("CreatedById");
-
-                    b.ToTable("Challenges");
                 });
 
             modelBuilder.Entity("DisciplineApp.Models.FocusSession", b =>
@@ -476,21 +427,6 @@ namespace DisciplineApp.Migrations
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("DisciplineApp.Models.Challenge", b =>
-                {
-                    b.HasOne("DisciplineApp.Models.ApplicationUser", "AcceptedBy")
-                        .WithMany()
-                        .HasForeignKey("AcceptedById");
-
-                    b.HasOne("DisciplineApp.Models.ApplicationUser", "CreatedBy")
-                        .WithMany()
-                        .HasForeignKey("CreatedById");
-
-                    b.Navigation("AcceptedBy");
-
-                    b.Navigation("CreatedBy");
                 });
 
             modelBuilder.Entity("DisciplineApp.Models.PomodoroSession", b =>

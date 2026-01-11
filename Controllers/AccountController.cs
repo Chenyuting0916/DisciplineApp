@@ -39,7 +39,7 @@ public class AccountController : Controller
     }
 
     [HttpGet]
-    public async Task<IActionResult> GoogleCallback(string returnUrl = "/", string remoteError = null)
+    public async Task<IActionResult> GoogleCallback(string returnUrl = "/", string? remoteError = null)
     {
         if (remoteError != null)
         {
