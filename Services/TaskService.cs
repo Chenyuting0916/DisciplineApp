@@ -2,14 +2,16 @@ using DisciplineApp.Data;
 using DisciplineApp.Models;
 using Microsoft.EntityFrameworkCore;
 
+using DisciplineApp.Services.Interfaces;
+
 namespace DisciplineApp.Services;
 
-public class TaskService
+public class TaskService : ITaskService
 {
     private readonly ApplicationDbContext _context;
-    private readonly GamificationService _gamificationService;
+    private readonly IGamificationService _gamificationService;
 
-    public TaskService(ApplicationDbContext context, GamificationService gamificationService)
+    public TaskService(ApplicationDbContext context, IGamificationService gamificationService)
     {
         _context = context;
         _gamificationService = gamificationService;
@@ -21,6 +23,7 @@ public class TaskService
         var endOfDay = startOfDay.AddDays(1);
 
         var tasks = await _context.UserTasks
+            .Include(t => t.Category)
             .Where(t => t.UserId == userId && 
                         ((t.Date >= startOfDay && t.Date < endOfDay) || 
                          (t.IsRoutine && t.Date < endOfDay)))
@@ -41,7 +44,16 @@ public class TaskService
         return tasks;
     }
 
-    public async Task<UserTask> AddTaskAsync(string userId, string title, DateTime date, bool isRoutine = false)
+
+
+    public async Task<List<Category>> GetCategoriesAsync(string userId)
+    {
+        return await _context.Categories
+            .Where(c => c.UserId == null || c.UserId == userId)
+            .ToListAsync();
+    }
+
+    public async Task<UserTask> AddTaskAsync(string userId, string title, DateTime date, bool isRoutine = false, int? categoryId = null)
     {
         var task = new UserTask
         {
@@ -49,6 +61,7 @@ public class TaskService
             Title = title,
             Date = date,
             IsRoutine = isRoutine,
+            CategoryId = categoryId,
             IsCompleted = false
         };
 

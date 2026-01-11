@@ -2,9 +2,11 @@ using DisciplineApp.Data;
 using DisciplineApp.Models;
 using Microsoft.EntityFrameworkCore;
 
+using DisciplineApp.Services.Interfaces;
+
 namespace DisciplineApp.Services;
 
-public class GamificationService
+public class GamificationService : IGamificationService
 {
     private readonly ApplicationDbContext _context;
     private readonly Microsoft.AspNetCore.Identity.UserManager<ApplicationUser> _userManager;

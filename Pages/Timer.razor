@@ -1,10 +1,10 @@
 @page "/timer"
 @using DisciplineApp.Services
 @using DisciplineApp.Models
-@inject GamificationService GamificationService
+@inject IGamificationService GamificationService
 @inject AuthenticationStateProvider _authStateProvider
 @inject ToastService ToastService
-@inject TaskService TaskService
+@inject ITaskService TaskService
 @inject IJSRuntime JSRuntime
 @inject TimerService TimerService
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer

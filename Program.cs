@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Components.Web;
 using DisciplineApp.Data;
 using Microsoft.EntityFrameworkCore;
 using DisciplineApp.Models;
+using DisciplineApp.Services;
+using DisciplineApp.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -43,10 +45,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
-builder.Services.AddScoped<DisciplineApp.Services.GamificationService>();
-builder.Services.AddScoped<DisciplineApp.Services.TaskService>();
-builder.Services.AddScoped<DisciplineApp.Services.TokenProvider>();
-builder.Services.AddScoped<DisciplineApp.Services.CalendarService>();
+
+
+builder.Services.AddScoped<IGamificationService, GamificationService>();
+builder.Services.AddScoped<ITaskService, TaskService>();
+builder.Services.AddScoped<TokenProvider>();
+builder.Services.AddScoped<CalendarService>();
 builder.Services.AddScoped<DisciplineApp.Services.LocalStorageService>();
 builder.Services.AddScoped<DisciplineApp.Services.ToastService>();
 builder.Services.AddScoped<DisciplineApp.Services.TimerService>();

@@ -12,6 +12,9 @@ public class UserTask
 
     [Required]
     public string Title { get; set; } = string.Empty;
+
+    public int? CategoryId { get; set; }
+    public Category? Category { get; set; }
     
     public bool IsCompleted { get; set; }
     public bool IsRoutine { get; set; }

@@ -1,7 +1,7 @@
 @page "/tasks"
 @using DisciplineApp.Services
 @using DisciplineApp.Models
-@inject TaskService TaskService
+@inject ITaskService TaskService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 @inject LocalStorageService LocalStorageService
@@ -40,6 +40,10 @@
                             {
                                 <span class="badge bg-info text-dark ms-2">Routine</span>
                             }
+                            @if (task.Category != null)
+                            {
+                                <span class="badge ms-2" style="background-color: @task.Category.ColorCode">@task.Category.Name</span>
+                            }
                         </div>
                         <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteTask(task)">
                             <span aria-hidden="true">&times;</span>
@@ -64,6 +68,19 @@
                     <div class="mb-3">
                         <label class="form-label">Task Title</label>
                         <input type="text" class="form-control" @bind="newTaskTitle" placeholder="Enter task title..." />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" @bind="selectedCategoryId">
+                            <option value="">Uncategorized</option>
+                            @if (categories != null)
+                            {
+                                @foreach (var category in categories)
+                                {
+                                    <option value="@category.Id">@category.Name</option>
+                                }
+                            }
+                        </select>
                     </div>
                     <div class="form-check">
                         <input class="form-check-input" type="checkbox" @bind="isRoutineTask" id="modalRoutineCheck">
@@ -94,7 +111,9 @@
 
 @code {
     private List<UserTask>? tasks;
+    private List<Category>? categories;
     private string newTaskTitle = "";
+    private int? selectedCategoryId;
     private bool isRoutineTask = false;
     private bool showAddTaskModal = false;
     private string userId = "";
@@ -105,6 +124,7 @@
     {
         showAddTaskModal = false;
         newTaskTitle = "";
+        selectedCategoryId = null;
         isRoutineTask = false;
     }
 
@@ -122,10 +142,14 @@
         if (user.Identity?.IsAuthenticated ?? false)
         {
             userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value ?? "";
-            if (!string.IsNullOrEmpty(userId))
-            {
-                tasks = await TaskService.GetTasksForDateAsync(userId, DateTime.Today);
-            }
+        }
+        
+        // Load categories (system defaults + user specific)
+        categories = await TaskService.GetCategoriesAsync(userId);
+
+        if (!string.IsNullOrEmpty(userId))
+        {
+             tasks = await TaskService.GetTasksForDateAsync(userId, DateTime.Today);
         }
     }
 
@@ -197,7 +221,7 @@
         {
             try
             {
-                await TaskService.AddTaskAsync(userId, newTaskTitle, DateTime.Today, isRoutineTask);
+                await TaskService.AddTaskAsync(userId, newTaskTitle, DateTime.Today, isRoutineTask, selectedCategoryId);
             }
             catch (Exception ex)
             {
@@ -215,13 +239,17 @@
                 UserId = "guest", 
                 Title = newTaskTitle, 
                 Date = DateTime.Today,
-                IsRoutine = isRoutineTask
+                IsRoutine = isRoutineTask,
+                CategoryId = selectedCategoryId,
+                Category = categories?.FirstOrDefault(c => c.Id == selectedCategoryId)
             };
             allGuestTasks.Add(newTask);
             await LocalStorageService.SetItemAsync("guest_tasks", allGuestTasks);
         }
         
+        
         newTaskTitle = "";
+        selectedCategoryId = null;
         isRoutineTask = false;
         await LoadTasks();
     }

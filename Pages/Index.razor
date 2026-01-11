@@ -3,9 +3,9 @@
 @using DisciplineApp.Services
 @using DisciplineApp.Models
 @inject AuthenticationStateProvider AuthenticationStateProvider
-@inject TaskService TaskService
+@inject ITaskService TaskService
 @inject ToastService ToastService
-@inject GamificationService GamificationService
+@inject IGamificationService GamificationService
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 
 <PageTitle>DisciplineApp - @Localizer["Home"]</PageTitle>
