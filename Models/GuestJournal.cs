@@ -7,7 +7,8 @@ public class GuestDayJournal
     public DateTime Date { get; set; }
     public string Vow { get; set; } = string.Empty;
     public string OneThing { get; set; } = string.Empty;
-    public int Mood { get; set; } = 3;
+    public int Mood { get; set; }
+    public bool HasMood { get; set; }
     public string? Note { get; set; }
 }
 
@@ -23,20 +24,24 @@ public static class GuestJournalLogic
         DateTime utcNow,
         string? vow,
         string? oneThing,
-        int mood,
+        int? mood,
         string? note)
     {
         var today = utcNow.Date;
         var existing = days.FirstOrDefault(d => d.Date.Date == today);
         if (existing == null)
         {
-            existing = new GuestDayJournal { Date = today, Mood = 3 };
+            existing = new GuestDayJournal { Date = today };
             days.Add(existing);
         }
 
         if (vow != null) existing.Vow = InputGuard.Clamp(vow, InputGuard.VowMax);
         if (oneThing != null) existing.OneThing = InputGuard.Clamp(oneThing, InputGuard.TitleMax);
-        existing.Mood = Math.Clamp(mood, 1, 5);
+        if (mood.HasValue)
+        {
+            existing.Mood = Math.Clamp(mood.Value, 1, 5);
+            existing.HasMood = true;
+        }
         if (note != null)
         {
             existing.Note = string.IsNullOrWhiteSpace(note) ? null : InputGuard.Clamp(note, InputGuard.NoteMax);
@@ -63,6 +68,7 @@ public static class GuestJournalLogic
         var weekStart = HabitMath.WeekStart(utcNow);
         var weekEnd = weekStart.AddDays(7);
         var weekDays = days.Where(d => d.Date.Date >= weekStart && d.Date.Date < weekEnd).ToList();
+        var moodDays = weekDays.Where(d => d.HasMood).ToList();
         var weekTasks = tasks.Where(t =>
             (t.CompletedAt.HasValue && t.CompletedAt.Value.Date >= weekStart && t.CompletedAt.Value.Date < weekEnd)
             || (t.IsCompleted && t.Date.Date >= weekStart && t.Date.Date < weekEnd)).ToList();
@@ -83,12 +89,34 @@ public static class GuestJournalLogic
             TasksCompleted = weekTasks.Count,
             SessionCount = GuestFocusLogic.WeekSessionCount(weekFocusSessions, weekStart),
             VowDays = weekDays.Count(d => !string.IsNullOrWhiteSpace(d.Vow) || !string.IsNullOrWhiteSpace(d.OneThing)),
+            MoodCheckIns = moodDays.Count,
+            AverageMood = MoodMath.AverageRounded(moodDays.Select(d => d.Mood)),
             CurrentStreak = HabitMath.LongestOpenStreak(habits.SelectMany(h => h.Logs.Select(l => l.Date)), utcNow),
             FocusMinutes = weekFocus,
             BestDay = bestDay,
             BestDayMinutes = bestMinutes,
             TopFocus = GuestFocusLogic.TopTaggedFocus(weekFocusSessions, weekStart)
         };
+    }
+}
+
+public static class MoodMath
+{
+    public static string Emoji(int mood) => mood switch
+    {
+        1 => "😞",
+        2 => "😕",
+        3 => "😐",
+        4 => "🙂",
+        5 => "😄",
+        _ => "😐"
+    };
+
+    public static int AverageRounded(IEnumerable<int> moods)
+    {
+        var values = moods.Where(m => m is >= 1 and <= 5).ToList();
+        if (values.Count == 0) return 0;
+        return (int)Math.Round(values.Average(), MidpointRounding.AwayFromZero);
     }
 }
 
@@ -119,6 +147,31 @@ public static class HabitMath
                 cursor = cursor.AddDays(-1);
             }
             else if (date < cursor) break;
+        }
+        return streak;
+    }
+
+    public static (StreakStatus Status, int Streak) ActivityStreakStatus(IEnumerable<DateTime> days, DateTime utcNow)
+    {
+        var dates = days.Select(d => d.Date).Distinct().ToHashSet();
+        if (dates.Count == 0) return (StreakStatus.None, 0);
+
+        var today = utcNow.Date;
+        var last = dates.Max();
+        if (last == today) return (StreakStatus.Active, CountBack(dates, today));
+        if (last == today.AddDays(-1)) return (StreakStatus.Pending, CountBack(dates, last));
+        if (last == today.AddDays(-2)) return (StreakStatus.AtRisk, CountBack(dates, last));
+        return (StreakStatus.Broken, 0);
+    }
+
+    private static int CountBack(HashSet<DateTime> dates, DateTime start)
+    {
+        var streak = 0;
+        var cursor = start.Date;
+        while (dates.Contains(cursor))
+        {
+            streak++;
+            cursor = cursor.AddDays(-1);
         }
         return streak;
     }

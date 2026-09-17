@@ -426,6 +426,9 @@
   <data name="StreakSaved" xml:space="preserve">
     <value>Streak protected. Finish something today to keep it alive.</value>
   </data>
+  <data name="GuestStreakAtRiskHint" xml:space="preserve">
+    <value>Do one small thing today — a focus block or a habit. It stays on this device. No coins needed.</value>
+  </data>
   <data name="SetGoal" xml:space="preserve">
     <value>Set goal</value>
   </data>
@@ -741,6 +744,9 @@
   <data name="ReviewVowDays" xml:space="preserve">
     <value>{0} vow days</value>
   </data>
+  <data name="ReviewMoodSummary" xml:space="preserve">
+    <value>{0} mood check-ins · {1}</value>
+  </data>
   <data name="ReviewLevel" xml:space="preserve">
     <value>Level {0} · longest streak {1}</value>
   </data>
@@ -936,8 +942,26 @@
   <data name="GuestStartToday" xml:space="preserve">
     <value>Start today</value>
   </data>
+  <data name="ReviewNudgeTitle" xml:space="preserve">
+    <value>That block is saved. Look at your week.</value>
+  </data>
+  <data name="ReviewNudgeGoal" xml:space="preserve">
+    <value>You hit today’s goal. See this week’s receipts.</value>
+  </data>
+  <data name="GoToReview" xml:space="preserve">
+    <value>See weekly review</value>
+  </data>
   <data name="HistoryEmpty" xml:space="preserve">
     <value>No focus sessions yet. Start one.</value>
+  </data>
+  <data name="HeatmapLess" xml:space="preserve">
+    <value>Less</value>
+  </data>
+  <data name="HeatmapMore" xml:space="preserve">
+    <value>More</value>
+  </data>
+  <data name="HeatmapActivityCount" xml:space="preserve">
+    <value>{0} activities</value>
   </data>
   <data name="NotFound" xml:space="preserve">
     <value>Page not found</value>
