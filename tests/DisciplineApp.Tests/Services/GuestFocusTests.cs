@@ -85,6 +85,7 @@ public class GuestFocusTests
 
         Assert.Equal(1, review.SessionCount);
         Assert.Equal(1, review.VowDays);
+        Assert.Equal(0, review.MoodCheckIns);
         Assert.Equal(40, review.FocusMinutes);
         Assert.Equal(weekStart.AddDays(2).Date, review.BestDay!.Value.Date);
         Assert.Equal(40, review.BestDayMinutes);

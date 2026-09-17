@@ -744,6 +744,9 @@
   <data name="ReviewVowDays" xml:space="preserve">
     <value>誓い {0} 日</value>
   </data>
+  <data name="ReviewMoodSummary" xml:space="preserve">
+    <value>気分チェックイン {0} 日 · {1}</value>
+  </data>
   <data name="ReviewLevel" xml:space="preserve">
     <value>レベル {0} · 最長連続 {1}</value>
   </data>
