@@ -556,8 +556,10 @@ body.sanctuary-mode .timer-shell {
 }
 
 #offline-banner {
-    position: sticky;
+    position: fixed;
     top: 0;
+    left: 0;
+    right: 0;
     z-index: 5000;
     background: #3f2a12;
     color: #ffd8a8;
