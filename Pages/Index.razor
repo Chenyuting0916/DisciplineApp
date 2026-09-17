@@ -361,7 +361,7 @@
                         @if (weeklyFocusBreakdown.Any())
                         {
                             <ul class="list-group list-group-flush mb-3">
-                                @foreach (var item in weeklyFocusBreakdown.OrderByDescending(x => x.Value).Take(8))
+                                @foreach (var item in weeklyFocusBreakdown.Where(x => (int)x.Value > 0).OrderByDescending(x => x.Value).Take(8))
                                 {
                                     <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0">
                                         <span>@FocusTagLabel(item.Key)</span>
@@ -758,9 +758,15 @@
     }
 
     private string FocusTagLabel(string? tag)
-        => string.IsNullOrWhiteSpace(tag) || tag == "Uncategorized"
-            ? Localizer["Uncategorized"]
-            : tag;
+    {
+        if (string.IsNullOrWhiteSpace(tag)
+            || string.Equals(tag, "Uncategorized", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(tag, "custom", StringComparison.OrdinalIgnoreCase))
+        {
+            return Localizer["Uncategorized"];
+        }
+        return tag;
+    }
     
     private async Task LoadWeeklyStats(string userId)
     {
