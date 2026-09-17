@@ -38,4 +38,10 @@ public static class FocusTaskMatcher
 
         return (resolved, customTitle ?? "");
     }
+
+    public static bool CanStartFocus(UserTask? task)
+        => task != null && (!task.IsCompleted || task.IsRoutine);
+
+    public static string StartFromTask(UserTask? task)
+        => CanStartFocus(task) ? InputGuard.Clamp(task!.Title, InputGuard.FocusTaskMax) : "";
 }
