@@ -426,6 +426,9 @@
   <data name="StreakSaved" xml:space="preserve">
     <value>連続記録を保護しました。今日もう一つ完了すればつながります。</value>
   </data>
+  <data name="GuestStreakAtRiskHint" xml:space="preserve">
+    <value>今日ひとつやれば連続を残せます。集中か習慣。この端末に残ります。コインは使いません。</value>
+  </data>
   <data name="SetGoal" xml:space="preserve">
     <value>目標を設定</value>
   </data>
