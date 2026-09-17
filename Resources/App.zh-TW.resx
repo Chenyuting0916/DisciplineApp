@@ -936,6 +936,15 @@
   <data name="GuestStartToday" xml:space="preserve">
     <value>先開始今天</value>
   </data>
+  <data name="ReviewNudgeTitle" xml:space="preserve">
+    <value>這一場記下了。看一下這週。</value>
+  </data>
+  <data name="ReviewNudgeGoal" xml:space="preserve">
+    <value>今天達標了。看這週的收據。</value>
+  </data>
+  <data name="GoToReview" xml:space="preserve">
+    <value>看週報</value>
+  </data>
   <data name="HistoryEmpty" xml:space="preserve">
     <value>還沒有專注紀錄。先去開始一場。</value>
   </data>
