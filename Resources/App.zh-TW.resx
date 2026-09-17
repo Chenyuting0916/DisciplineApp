@@ -426,6 +426,9 @@
   <data name="StreakSaved" xml:space="preserve">
     <value>已保護連續紀錄。今天再完成一件事，就能接上。</value>
   </data>
+  <data name="GuestStreakAtRiskHint" xml:space="preserve">
+    <value>今天做一件小事：一場專注或一個習慣。資料留在這台裝置，不用花金幣。</value>
+  </data>
   <data name="SetGoal" xml:space="preserve">
     <value>設定目標</value>
   </data>
@@ -741,6 +744,9 @@
   <data name="ReviewVowDays" xml:space="preserve">
     <value>立了 {0} 天誓言</value>
   </data>
+  <data name="ReviewMoodSummary" xml:space="preserve">
+    <value>{0} 天心情打卡 · {1}</value>
+  </data>
   <data name="ReviewLevel" xml:space="preserve">
     <value>等級 {0} · 最長連續 {1}</value>
   </data>
@@ -936,8 +942,26 @@
   <data name="GuestStartToday" xml:space="preserve">
     <value>先開始今天</value>
   </data>
+  <data name="ReviewNudgeTitle" xml:space="preserve">
+    <value>這一場記下了。看一下這週。</value>
+  </data>
+  <data name="ReviewNudgeGoal" xml:space="preserve">
+    <value>今天達標了。看這週的收據。</value>
+  </data>
+  <data name="GoToReview" xml:space="preserve">
+    <value>看週報</value>
+  </data>
   <data name="HistoryEmpty" xml:space="preserve">
     <value>還沒有專注紀錄。先去開始一場。</value>
+  </data>
+  <data name="HeatmapLess" xml:space="preserve">
+    <value>少</value>
+  </data>
+  <data name="HeatmapMore" xml:space="preserve">
+    <value>多</value>
+  </data>
+  <data name="HeatmapActivityCount" xml:space="preserve">
+    <value>{0} 次行動</value>
   </data>
   <data name="Guest" xml:space="preserve">
     <value>訪客</value>

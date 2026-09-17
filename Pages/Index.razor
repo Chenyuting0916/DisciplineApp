@@ -159,21 +159,29 @@
                                 <ul class="list-group list-group-flush">
                                     @foreach (var task in sortedTasks.Take(5))
                                     {
-                                        <li class="list-group-item d-flex align-items-center @(task.IsCompleted ? "text-decoration-line-through text-muted" : "")" style="cursor: pointer;">
+                                        <li class="list-group-item d-flex align-items-center flex-wrap gap-2 @(task.IsCompleted ? "text-decoration-line-through text-muted" : "")">
                                             <input type="checkbox" class="form-check-input me-2" checked="@task.IsCompleted" @onchange="() => ToggleTask(task)">
-                                            @task.Title
+                                            <span>@task.Title</span>
                                             @if (task.IsRoutine)
                                             {
-                                                <span class="badge bg-info text-dark ms-2">@Localizer["RoutineBadge"]</span>
+                                                <span class="badge bg-info text-dark">@Localizer["RoutineBadge"]</span>
                                             }
-                                            @if (task.XpAwarded)
-                                            {
-                                                <span class="ms-auto badge bg-success">@Localizer["XPEarned"]</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="ms-auto badge bg-secondary">+50 XP</span>
-                                            }
+                                            <span class="ms-auto d-flex align-items-center gap-2">
+                                                @if (task.XpAwarded)
+                                                {
+                                                    <span class="badge bg-success">@Localizer["XPEarned"]</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">+50 XP</span>
+                                                }
+                                                @if (FocusTaskMatcher.CanStartFocus(task))
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => StartTask(task)" @onclick:stopPropagation="true">
+                                                        @Localizer["StartThisThing"]
+                                                    </button>
+                                                }
+                                            </span>
                                         </li>
                                     }
                                 </ul>
@@ -255,6 +263,16 @@
             }
             else
             {
+                @if (guestStreakStatus == StreakStatus.AtRisk)
+                {
+                    <div class="alert alert-streak d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+                        <div>
+                            <strong>🔥 @Localizer["StreakAtRisk"]</strong>
+                            <div class="small">@Localizer["GuestStreakAtRiskHint"]</div>
+                        </div>
+                        <button type="button" class="btn btn-warning" @onclick="GoToTimer">@Localizer["StartFocusSession"]</button>
+                    </div>
+                }
                 <div class="stat-grid mb-4">
                     <div class="stat-card goal">
                         <div class="label">@Localizer["DailyGoal"]</div>
@@ -299,9 +317,15 @@
                                     <ul class="list-group list-group-flush">
                                         @foreach (var task in todayTasks.OrderBy(t => t.IsCompleted).ThenBy(t => t.Title).Take(5))
                                         {
-                                            <li class="list-group-item d-flex align-items-center @(task.IsCompleted ? "text-decoration-line-through text-muted" : "")">
+                                            <li class="list-group-item d-flex align-items-center flex-wrap gap-2 @(task.IsCompleted ? "text-decoration-line-through text-muted" : "")">
                                                 <input type="checkbox" class="form-check-input me-2" checked="@task.IsCompleted" @onchange="() => ToggleTask(task)">
-                                                @task.Title
+                                                <span class="flex-grow-1">@task.Title</span>
+                                                @if (FocusTaskMatcher.CanStartFocus(task))
+                                                {
+                                                    <button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => StartTask(task)">
+                                                        @Localizer["StartThisThing"]
+                                                    </button>
+                                                }
                                             </li>
                                         }
                                     </ul>
@@ -637,6 +661,7 @@
     private List<Habit> guestHabits = new();
     private Dictionary<DateTime, int> guestActivity = new();
     private int guestStreak;
+    private StreakStatus guestStreakStatus = StreakStatus.None;
 
     protected override async Task OnInitializedAsync()
     {
@@ -842,7 +867,9 @@
         var sessions = await GuestFocusService.GetAllAsync();
         var weekSunday = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek);
         guestActivity = GuestFocusLogic.BuildHeatmap(sessions, todayTasks, guestHabits, weekSunday.AddDays(-52 * 7));
-        guestStreak = GuestFocusLogic.ActivityStreak(guestActivity.Keys, DateTime.UtcNow);
+        var streak = HabitMath.ActivityStreakStatus(guestActivity.Keys, DateTime.UtcNow);
+        guestStreakStatus = streak.Status;
+        guestStreak = streak.Streak;
         await LoadGuestWeeklyStats();
     }
 
@@ -946,7 +973,23 @@
 
     private void GoStartThisThing()
     {
-        TimerService.FocusTask = "";
+        if (!TimerService.IsRunning)
+        {
+            TimerService.FocusTask = "";
+        }
+        NavigationManager.NavigateTo("/timer");
+    }
+
+    private void StartTask(UserTask task)
+    {
+        if (!TimerService.IsRunning)
+        {
+            var title = FocusTaskMatcher.StartFromTask(task);
+            if (!string.IsNullOrWhiteSpace(title))
+            {
+                TimerService.FocusTask = title;
+            }
+        }
         NavigationManager.NavigateTo("/timer");
     }
 

@@ -30,7 +30,7 @@ public class GuestJournalService
             DateTime.UtcNow,
             vow,
             oneThing,
-            today?.Mood ?? 3,
+            null,
             today?.Note);
         await _localStorage.SetItemAsync(StorageKey, days);
         return saved;
