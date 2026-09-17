@@ -14,6 +14,7 @@
 @inject GuestFocusService GuestFocusService
 @inject GuestTaskService GuestTaskService
 @inject GuestHabitService GuestHabitService
+@inject TimerService TimerService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
@@ -101,7 +102,7 @@
                 <button class="btn btn-primary mt-2" @onclick="SaveVow">@Localizer["CommitVow"]</button>
                 @if (!string.IsNullOrWhiteSpace(todayIntention?.OneThing))
                 {
-                    <button class="btn btn-outline-primary mt-2 ms-2" @onclick="GoToTimer">@Localizer["StartThisThing"]</button>
+                        <button class="btn btn-outline-primary mt-2 ms-2" @onclick="GoStartThisThing">@Localizer["StartThisThing"]</button>
                 }
             </div>
 
@@ -401,7 +402,7 @@
                     <button class="btn btn-primary mt-2" @onclick="SaveVow">@Localizer["CommitVow"]</button>
                     @if (!string.IsNullOrWhiteSpace(todayIntention?.OneThing))
                     {
-                        <button class="btn btn-outline-primary mt-2 ms-2" @onclick="GoToTimer">@Localizer["StartThisThing"]</button>
+                        <button class="btn btn-outline-primary mt-2 ms-2" @onclick="GoStartThisThing">@Localizer["StartThisThing"]</button>
                     }
                 </div>
 
@@ -874,6 +875,12 @@
     private void ShowLoginModal() => showLoginModal = true;
     private void HideLoginModal() => showLoginModal = false;
     private void GoToTimer() => NavigationManager.NavigateTo("/timer");
+
+    private void GoStartThisThing()
+    {
+        TimerService.FocusTask = "";
+        NavigationManager.NavigateTo("/timer");
+    }
 
     private bool showShareChallengeModal = false;
     private string? shareLink;

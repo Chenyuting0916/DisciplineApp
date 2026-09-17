@@ -807,6 +807,11 @@
 
     private void ApplyPrefill()
     {
+        if (string.Equals(customFocusTask, "custom", StringComparison.OrdinalIgnoreCase))
+        {
+            customFocusTask = "";
+        }
+
         if (!string.IsNullOrWhiteSpace(TimerService.FocusTask) && TimerService.FocusTask != "custom")
         {
             return;
