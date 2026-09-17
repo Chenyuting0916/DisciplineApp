@@ -939,4 +939,7 @@
   <data name="HistoryEmpty" xml:space="preserve">
     <value>還沒有專注紀錄。先去開始一場。</value>
   </data>
+  <data name="GuestChallengeHint" xml:space="preserve">
+    <value>訪客接受後，七天任務只會留在這台裝置，不會寫進對方的挑戰紀錄。也可先登入再接受。</value>
+  </data>
 </root>

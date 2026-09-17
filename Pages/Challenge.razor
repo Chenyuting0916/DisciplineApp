@@ -26,6 +26,7 @@
             <h4>@Localizer["ChallengeNotFound"]</h4>
             <p>@Localizer["ChallengeInvalidOrExpired"]</p>
             <a href="/" class="btn btn-primary">@Localizer["GoHome"]</a>
+            <a href="timer" class="btn btn-outline-primary ms-2">@Localizer["StartFocusSession"]</a>
         </div>
     }
     else if (accepted)
@@ -35,6 +36,7 @@
             <h1 class="display-4 mb-3">@Localizer["ChallengeAccepted"]</h1>
             <p class="lead mb-4">@Localizer["ChallengeTasksCreated"]</p>
             <a href="/tasks" class="btn btn-lg btn-primary">@Localizer["ViewTasks"]</a>
+            <a href="timer" class="btn btn-lg btn-outline-primary ms-2">@Localizer["StartFocusSession"]</a>
         </div>
     }
     else
@@ -73,10 +75,11 @@
 
                         @if (!isAuthenticated)
                         {
-                            <p class="text-muted mt-3 small">
-                                @Localizer["ChallengeGuestNote"]
-                                <a href="/Identity/Account/Login">@Localizer["Login"]</a>
-                            </p>
+                            <p class="text-muted mt-3 small mb-3">@Localizer["GuestChallengeHint"]</p>
+                            <a href="Account/LoginWithGoogle" class="btn btn-light d-flex align-items-center justify-content-center gap-2 mx-auto" style="max-width: 18rem;">
+                                <img src="https://www.google.com/favicon.ico" alt="" width="20" height="20">
+                                @Localizer["ContinueWithGoogle"]
+                            </a>
                         }
                     </div>
                 </div>
