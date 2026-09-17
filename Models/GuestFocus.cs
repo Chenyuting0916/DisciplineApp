@@ -113,6 +113,18 @@ public static class GuestFocusLogic
             .ToDictionary(g => g.Key, g => g.Sum(s => s.DurationMinutes));
     }
 
+    public static string DisplayTag(string? tag)
+    {
+        var value = tag?.Trim() ?? "";
+        if (string.IsNullOrWhiteSpace(value)
+            || string.Equals(value, "custom", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, "Uncategorized", StringComparison.OrdinalIgnoreCase))
+        {
+            return string.Empty;
+        }
+        return value;
+    }
+
     public static int WeekSessionCount(IEnumerable<GuestFocusSession> sessions, DateTime weekStart)
     {
         var start = weekStart.Date;
@@ -150,6 +162,7 @@ public static class GuestFocusLogic
             .OrderByDescending(kv => kv.Value)
             .Select(kv => kv.Key)
             .FirstOrDefault();
+
 
     public static Dictionary<string, double> DailyActivity(IEnumerable<GuestFocusSession> sessions, DateTime utcNow, int days)
     {

@@ -945,4 +945,7 @@
   <data name="GoToReview" xml:space="preserve">
     <value>週報を見る</value>
   </data>
+  <data name="HistoryEmpty" xml:space="preserve">
+    <value>まだ集中記録がありません。先に1回始めましょう。</value>
+  </data>
 </root>

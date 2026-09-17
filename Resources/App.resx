@@ -945,4 +945,7 @@
   <data name="GoToReview" xml:space="preserve">
     <value>See weekly review</value>
   </data>
+  <data name="HistoryEmpty" xml:space="preserve">
+    <value>No focus sessions yet. Start one.</value>
+  </data>
 </root>
