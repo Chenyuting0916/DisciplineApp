@@ -12,6 +12,8 @@
 @inject IIntentionService IntentionService
 @inject GuestJournalService GuestJournalService
 @inject GuestFocusService GuestFocusService
+@inject GuestTaskService GuestTaskService
+@inject GuestHabitService GuestHabitService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
@@ -299,10 +301,81 @@
                             <div class="progress-bar" role="progressbar" style="width: @(GoalPercent)%; background: var(--accent-2);"></div>
                         </div>
                     </div>
+                    <div class="stat-card">
+                        <div class="label">@Localizer["TasksToday"]</div>
+                        <div class="value">@completedTaskCount<span class="fs-6">/@totalTaskCount</span></div>
+                        <div class="small text-muted mt-1">@Localizer["CompletedOf"]</div>
+                    </div>
+                    <div class="stat-card coins">
+                        <div class="label">@Localizer["HabitsToday"]</div>
+                        <div class="value">@habitCompleted<span class="fs-6">/@habitTotal</span></div>
+                    </div>
                 </div>
                 <button class="btn btn-primary mb-4" @onclick="GoToTimer">
                     <i class="bi bi-play-fill"></i> @Localizer["StartFocusSession"]
                 </button>
+                <div class="row mb-4">
+                    <div class="col-md-6 mb-4 mb-md-0">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">@Localizer["TasksToday"]</h5>
+                                <a href="tasks" class="btn btn-sm btn-outline-primary">@Localizer["ViewAll"]</a>
+                            </div>
+                            <div class="card-body">
+                                @if (todayTasks == null || !todayTasks.Any())
+                                {
+                                    <p class="text-muted mb-0">@Localizer["NoTasks"] <a href="tasks">@Localizer["AddOne"]</a></p>
+                                }
+                                else
+                                {
+                                    <ul class="list-group list-group-flush">
+                                        @foreach (var task in todayTasks.OrderBy(t => t.IsCompleted).ThenBy(t => t.Title).Take(5))
+                                        {
+                                            <li class="list-group-item d-flex align-items-center @(task.IsCompleted ? "text-decoration-line-through text-muted" : "")">
+                                                <input type="checkbox" class="form-check-input me-2" checked="@task.IsCompleted" @onchange="() => ToggleTask(task)">
+                                                @task.Title
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card h-100">
+                            <div class="card-header d-flex justify-content-between align-items-center">
+                                <h5 class="mb-0">@Localizer["HabitsToday"]</h5>
+                                <a href="habits" class="btn btn-sm btn-outline-primary">@Localizer["ViewAll"]</a>
+                            </div>
+                            <div class="card-body">
+                                @if (!guestHabits.Any())
+                                {
+                                    <p class="text-muted mb-3">@Localizer["NoHabits"]</p>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <button class="preset-chip" @onclick="@(() => QuickAddGuestHabit("HabitWater", "💧", "#38bdf8"))">💧 @Localizer["HabitWater"]</button>
+                                        <button class="preset-chip" @onclick="@(() => QuickAddGuestHabit("HabitRead", "📚", "#a78bfa"))">📚 @Localizer["HabitRead"]</button>
+                                        <button class="preset-chip" @onclick="@(() => QuickAddGuestHabit("HabitExercise", "🏃", "#f97316"))">🏃 @Localizer["HabitExercise"]</button>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="d-flex flex-column gap-2">
+                                        @foreach (var habit in guestHabits.Take(5))
+                                        {
+                                            var doneToday = GuestHabitDoneToday(habit);
+                                            <div class="d-flex align-items-center gap-2">
+                                                <button type="button" class="habit-check @(doneToday ? "done" : "")" style="--habit-color: @habit.Color" @onclick="() => ToggleGuestHabit(habit)">
+                                                    @(doneToday ? "✓" : habit.Icon)
+                                                </button>
+                                                <span>@habit.Title</span>
+                                            </div>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="vow-card mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h5 class="mb-0">@Localizer["DailyVow"]</h5>
@@ -499,6 +572,7 @@
     private bool showCoinReward = false;
     private int coinsEarned = 0;
     private int xpEarned = 0;
+    private List<Habit> guestHabits = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -551,6 +625,7 @@
         }
         guestGoalMinutes = await GuestFocusService.GetGoalAsync();
         todayFocusMinutes = await GuestFocusService.GetTodayMinutesAsync();
+        await ReloadGuestLoop();
         guestReady = true;
         StateHasChanged();
     }
@@ -658,6 +733,44 @@
                 StateHasChanged();
             }
         }
+        else
+        {
+            var completed = await GuestTaskService.ToggleTaskAsync(task.Id);
+            todayTasks = await GuestTaskService.GetTasksForTodayAsync();
+            if (completed)
+            {
+                ToastService.ShowInfo(Localizer["TaskCompletedGuest"]);
+            }
+        }
+    }
+
+    private bool GuestHabitDoneToday(Habit habit)
+        => habit.Logs.Any(l => l.Date.Date == DateTime.UtcNow.Date);
+
+    private async Task ReloadGuestLoop()
+    {
+        todayTasks = await GuestTaskService.GetTasksForTodayAsync();
+        guestHabits = await GuestHabitService.GetHabitsAsync();
+        habitCompleted = guestHabits.Count(GuestHabitDoneToday);
+        habitTotal = guestHabits.Count;
+    }
+
+    private async Task ToggleGuestHabit(Habit habit)
+    {
+        await GuestHabitService.ToggleTodayAsync(habit.Id);
+        await ReloadGuestLoop();
+    }
+
+    private async Task QuickAddGuestHabit(string titleKey, string icon, string color)
+    {
+        var added = await GuestHabitService.AddHabitAsync(Localizer[titleKey], icon, color);
+        if (added == null)
+        {
+            ToastService.ShowError(Localizer["HabitLimit"]);
+            return;
+        }
+        await ReloadGuestLoop();
+        ToastService.ShowSuccess(Localizer["HabitCreated"]);
     }
 
     private async Task SaveReflection()

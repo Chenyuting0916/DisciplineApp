@@ -666,12 +666,22 @@
         {
             string taskName = TimerService.FocusTask == "custom" ? customFocusTask : TimerService.FocusTask;
             if (string.IsNullOrEmpty(taskName)) taskName = customFocusTask;
-            var saved = await GuestFocusService.RecordAsync(minutes, taskName, TimerService.IsPomodoroMode);
-            if (saved != null)
-            {
-                ToastService.ShowSuccess(Localizer["SessionRecorded"]);
-            }
+            await RecordGuestSession(minutes, taskName, TimerService.IsPomodoroMode);
         }
+    }
+
+    private async Task<bool> RecordGuestSession(double minutes, string? taskName, bool isPomodoro, DateTime? endedAt = null)
+    {
+        var before = await GuestFocusService.GetTodayMinutesAsync();
+        var goal = await GuestFocusService.GetGoalAsync();
+        var saved = await GuestFocusService.RecordAsync(minutes, taskName, isPomodoro, endedAt);
+        if (saved == null) return false;
+        ToastService.ShowSuccess(Localizer["SessionRecorded"]);
+        if (GuestFocusLogic.JustReachedGoal(before, before + saved.DurationMinutes, goal))
+        {
+            ToastService.ShowSuccess(Localizer["GoalReached"]);
+        }
+        return true;
     }
     
     private async Task PlaySound(string elementId)
@@ -734,10 +744,9 @@
         }
         else
         {
-            var saved = await GuestFocusService.RecordAsync(manualDuration, taskName, false, manualDate);
-            if (saved != null)
+            var saved = await RecordGuestSession(manualDuration, taskName, false, manualDate);
+            if (saved)
             {
-                ToastService.ShowSuccess(Localizer["SessionRecorded"]);
                 showManualEntry = false;
             }
             else

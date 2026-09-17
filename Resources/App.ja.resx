@@ -918,4 +918,7 @@
   <data name="GuestHistoryHint" xml:space="preserve">
     <value>これらの集中記録はこの端末だけに残り、送信されません。</value>
   </data>
+  <data name="GoalReached" xml:space="preserve">
+    <value>今日の集中目標を達成した。</value>
+  </data>
 </root>

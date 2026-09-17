@@ -918,4 +918,7 @@
   <data name="GuestHistoryHint" xml:space="preserve">
     <value>這些專注紀錄只存在這台裝置，不會上傳。</value>
   </data>
+  <data name="GoalReached" xml:space="preserve">
+    <value>今天的專注目標達成了。</value>
+  </data>
 </root>

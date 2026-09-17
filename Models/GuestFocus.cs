@@ -27,6 +27,12 @@ public static class GuestFocusLogic
     public static int ClampGoal(int minutes)
         => Math.Clamp(minutes <= 0 ? DefaultGoal : minutes, GoalMin, GoalMax);
 
+    public static bool JustReachedGoal(double beforeMinutes, double afterMinutes, int goalMinutes)
+    {
+        var goal = ClampGoal(goalMinutes);
+        return beforeMinutes < goal && afterMinutes >= goal;
+    }
+
     public static GuestFocusSession? Record(
         List<GuestFocusSession> sessions,
         double minutes,

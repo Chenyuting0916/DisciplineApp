@@ -39,6 +39,9 @@ public class GuestFocusTests
         Assert.Equal(10, GuestFocusLogic.ClampGoal(1));
         Assert.Equal(720, GuestFocusLogic.ClampGoal(900));
         Assert.Equal(60, GuestFocusLogic.ClampGoal(0));
+        Assert.True(GuestFocusLogic.JustReachedGoal(9, 10, 10));
+        Assert.False(GuestFocusLogic.JustReachedGoal(10, 15, 10));
+        Assert.False(GuestFocusLogic.JustReachedGoal(0, 5, 10));
 
         var weekStart = HabitMath.WeekStart(new DateTime(2026, 9, 17, 12, 0, 0, DateTimeKind.Utc));
         var sessions = new List<GuestFocusSession>

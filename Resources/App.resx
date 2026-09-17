@@ -918,4 +918,7 @@
   <data name="GuestHistoryHint" xml:space="preserve">
     <value>These focus sessions stay on this device and are not uploaded.</value>
   </data>
+  <data name="GoalReached" xml:space="preserve">
+    <value>Today’s focus goal is done.</value>
+  </data>
 </root>
