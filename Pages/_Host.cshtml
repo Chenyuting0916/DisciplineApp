@@ -62,8 +62,8 @@
     var accessToken = await HttpContext.GetTokenAsync("access_token");
 }
 
-    <component type="typeof(App)" render-mode="ServerPrerendered" param-AccessToken="accessToken" />
     <div id="offline-banner" hidden>@HostLocalizer["OfflineBanner"]</div>
+    <component type="typeof(App)" render-mode="ServerPrerendered" param-AccessToken="accessToken" />
 
     <!-- <div id="blazor-error-ui">
         <environment include="Staging,Production">
@@ -141,6 +141,7 @@
             }
             window.addEventListener('online', syncOffline);
             window.addEventListener('offline', syncOffline);
+            document.addEventListener('visibilitychange', syncOffline);
             syncOffline();
         })();
     </script>
