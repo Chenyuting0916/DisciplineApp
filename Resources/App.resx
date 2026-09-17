@@ -939,4 +939,13 @@
   <data name="HistoryEmpty" xml:space="preserve">
     <value>No focus sessions yet. Start one.</value>
   </data>
+  <data name="ClearLocalData" xml:space="preserve">
+    <value>Clear this device</value>
+  </data>
+  <data name="ClearLocalDataConfirm" xml:space="preserve">
+    <value>This deletes guest focus, tasks, habits, vows, and if-then plans on this device. It cannot be undone. The server has no copy. Continue?</value>
+  </data>
+  <data name="ClearLocalDataDone" xml:space="preserve">
+    <value>Guest records on this device were cleared.</value>
+  </data>
 </root>

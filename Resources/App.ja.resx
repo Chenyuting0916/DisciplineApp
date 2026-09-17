@@ -939,4 +939,13 @@
   <data name="HistoryEmpty" xml:space="preserve">
     <value>まだ集中記録がありません。先に1回始めましょう。</value>
   </data>
+  <data name="ClearLocalData" xml:space="preserve">
+    <value>この端末の記録を消す</value>
+  </data>
+  <data name="ClearLocalDataConfirm" xml:space="preserve">
+    <value>この端末のゲスト集中・タスク・習慣・宣言・If-Thenを消します。元に戻せません。サーバーに控えはありません。続けますか？</value>
+  </data>
+  <data name="ClearLocalDataDone" xml:space="preserve">
+    <value>この端末のゲスト記録を消しました。</value>
+  </data>
 </root>

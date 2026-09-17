@@ -939,4 +939,13 @@
   <data name="HistoryEmpty" xml:space="preserve">
     <value>還沒有專注紀錄。先去開始一場。</value>
   </data>
+  <data name="ClearLocalData" xml:space="preserve">
+    <value>清除本機資料</value>
+  </data>
+  <data name="ClearLocalDataConfirm" xml:space="preserve">
+    <value>這會刪掉這台裝置上的訪客專注、任務、習慣、誓言與如果—那麼，無法復原。伺服器沒有備份。要繼續嗎？</value>
+  </data>
+  <data name="ClearLocalDataDone" xml:space="preserve">
+    <value>這台裝置上的訪客紀錄已清除。</value>
+  </data>
 </root>
