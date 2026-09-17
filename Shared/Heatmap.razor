@@ -82,6 +82,10 @@
             <div class="heatmap-day level-4"></div>
             <span class="text-muted small ms-2">More</span>
         </div>
+        @if (!string.IsNullOrWhiteSpace(Hint))
+        {
+            <p class="text-muted small mt-3 mb-0">@Hint</p>
+        }
     }
 </div>
 
@@ -216,6 +220,9 @@
 </style>
 
 @code {
+    [Parameter] public Dictionary<DateTime, int>? GuestActivity { get; set; }
+    [Parameter] public string? Hint { get; set; }
+
     private Dictionary<DateTime, int> ActivityData = new();
     private DateTime StartDate;
     private bool isLoading = true;
@@ -227,6 +234,12 @@
         // Go back 52 weeks from this week's Sunday
         var currentWeekSunday = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek);
         StartDate = currentWeekSunday.AddDays(-52 * 7);
+
+        if (GuestActivity != null)
+        {
+            ApplyActivity(GuestActivity);
+            return;
+        }
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
@@ -240,6 +253,21 @@
                 maxActivity = ActivityData.Values.Any() ? ActivityData.Values.Max() : 0;
             }
         }
+        isLoading = false;
+    }
+
+    protected override void OnParametersSet()
+    {
+        if (GuestActivity != null)
+        {
+            ApplyActivity(GuestActivity);
+        }
+    }
+
+    private void ApplyActivity(Dictionary<DateTime, int> data)
+    {
+        ActivityData = data;
+        maxActivity = ActivityData.Values.Any() ? ActivityData.Values.Max() : 0;
         isLoading = false;
     }
 

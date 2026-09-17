@@ -74,9 +74,15 @@
     }
     
     .toast {
-        min-width: 300px;
+        min-width: 280px;
+        max-width: min(420px, calc(100vw - 2rem));
         margin-bottom: 0.5rem;
         box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .toast-body {
+        white-space: normal;
+        word-break: break-word;
     }
     
     .toast-header {

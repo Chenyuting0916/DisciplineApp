@@ -862,7 +862,7 @@
     <value>Don’t show this again</value>
   </data>
   <data name="GuestHomeHint" xml:space="preserve">
-    <value>Set today’s vow and check-in on this device. Sign in to sync them to an account.</value>
+    <value>Set today’s vow, focus, and check-in on this device. Sign in to sync them to an account.</value>
   </data>
   <data name="WeekProgress" xml:space="preserve">
     <value>{0}/{1} days this week</value>
@@ -871,7 +871,7 @@
     <value>The file downloads to your device only. The server does not keep a copy, and it never includes anyone else’s data.</value>
   </data>
   <data name="TimerShortcuts" xml:space="preserve">
-    <value>Space starts or pauses · Esc leaves sanctuary</value>
+    <value>Space starts or pauses · 1/2/3 pick 15/25/50 min · S skips breath · Esc leaves sanctuary</value>
   </data>
   <data name="StretchNeck" xml:space="preserve">
     <value>Slowly drop each ear toward the shoulder and hold 20 seconds.</value>
@@ -892,12 +892,45 @@
     <value>You’re offline. Your data stays on this device.</value>
   </data>
   <data name="GuestReviewHint" xml:space="preserve">
-    <value>This is the guest week on this device. Sign in for focus minutes and levels.</value>
+    <value>This is the guest week on this device. Focus minutes stay local; sign in for levels and rankings.</value>
   </data>
   <data name="ReviewGuestEmpty" xml:space="preserve">
-    <value>No guest activity this week yet. Check a habit or write a vow first.</value>
+    <value>No guest activity this week yet. Check a habit, set a vow, or start a focus session.</value>
   </data>
   <data name="ReviewGuestLetter" xml:space="preserve">
     <value>This week on this device you checked habits {0} times, finished {1} tasks, and set a vow on {2} days.</value>
+  </data>
+  <data name="CustomMinutes" xml:space="preserve">
+    <value>Custom</value>
+  </data>
+  <data name="CompleteLinkedTask" xml:space="preserve">
+    <value>You focused on “{0}”. Mark it done?</value>
+  </data>
+  <data name="MarkTaskDone" xml:space="preserve">
+    <value>Mark done</value>
+  </data>
+  <data name="NotNow" xml:space="preserve">
+    <value>Not now</value>
+  </data>
+  <data name="OneMoreSession" xml:space="preserve">
+    <value>One more</value>
+  </data>
+  <data name="GuestHistoryHint" xml:space="preserve">
+    <value>These focus sessions stay on this device and are not uploaded.</value>
+  </data>
+  <data name="GoalReached" xml:space="preserve">
+    <value>Today’s focus goal is done.</value>
+  </data>
+  <data name="GuestHeatmapHint" xml:space="preserve">
+    <value>Color comes from focus, tasks, and habits on this device. Nothing is uploaded.</value>
+  </data>
+  <data name="GuestStreakHint" xml:space="preserve">
+    <value>Consecutive days with focus, a task, or a habit</value>
+  </data>
+  <data name="StartThisThing" xml:space="preserve">
+    <value>Start this one</value>
+  </data>
+  <data name="GuestStartToday" xml:space="preserve">
+    <value>Start today</value>
   </data>
 </root>

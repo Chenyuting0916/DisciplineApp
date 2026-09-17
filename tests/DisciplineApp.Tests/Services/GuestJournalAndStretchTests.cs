@@ -1,4 +1,5 @@
 using DisciplineApp.Models;
+using DisciplineApp.Services;
 using Xunit;
 
 namespace DisciplineApp.Tests.Services;
@@ -84,5 +85,79 @@ public class GuestJournalAndStretchTests
         Assert.Equal("StretchShoulders", BreakStretchCatalog.KeyFor(1));
         Assert.Equal(BreakStretchCatalog.KeyFor(0), BreakStretchCatalog.KeyFor(BreakStretchCatalog.Keys.Length));
         Assert.Equal("StretchNeck", BreakStretchCatalog.KeyFor(-5));
+    }
+
+    [Fact]
+    public void TimerService_ClampsCustomMinutes()
+    {
+        using var timer = new TimerService();
+        timer.SetPomodoroMinutes(2);
+        Assert.Equal(InputGuard.PomodoroMinMinutes, timer.PomodoroMinutes);
+        timer.SetPomodoroMinutes(240);
+        Assert.Equal(InputGuard.PomodoroMaxMinutes, timer.PomodoroMinutes);
+        timer.SetPomodoroMinutes(40);
+        Assert.Equal(40, timer.PomodoroMinutes);
+        Assert.Equal(40, timer.DefaultPomodoroTime.TotalMinutes);
+    }
+
+    [Fact]
+    public void FocusTaskMatcher_FindsOpenTaskOnly()
+    {
+        var tasks = new List<UserTask>
+        {
+            new() { Id = 1, Title = "Write", IsCompleted = false },
+            new() { Id = 2, Title = "Write", IsCompleted = true },
+            new() { Id = 3, Title = "Read", IsCompleted = false }
+        };
+
+        var found = FocusTaskMatcher.FindOpen(tasks, "Write", null);
+        Assert.NotNull(found);
+        Assert.Equal(1, found!.Id);
+
+        Assert.Null(FocusTaskMatcher.FindOpen(tasks, "custom", "Missing"));
+        var custom = FocusTaskMatcher.FindOpen(tasks, "custom", "Read");
+        Assert.Equal(3, custom!.Id);
+        Assert.Null(FocusTaskMatcher.FindOpen(tasks, "", null));
+        Assert.Null(FocusTaskMatcher.FindOpen(null, "Write", null));
+    }
+
+    [Fact]
+    public void FocusTaskMatcher_PrefillsFromOneThing()
+    {
+        var tasks = new List<UserTask>
+        {
+            new() { Id = 1, Title = "Complete testing", IsCompleted = false }
+        };
+
+        var match = FocusTaskMatcher.Prefill(tasks, "Complete testing");
+        Assert.Equal("Complete testing", match.FocusTask);
+        Assert.Equal("", match.CustomTitle);
+
+        var custom = FocusTaskMatcher.Prefill(tasks, "Write the essay");
+        Assert.Equal("custom", custom.FocusTask);
+        Assert.Equal("Write the essay", custom.CustomTitle);
+
+        var empty = FocusTaskMatcher.Prefill(tasks, "   ");
+        Assert.Equal("", empty.FocusTask);
+    }
+
+    [Fact]
+    public void FocusTaskMatcher_KeepsCustomAfterStartWhenNotListed()
+    {
+        var tasks = new List<UserTask>
+        {
+            new() { Id = 1, Title = "Inbox", IsCompleted = false }
+        };
+
+        var custom = FocusTaskMatcher.KeepAfterStart(tasks, "custom", "寫完今日報告", "寫完今日報告");
+        Assert.Equal("custom", custom.FocusTask);
+        Assert.Equal("寫完今日報告", custom.CustomTitle);
+
+        var listed = FocusTaskMatcher.KeepAfterStart(tasks, "Inbox", "", "Inbox");
+        Assert.Equal("Inbox", listed.FocusTask);
+
+        var none = FocusTaskMatcher.KeepAfterStart(Array.Empty<UserTask>(), "", "Solo", "Solo");
+        Assert.Equal("Solo", none.FocusTask);
+        Assert.Equal("Solo", none.CustomTitle);
     }
 }

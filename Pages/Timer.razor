@@ -12,9 +12,13 @@
 @inject LocalStorageService LocalStorageService
 @inject IIfThenService IfThenService
 @inject GuestIfThenService GuestIfThenService
+@inject GuestTaskService GuestTaskService
+@inject GuestJournalService GuestJournalService
+@inject GuestFocusService GuestFocusService
+@inject IIntentionService IntentionService
 @implements IDisposable
 
-<PageTitle>@Localizer["Timer"] — Discipline</PageTitle>
+<PageTitle>@(TimerService.IsRunning || TimerService.IsPaused ? $"{TimeDisplay} · {Localizer["Timer"]}" : $"{Localizer["Timer"]} — Discipline")</PageTitle>
 
 <div class="timer-shell text-center" @onkeydown="HandleKey" tabindex="0">
     <div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
@@ -57,13 +61,22 @@
 
     @if (TimerService.IsPomodoroMode && !TimerService.IsBreakMode)
     {
-        <div class="d-flex justify-content-center gap-2 mb-4">
+        <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap align-items-center">
             @foreach (var preset in new[] { 15, 25, 50 })
             {
                 <button class="preset-chip @(TimerService.PomodoroMinutes == preset ? "active" : "")"
-                        @onclick="@(() => TimerService.SetPomodoroMinutes(preset))"
+                        @onclick="@(() => SetMinutesAndStore(preset))"
                         disabled="@TimerService.IsRunning">@preset @Localizer["MinutesShort"]</button>
             }
+            <label class="small text-muted mb-0">@Localizer["CustomMinutes"]</label>
+            <input type="number"
+                   class="form-control form-control-sm text-center"
+                   style="width: 5.8rem;"
+                   min="@InputGuard.PomodoroMinMinutes"
+                   max="@InputGuard.PomodoroMaxMinutes"
+                   value="@customMinutes"
+                   disabled="@TimerService.IsRunning"
+                   @onchange="OnCustomMinutes" />
         </div>
     }
 
@@ -95,7 +108,26 @@
             @(TimerService.IsBreakMode ? Localizer["Break"] : Localizer["Focus"])
         </div>
         <div style="font-size: 3.2rem; font-weight: 800; font-family: Outfit, monospace; line-height: 1;">@TimeDisplay</div>
-        <div class="small text-muted mt-1">@string.Format(Localizer["SessionsToday"], TimerService.CompletedPomodoros)</div>
+        <div class="small text-muted mt-1">@string.Format(Localizer["SessionsToday"], todayPomodoros)</div>
+        <div class="timer-goal-strip mt-2">
+            <div class="small">@Localizer["DailyGoal"] · @((int)DisplayedTodayMinutes)/@goalMinutes</div>
+            <div class="progress mt-1" style="height: 4px; background: var(--bg-tertiary);">
+                <div class="progress-bar" role="progressbar" style="width: @(GoalPercent)%; background: var(--accent-2);"></div>
+            </div>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(todayOneThing) || !string.IsNullOrWhiteSpace(todayVow))
+        {
+            <div class="vow-strip mt-3">
+                @if (!string.IsNullOrWhiteSpace(todayOneThing))
+                {
+                    <div>🎯 @todayOneThing</div>
+                }
+                @if (!string.IsNullOrWhiteSpace(todayVow))
+                {
+                    <div class="small text-muted mt-1">@todayVow</div>
+                }
+            </div>
+        }
     </ProgressRing>
 
     <div class="controls d-flex flex-column align-items-center gap-3 mt-4">
@@ -129,6 +161,24 @@
         }
     </div>
 
+    @if (offerAnother && !offerBreak && !TimerService.IsRunning && !TimerService.IsPaused)
+    {
+        <div class="mt-3">
+            <button class="btn btn-outline-primary" @onclick="StartAnother">@Localizer["OneMoreSession"]</button>
+        </div>
+    }
+
+    @if (pendingTask != null)
+    {
+        <div class="stretch-card mt-4">
+            <p class="mb-3">@string.Format(Localizer["CompleteLinkedTask"], pendingTask.Title)</p>
+            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <button class="btn btn-primary" @onclick="CompletePendingTask">@Localizer["MarkTaskDone"]</button>
+                <button class="btn btn-link text-muted" @onclick="() => pendingTask = null">@Localizer["NotNow"]</button>
+            </div>
+        </div>
+    }
+
     @if (offerBreak)
     {
         <div class="mt-4 stretch-card">
@@ -137,6 +187,7 @@
             <div class="d-flex justify-content-center gap-2 flex-wrap">
                 <button class="btn btn-outline-primary" @onclick="@(() => BeginBreak(false))">@Localizer["ShortBreak"] · 5m</button>
                 <button class="btn btn-outline-primary" @onclick="@(() => BeginBreak(true))">@Localizer["LongBreak"] · 15m</button>
+                <button class="btn btn-primary" @onclick="StartAnother">@Localizer["OneMoreSession"]</button>
                 <button class="btn btn-link text-muted" @onclick="() => offerBreak = false">@Localizer["ContinueFocusing"]</button>
             </div>
         </div>
@@ -258,6 +309,29 @@
     private CancellationTokenSource? breathCts;
     private List<IfThenPlan> activePlans = new();
     private string? timerUserId;
+    private int customMinutes = 25;
+    private string todayVow = "";
+    private string todayOneThing = "";
+    private UserTask? pendingTask;
+    private bool offerAnother;
+    private double todayFocusMinutes;
+    private int goalMinutes = GuestFocusLogic.DefaultGoal;
+    private int todayPomodoros;
+
+    private double LiveSessionMinutes
+    {
+        get
+        {
+            if (TimerService.IsBreakMode) return 0;
+            if (!TimerService.IsRunning && !TimerService.IsPaused) return 0;
+            if (TimerService.IsPomodoroMode)
+                return Math.Max(0, (TimerService.DefaultPomodoroTime - TimerService.TimeLeft).TotalMinutes);
+            return Math.Max(0, TimerService.TimeElapsed.TotalMinutes);
+        }
+    }
+
+    private double DisplayedTodayMinutes => todayFocusMinutes + LiveSessionMinutes;
+    private int GoalPercent => GuestFocusLogic.PercentTowardGoal(DisplayedTodayMinutes, goalMinutes);
 
     private string BreathLabel => breathPhase switch
     {
@@ -300,6 +374,11 @@
         if (!string.IsNullOrEmpty(timerUserId))
         {
             activePlans = await IfThenService.GetActiveAsync(timerUserId);
+            var intention = await IntentionService.GetTodayAsync(timerUserId);
+            todayVow = intention?.Vow ?? "";
+            todayOneThing = intention?.OneThing ?? "";
+            ApplyPrefill();
+            await RefreshDailyProgress();
         }
     }
 
@@ -318,6 +397,18 @@
         if (string.IsNullOrEmpty(timerUserId))
         {
             activePlans = await GuestIfThenService.GetActiveAsync();
+            todayTasks = await GuestTaskService.GetTasksForTodayAsync();
+            var journal = await GuestJournalService.GetTodayAsync();
+            todayVow = journal?.Vow ?? "";
+            todayOneThing = journal?.OneThing ?? "";
+            ApplyPrefill();
+            await RefreshDailyProgress();
+        }
+
+        var storedMinutes = await LocalStorageService.GetItemAsync<int?>("discipline_pomodoro_minutes");
+        if (storedMinutes.HasValue)
+        {
+            SetMinutes(storedMinutes.Value);
         }
         StateHasChanged();
     }
@@ -336,6 +427,37 @@
         }
     }
 
+    private void SetMinutes(int minutes)
+    {
+        var clamped = InputGuard.ClampPomodoroMinutes(minutes);
+        customMinutes = clamped;
+        TimerService.SetPomodoroMinutes(clamped);
+    }
+
+    private async Task SetMinutesAndStore(int minutes)
+    {
+        SetMinutes(minutes);
+        await LocalStorageService.SetItemAsync("discipline_pomodoro_minutes", customMinutes);
+    }
+
+    private async Task OnCustomMinutes(ChangeEventArgs e)
+    {
+        if (!int.TryParse(e.Value?.ToString(), out var minutes)) return;
+        await SetMinutesAndStore(minutes);
+    }
+
+    private async Task SetLeaveGuard(bool enabled)
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("disciplineLeaveGuard", enabled);
+        }
+        catch
+        {
+            // JS may be unavailable during prerender/dispose.
+        }
+    }
+
     private void UpdateUI()
     {
         InvokeAsync(StateHasChanged);
@@ -351,11 +473,12 @@
         TimerService.StartBreak(isLong);
     }
 
-    private void BeginBreak(bool isLong)
+    private async Task BeginBreak(bool isLong)
     {
         offerBreak = false;
         TimerService.StartBreak(isLong);
         TimerService.Start();
+        await SetLeaveGuard(true);
     }
 
     private async Task RequestStart()
@@ -434,8 +557,15 @@
             taskName = TimerService.IsBreakMode ? Localizer["Break"] : (Localizer["Focus Session"] ?? "Focus Session");
         }
         
-        TimerService.FocusTask = InputGuard.Clamp(taskName, InputGuard.FocusTaskMax);
+        var resolved = InputGuard.Clamp(taskName, InputGuard.FocusTaskMax);
+        var kept = FocusTaskMatcher.KeepAfterStart(todayTasks, TimerService.FocusTask, customFocusTask, resolved);
+        TimerService.FocusTask = kept.FocusTask;
+        customFocusTask = kept.CustomTitle;
         TimerService.Start();
+        pendingTask = null;
+        offerAnother = false;
+        offerBreak = false;
+        await SetLeaveGuard(true);
         await PlaySound("startSound");
         if (ambient != "off")
         {
@@ -445,7 +575,7 @@
 
         var trackData = System.Text.Json.JsonSerializer.Serialize(new { 
             Mode = TimerService.IsBreakMode ? "Break" : TimerService.IsPomodoroMode ? "Pomodoro" : "Stopwatch",
-            Task = TimerService.FocusTask 
+            Task = resolved
         });
         await AnalyticsService.TrackEventAsync("Timer_Start", "Timer", trackData);
     }
@@ -458,6 +588,7 @@
     private async Task StopTimer()
     {
         TimerService.Stop();
+        await SetLeaveGuard(false);
         
         double durationMinutes = TimerService.IsPomodoroMode ? 
             (TimerService.DefaultPomodoroTime - TimerService.TimeLeft).TotalMinutes : 
@@ -466,6 +597,8 @@
         if (durationMinutes >= 0.1 && !TimerService.IsBreakMode) 
         {
             await RecordSession(durationMinutes);
+            OfferTaskCompletion();
+            offerAnother = true;
         }
         
         var trackData = System.Text.Json.JsonSerializer.Serialize(new { 
@@ -491,6 +624,7 @@
         await InvokeAsync(async () => 
         {
             await PlaySound("timerSound");
+            await SetLeaveGuard(false);
 
             if (TimerService.IsBreakMode)
             {
@@ -500,6 +634,7 @@
             }
 
             await RecordSession(TimerService.DefaultPomodoroTime.TotalMinutes);
+            OfferTaskCompletion();
             
             var trackData = System.Text.Json.JsonSerializer.Serialize(new { 
                 Duration = TimerService.DefaultPomodoroTime.TotalMinutes,
@@ -510,6 +645,7 @@
 
             TimerService.ResetTimer();
             offerBreak = true;
+            offerAnother = true;
             ToastService.ShowSuccess(Localizer["PomodoroCompleted"]);
         });
     }
@@ -549,9 +685,49 @@
                         msg += string.Format(Localizer["PlusCoins"], coinsEarned);
                     }
                     ToastService.ShowSuccess(msg);
+                    await RefreshDailyProgress();
                 }
             }
         }
+        else
+        {
+            string taskName = TimerService.FocusTask == "custom" ? customFocusTask : TimerService.FocusTask;
+            if (string.IsNullOrEmpty(taskName)) taskName = customFocusTask;
+            await RecordGuestSession(minutes, taskName, TimerService.IsPomodoroMode);
+        }
+    }
+
+    private async Task RefreshDailyProgress()
+    {
+        if (!string.IsNullOrEmpty(timerUserId))
+        {
+            todayFocusMinutes = await GamificationService.GetTodayFocusMinutesAsync(timerUserId);
+            todayPomodoros = await GamificationService.GetTodayPomodoroCountAsync(timerUserId);
+            var stats = await GamificationService.GetUserStatsAsync(timerUserId);
+            goalMinutes = stats?.DailyFocusGoalMinutes > 0
+                ? GuestFocusLogic.ClampGoal(stats.DailyFocusGoalMinutes)
+                : GuestFocusLogic.DefaultGoal;
+            return;
+        }
+
+        todayFocusMinutes = await GuestFocusService.GetTodayMinutesAsync();
+        todayPomodoros = await GuestFocusService.GetTodayPomodoroCountAsync();
+        goalMinutes = await GuestFocusService.GetGoalAsync();
+    }
+
+    private async Task<bool> RecordGuestSession(double minutes, string? taskName, bool isPomodoro, DateTime? endedAt = null)
+    {
+        var before = await GuestFocusService.GetTodayMinutesAsync();
+        var goal = await GuestFocusService.GetGoalAsync();
+        var saved = await GuestFocusService.RecordAsync(minutes, taskName, isPomodoro, endedAt);
+        if (saved == null) return false;
+        ToastService.ShowSuccess(Localizer["SessionRecorded"]);
+        if (GuestFocusLogic.JustReachedGoal(before, before + saved.DurationMinutes, goal))
+        {
+            ToastService.ShowSuccess(Localizer["GoalReached"]);
+        }
+        await RefreshDailyProgress();
+        return true;
     }
     
     private async Task PlaySound(string elementId)
@@ -609,12 +785,21 @@
                      string msg = string.Format(Localizer["ManualEntrySaved"], result.xpAwarded);
                      ToastService.ShowSuccess(msg);
                      showManualEntry = false;
+                     await RefreshDailyProgress();
                  }
              }
         }
         else
         {
-            ToastService.ShowInfo(Localizer["PleaseLoginTrack"]);
+            var saved = await RecordGuestSession(manualDuration, taskName, false, manualDate);
+            if (saved)
+            {
+                showManualEntry = false;
+            }
+            else
+            {
+                ToastService.ShowError(Localizer["DurationPositive"]);
+            }
         }
     }
 
@@ -645,6 +830,11 @@
 
     private async Task HandleKey(KeyboardEventArgs e)
     {
+        if (showBreath && (e.Key == "s" || e.Key == "S" || e.Code == "Space"))
+        {
+            await SkipBreath();
+            return;
+        }
         if (e.Code == "Space")
         {
             if (TimerService.IsRunning) PauseTimer();
@@ -654,6 +844,84 @@
         {
             await ExitSanctuary();
         }
+        else if (!TimerService.IsRunning && !showBreath)
+        {
+            if (e.Key == "1") await SetMinutesAndStore(15);
+            else if (e.Key == "2") await SetMinutesAndStore(25);
+            else if (e.Key == "3") await SetMinutesAndStore(50);
+        }
+    }
+
+    private void ApplyPrefill()
+    {
+        if (string.Equals(customFocusTask, "custom", StringComparison.OrdinalIgnoreCase))
+        {
+            customFocusTask = "";
+        }
+
+        if (!string.IsNullOrWhiteSpace(TimerService.FocusTask) && TimerService.FocusTask != "custom")
+        {
+            return;
+        }
+
+        if (TimerService.FocusTask == "custom" && !string.IsNullOrWhiteSpace(customFocusTask))
+        {
+            return;
+        }
+
+        var prefill = FocusTaskMatcher.Prefill(todayTasks, todayOneThing);
+        if (string.IsNullOrWhiteSpace(prefill.FocusTask)) return;
+        TimerService.FocusTask = prefill.FocusTask;
+        if (prefill.FocusTask == "custom")
+        {
+            customFocusTask = prefill.CustomTitle;
+        }
+    }
+
+    private async Task StartAnother()
+    {
+        offerBreak = false;
+        offerAnother = false;
+        pendingTask = null;
+        if (TimerService.IsBreakMode)
+        {
+            TimerService.EndBreak();
+        }
+        TimerService.SetMode(true);
+        await BeginSession();
+    }
+
+    private void OfferTaskCompletion()
+    {
+        pendingTask = FocusTaskMatcher.FindOpen(todayTasks, TimerService.FocusTask, customFocusTask);
+    }
+
+    private async Task CompletePendingTask()
+    {
+        if (pendingTask == null) return;
+        var task = pendingTask;
+        pendingTask = null;
+
+        if (!string.IsNullOrEmpty(timerUserId))
+        {
+            var result = await TaskService.ToggleTaskCompletionAsync(task.Id, timerUserId);
+            if (result.success && result.xpAwarded > 0)
+            {
+                ToastService.ShowSuccess(string.Format(Localizer["XPEarnedRemaining"], result.xpAwarded, result.remainingDaily));
+            }
+            else if (result.success)
+            {
+                ToastService.ShowSuccess(Localizer["MarkTaskDone"]);
+            }
+            await LoadTasks();
+            return;
+        }
+
+        if (await GuestTaskService.ToggleTaskAsync(task.Id))
+        {
+            ToastService.ShowInfo(Localizer["TaskCompletedGuest"]);
+        }
+        todayTasks = await GuestTaskService.GetTasksForTodayAsync();
     }
 
     public void Dispose()
@@ -662,6 +930,7 @@
         breathCts?.Dispose();
         TimerService.OnTick -= UpdateUI;
         TimerService.OnTimerCompleted -= HandleTimerCompleted;
+        _ = SetLeaveGuard(false);
         _ = JSRuntime.InvokeVoidAsync("sanctuary.exit");
     }
 }

@@ -107,6 +107,9 @@ public class IfThenAndExportTests
         Assert.False(InputGuard.IsSafeHexColor("#GG0000"));
         Assert.False(InputGuard.IsSafeHexColor("javascript:alert(1)"));
         Assert.Matches("^discipline-export-\\d{8}\\.json$", InputGuard.ExportFileName());
+        Assert.Equal(5, InputGuard.ClampPomodoroMinutes(1));
+        Assert.Equal(90, InputGuard.ClampPomodoroMinutes(400));
+        Assert.Equal(40, InputGuard.ClampPomodoroMinutes(40));
     }
 
     [Fact]

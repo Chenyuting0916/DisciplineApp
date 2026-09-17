@@ -1,5 +1,6 @@
 using System;
 using System.Timers;
+using DisciplineApp.Models;
 
 namespace DisciplineApp.Services;
 
@@ -53,7 +54,7 @@ public class TimerService : IDisposable
     public void SetPomodoroMinutes(int minutes)
     {
         if (IsRunning) return;
-        PomodoroMinutes = Math.Clamp(minutes, 1, 180);
+        PomodoroMinutes = InputGuard.ClampPomodoroMinutes(minutes);
         if (IsPomodoroMode && !IsBreakMode)
         {
             DefaultPomodoroTime = TimeSpan.FromMinutes(PomodoroMinutes);

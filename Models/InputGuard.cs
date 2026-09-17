@@ -13,6 +13,8 @@ public static class InputGuard
     public const int MaxIfThenPlans = 12;
     public const int MaxExportTasks = 500;
     public const int MaxExportSessions = 400;
+    public const int PomodoroMinMinutes = 5;
+    public const int PomodoroMaxMinutes = 90;
 
     public static readonly string[] AllowedCultures = { "zh-TW", "en", "ja" };
     public static readonly string[] AllowedThemes = { "ember", "forest", "midnight", "rose" };
@@ -54,4 +56,7 @@ public static class InputGuard
 
     public static string ExportFileName()
         => $"discipline-export-{DateTime.UtcNow:yyyyMMdd}.json";
+
+    public static int ClampPomodoroMinutes(int minutes)
+        => Math.Clamp(minutes, PomodoroMinMinutes, PomodoroMaxMinutes);
 }

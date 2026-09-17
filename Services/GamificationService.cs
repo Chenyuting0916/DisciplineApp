@@ -405,6 +405,14 @@ public class GamificationService : IGamificationService
             .SumAsync(s => s.DurationMinutes);
     }
 
+    public async Task<int> GetTodayPomodoroCountAsync(string userId)
+    {
+        var start = DateTime.UtcNow.Date;
+        var end = start.AddDays(1);
+        return await _context.FocusSessions
+            .CountAsync(s => s.UserId == userId && s.IsPomodoro && s.EndTime >= start && s.EndTime < end);
+    }
+
     public async Task<bool> UpdateDailyFocusGoalAsync(string userId, int minutes)
     {
         var user = await _userManager.FindByIdAsync(userId);
