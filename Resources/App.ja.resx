@@ -939,4 +939,10 @@
   <data name="HistoryEmpty" xml:space="preserve">
     <value>まだ集中記録がありません。先に1回始めましょう。</value>
   </data>
+  <data name="Guest" xml:space="preserve">
+    <value>ゲスト</value>
+  </data>
+  <data name="SkipToContent" xml:space="preserve">
+    <value>本文へスキップ</value>
+  </data>
 </root>

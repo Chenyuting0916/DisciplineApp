@@ -939,4 +939,10 @@
   <data name="HistoryEmpty" xml:space="preserve">
     <value>還沒有專注紀錄。先去開始一場。</value>
   </data>
+  <data name="Guest" xml:space="preserve">
+    <value>訪客</value>
+  </data>
+  <data name="SkipToContent" xml:space="preserve">
+    <value>跳到主要內容</value>
+  </data>
 </root>
