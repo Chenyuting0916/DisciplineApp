@@ -936,4 +936,13 @@
   <data name="GuestStartToday" xml:space="preserve">
     <value>Start today</value>
   </data>
+  <data name="ReviewNudgeTitle" xml:space="preserve">
+    <value>That block is saved. Look at your week.</value>
+  </data>
+  <data name="ReviewNudgeGoal" xml:space="preserve">
+    <value>You hit today’s goal. See this week’s receipts.</value>
+  </data>
+  <data name="GoToReview" xml:space="preserve">
+    <value>See weekly review</value>
+  </data>
 </root>

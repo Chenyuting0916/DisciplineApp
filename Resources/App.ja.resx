@@ -936,4 +936,13 @@
   <data name="GuestStartToday" xml:space="preserve">
     <value>今日から始める</value>
   </data>
+  <data name="ReviewNudgeTitle" xml:space="preserve">
+    <value>この回は記録しました。今週を見てみましょう。</value>
+  </data>
+  <data name="ReviewNudgeGoal" xml:space="preserve">
+    <value>今日の目標に届きました。今週の記録を見てください。</value>
+  </data>
+  <data name="GoToReview" xml:space="preserve">
+    <value>週報を見る</value>
+  </data>
 </root>

@@ -83,6 +83,9 @@ public static class GuestFocusLogic
         return (int)Math.Clamp(minutes / goal * 100, 0, 100);
     }
 
+    public static bool ShouldOfferReview(double recordedMinutes, bool isBreak)
+        => !isBreak && recordedMinutes >= MinRecordMinutes;
+
     public static double WeekMinutes(IEnumerable<GuestFocusSession> sessions, DateTime utcNow, int weeksAgo = 0)
     {
         var weekStart = HabitMath.WeekStart(utcNow).AddDays(-7 * weeksAgo);

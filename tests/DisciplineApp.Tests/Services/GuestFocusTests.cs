@@ -145,6 +145,10 @@ public class GuestFocusTests
         Assert.Equal(50, GuestFocusLogic.PercentTowardGoal(5, 10));
         Assert.Equal(0, GuestFocusLogic.PercentTowardGoal(0, 60));
         Assert.Equal(100, GuestFocusLogic.PercentTowardGoal(80, 60));
+        Assert.True(GuestFocusLogic.ShouldOfferReview(0.1, false));
+        Assert.True(GuestFocusLogic.ShouldOfferReview(25, false));
+        Assert.False(GuestFocusLogic.ShouldOfferReview(0.01, false));
+        Assert.False(GuestFocusLogic.ShouldOfferReview(25, true));
     }
 
     [Fact]
