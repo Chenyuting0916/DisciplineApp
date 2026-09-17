@@ -8,8 +8,20 @@
 <PageTitle>@Localizer["Leaderboard"]</PageTitle>
 
 <div class="leaderboard-container pt-4">
-    <h2 class="text-center mb-4">🏆 @Localizer["Leaderboard"]</h2>
-
+    <h2 class="text-center mb-2">🏆 @Localizer["Leaderboard"]</h2>
+    @if (isGuest)
+    {
+        <p class="text-muted text-center small mb-3">@Localizer["GuestLeaderboardHint"]</p>
+        <div class="d-flex flex-wrap justify-content-center gap-2 mb-4">
+            <a href="Account/LoginWithGoogle" class="btn btn-light d-flex align-items-center gap-2">
+                <img src="https://www.google.com/favicon.ico" alt="" width="20" height="20">
+                @Localizer["ContinueWithGoogle"]
+            </a>
+            <a href="timer" class="btn btn-primary">
+                <i class="bi bi-play-circle-fill me-2"></i>@Localizer["StartFocusSession"]
+            </a>
+        </div>
+    }
     <div class="d-flex justify-content-center mb-4">
         <div class="btn-group" role="group">
             <input type="radio" class="btn-check" name="sort" id="sort-xp" autocomplete="off" checked="@(sortBy == "xp")" @onchange="@(() => SortBy("xp"))">
@@ -29,6 +41,10 @@
     @if (users == null)
     {
         <p class="text-center">@Localizer["LoadingRankings"]</p>
+    }
+    else if (!users.Any())
+    {
+        <p class="text-center text-muted">@Localizer["LeaderboardEmpty"]</p>
     }
     else
     {
@@ -146,6 +162,7 @@
     private List<ApplicationUser>? users;
     private string currentUserId = "";
     private string sortBy = "xp";
+    private bool isGuest;
 
     protected override async Task OnInitializedAsync()
     {
@@ -155,7 +172,11 @@
         {
             currentUserId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value ?? "";
         }
-        
+        else
+        {
+            isGuest = true;
+        }
+
         await LoadLeaderboard();
     }
 

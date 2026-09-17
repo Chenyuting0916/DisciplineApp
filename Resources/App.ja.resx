@@ -939,4 +939,10 @@
   <data name="HistoryEmpty" xml:space="preserve">
     <value>まだ集中記録がありません。先に1回始めましょう。</value>
   </data>
+  <data name="GuestLeaderboardHint" xml:space="preserve">
+    <value>ランキングはログイン中のアカウントです。ゲストの集中はこの端末だけに残り、ここには出ません。</value>
+  </data>
+  <data name="LeaderboardEmpty" xml:space="preserve">
+    <value>まだランキングがありません。ログインして集中を始めると反映されます。</value>
+  </data>
 </root>
