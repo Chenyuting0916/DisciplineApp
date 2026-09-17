@@ -110,6 +110,44 @@ public static class GuestFocusLogic
             .ToDictionary(g => g.Key, g => g.Sum(s => s.DurationMinutes));
     }
 
+    public static int WeekSessionCount(IEnumerable<GuestFocusSession> sessions, DateTime weekStart)
+    {
+        var start = weekStart.Date;
+        var end = start.AddDays(7);
+        return sessions.Count(s =>
+        {
+            var day = NormalizeUtc(s.EndTime).Date;
+            return day >= start && day < end;
+        });
+    }
+
+    public static (DateTime? Day, double Minutes) BestDay(IEnumerable<GuestFocusSession> sessions, DateTime weekStart)
+    {
+        var start = weekStart.Date;
+        var end = start.AddDays(7);
+        var best = sessions
+            .Where(s =>
+            {
+                var day = NormalizeUtc(s.EndTime).Date;
+                return day >= start && day < end;
+            })
+            .GroupBy(s => NormalizeUtc(s.EndTime).ToLocalTime().Date)
+            .Select(g => new { Day = g.Key, Minutes = g.Sum(s => s.DurationMinutes) })
+            .OrderByDescending(x => x.Minutes)
+            .FirstOrDefault();
+        return (best?.Day, best?.Minutes ?? 0);
+    }
+
+    public static string? TopTaggedFocus(IEnumerable<GuestFocusSession> sessions, DateTime weekStart)
+        => WeekBreakdown(sessions, weekStart)
+            .Where(kv =>
+                !string.IsNullOrWhiteSpace(kv.Key)
+                && !string.Equals(kv.Key, "custom", StringComparison.OrdinalIgnoreCase)
+                && !string.Equals(kv.Key, "Uncategorized", StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(kv => kv.Value)
+            .Select(kv => kv.Key)
+            .FirstOrDefault();
+
     public static Dictionary<string, double> DailyActivity(IEnumerable<GuestFocusSession> sessions, DateTime utcNow, int days)
     {
         var startDate = utcNow.Date.AddDays(-(Math.Max(days, 1) - 1));
