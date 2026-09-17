@@ -161,4 +161,19 @@ public class GuestJournalAndStretchTests
         Assert.Equal("Solo", none.FocusTask);
         Assert.Equal("Solo", none.CustomTitle);
     }
+
+    [Fact]
+    public void FocusTaskMatcher_StartsOpenTaskAndSkipsDoneOnes()
+    {
+        Assert.Equal("寫報告", FocusTaskMatcher.StartFromTask(new UserTask { Title = "  寫報告  " }));
+        Assert.Equal("", FocusTaskMatcher.StartFromTask(null));
+        Assert.Equal("", FocusTaskMatcher.StartFromTask(new UserTask { Title = "   " }));
+        Assert.Equal(InputGuard.FocusTaskMax, FocusTaskMatcher.StartFromTask(new UserTask { Title = new string('a', 200) }).Length);
+
+        Assert.True(FocusTaskMatcher.CanStartFocus(new UserTask { Title = "Write", IsCompleted = false }));
+        Assert.False(FocusTaskMatcher.CanStartFocus(new UserTask { Title = "Done", IsCompleted = true }));
+        Assert.True(FocusTaskMatcher.CanStartFocus(new UserTask { Title = "Daily", IsCompleted = true, IsRoutine = true }));
+        Assert.Equal("", FocusTaskMatcher.StartFromTask(new UserTask { Title = "Done", IsCompleted = true }));
+        Assert.Equal("Daily", FocusTaskMatcher.StartFromTask(new UserTask { Title = "Daily", IsCompleted = true, IsRoutine = true }));
+    }
 }
