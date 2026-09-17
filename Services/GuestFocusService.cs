@@ -76,6 +76,12 @@ public class GuestFocusService
             GuestFocusLogic.WeekMinutes(store.Sessions, now, 1));
     }
 
+    public async Task<Dictionary<string, double>> GetWeeklyBreakdownAsync(DateTime weekStart)
+    {
+        var store = await LoadAsync();
+        return GuestFocusLogic.WeekBreakdown(store.Sessions, weekStart);
+    }
+
     public async Task<Dictionary<string, double>> GetDailyActivityAsync(int days = 14)
     {
         var store = await LoadAsync();

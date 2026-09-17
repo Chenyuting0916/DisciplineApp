@@ -96,6 +96,20 @@ public static class GuestFocusLogic
             .Sum(s => s.DurationMinutes);
     }
 
+    public static Dictionary<string, double> WeekBreakdown(IEnumerable<GuestFocusSession> sessions, DateTime weekStart)
+    {
+        var start = weekStart.Date;
+        var end = start.AddDays(7);
+        return sessions
+            .Where(s =>
+            {
+                var day = NormalizeUtc(s.EndTime).Date;
+                return day >= start && day < end;
+            })
+            .GroupBy(s => string.IsNullOrWhiteSpace(s.TaskTag) ? string.Empty : s.TaskTag.Trim())
+            .ToDictionary(g => g.Key, g => g.Sum(s => s.DurationMinutes));
+    }
+
     public static Dictionary<string, double> DailyActivity(IEnumerable<GuestFocusSession> sessions, DateTime utcNow, int days)
     {
         var startDate = utcNow.Date.AddDays(-(Math.Max(days, 1) - 1));

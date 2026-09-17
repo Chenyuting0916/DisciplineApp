@@ -344,6 +344,41 @@
                         </div>
                     </div>
                 </div>
+                <div class="card mb-4">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">@Localizer["WeeklyFocus"]</h5>
+                        <div class="d-flex align-items-center gap-2">
+                            <button class="btn btn-sm btn-outline-secondary" @onclick="PreviousWeek">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                            <span class="small text-muted">@weekRangeDisplay</span>
+                            <button class="btn btn-sm btn-outline-secondary" @onclick="NextWeek" disabled="@isCurrentWeek">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        @if (weeklyFocusBreakdown.Any())
+                        {
+                            <ul class="list-group list-group-flush mb-3">
+                                @foreach (var item in weeklyFocusBreakdown.OrderByDescending(x => x.Value).Take(8))
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center bg-transparent px-0">
+                                        <span>@FocusTagLabel(item.Key)</span>
+                                        <span class="badge bg-secondary rounded-pill">@((int)item.Value)m</span>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                        else
+                        {
+                            <p class="text-muted mb-3">@Localizer["NoFocusSessions"]</p>
+                        }
+                        <a href="timer" class="btn btn-primary w-100">
+                            <i class="bi bi-play-circle-fill me-2"></i> @Localizer["StartFocusSession"]
+                        </a>
+                    </div>
+                </div>
                 <div class="vow-card mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h5 class="mb-0">@Localizer["DailyVow"]</h5>
@@ -702,6 +737,11 @@
     
     private async Task ReloadWeeklyStats()
     {
+        if (isGuest)
+        {
+            await LoadGuestWeeklyStats();
+            return;
+        }
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
         var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
@@ -710,6 +750,17 @@
             await LoadWeeklyStats(userId);
         }
     }
+
+    private async Task LoadGuestWeeklyStats()
+    {
+        weeklyFocusBreakdown = await GuestFocusService.GetWeeklyBreakdownAsync(currentWeekStart);
+        weeklyFocusMinutes = weeklyFocusBreakdown.Values.Sum();
+    }
+
+    private string FocusTagLabel(string? tag)
+        => string.IsNullOrWhiteSpace(tag) || tag == "Uncategorized"
+            ? Localizer["Uncategorized"]
+            : tag;
     
     private async Task LoadWeeklyStats(string userId)
     {
@@ -786,6 +837,7 @@
         var weekSunday = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek);
         guestActivity = GuestFocusLogic.BuildHeatmap(sessions, todayTasks, guestHabits, weekSunday.AddDays(-52 * 7));
         guestStreak = GuestFocusLogic.ActivityStreak(guestActivity.Keys, DateTime.UtcNow);
+        await LoadGuestWeeklyStats();
     }
 
     private async Task ToggleGuestHabit(Habit habit)

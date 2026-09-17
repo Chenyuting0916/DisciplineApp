@@ -143,4 +143,26 @@ public class GuestFocusTests
         Assert.Equal(0, GuestFocusLogic.PercentTowardGoal(0, 60));
         Assert.Equal(100, GuestFocusLogic.PercentTowardGoal(80, 60));
     }
+
+    [Fact]
+    public void WeekBreakdown_GroupsTagsAndSkipsOtherWeeks()
+    {
+        var weekStart = HabitMath.WeekStart(new DateTime(2026, 9, 17, 12, 0, 0, DateTimeKind.Utc));
+        var sessions = new List<GuestFocusSession>
+        {
+            new() { TaskTag = "寫報告", DurationMinutes = 25, EndTime = weekStart.AddDays(1) },
+            new() { TaskTag = "  寫報告  ", DurationMinutes = 15, EndTime = weekStart.AddDays(2) },
+            new() { TaskTag = "", DurationMinutes = 10, EndTime = weekStart.AddDays(3) },
+            new() { TaskTag = "   ", DurationMinutes = 5, EndTime = weekStart.AddDays(4) },
+            new() { TaskTag = "寫報告", DurationMinutes = 40, EndTime = weekStart.AddDays(-1) },
+            new() { TaskTag = "寫報告", DurationMinutes = 30, EndTime = weekStart.AddDays(7) }
+        };
+
+        var breakdown = GuestFocusLogic.WeekBreakdown(sessions, weekStart);
+        Assert.Equal(40, breakdown["寫報告"]);
+        Assert.Equal(15, breakdown[""]);
+        Assert.Equal(2, breakdown.Count);
+        Assert.Equal(40, GuestFocusLogic.WeekBreakdown(sessions, weekStart.AddDays(-7))["寫報告"]);
+        Assert.Equal(30, GuestFocusLogic.WeekBreakdown(sessions, weekStart.AddDays(7))["寫報告"]);
+    }
 }
