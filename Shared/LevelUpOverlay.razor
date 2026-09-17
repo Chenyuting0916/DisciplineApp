@@ -6,9 +6,9 @@
     <div class="level-up-overlay">
         <div class="level-up-content text-center animate-bounce">
             <div class="display-1 mb-3">🎉</div>
-            <h1 class="display-3 fw-bold text-warning mb-2">@Localizer["Level Up!"]</h1>
-            <h3 class="text-white mb-4">You are now Level @Level!</h3>
-            <button class="btn btn-lg btn-light rounded-pill px-5" @onclick="Close">@Localizer["Awesome!"]</button>
+            <h1 class="display-3 fw-bold text-warning mb-2">@Localizer["LevelUp"]</h1>
+            <h3 class="text-white mb-4">@LevelUpCopy.NowAt(Localizer["YouAreNowLevel"], Level)</h3>
+            <button class="btn btn-lg btn-light rounded-pill px-5" @onclick="Close">@Localizer["Awesome"]</button>
         </div>
     </div>
 }

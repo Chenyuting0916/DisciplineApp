@@ -939,4 +939,16 @@
   <data name="HistoryEmpty" xml:space="preserve">
     <value>まだ集中記録がありません。先に1回始めましょう。</value>
   </data>
+  <data name="PwaDescription" xml:space="preserve">
+    <value>集中、連続日数、毎日の小さな約束。</value>
+  </data>
+  <data name="LevelUp" xml:space="preserve">
+    <value>レベルアップ</value>
+  </data>
+  <data name="YouAreNowLevel" xml:space="preserve">
+    <value>レベル {0} になった。</value>
+  </data>
+  <data name="Awesome" xml:space="preserve">
+    <value>やった</value>
+  </data>
 </root>

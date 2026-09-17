@@ -939,4 +939,16 @@
   <data name="HistoryEmpty" xml:space="preserve">
     <value>No focus sessions yet. Start one.</value>
   </data>
+  <data name="PwaDescription" xml:space="preserve">
+    <value>Focus, streaks, and tiny daily promises.</value>
+  </data>
+  <data name="LevelUp" xml:space="preserve">
+    <value>Level up</value>
+  </data>
+  <data name="YouAreNowLevel" xml:space="preserve">
+    <value>You are now level {0}.</value>
+  </data>
+  <data name="Awesome" xml:space="preserve">
+    <value>Nice</value>
+  </data>
 </root>
