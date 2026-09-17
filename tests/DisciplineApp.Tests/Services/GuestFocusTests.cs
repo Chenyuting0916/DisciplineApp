@@ -123,6 +123,19 @@ public class GuestFocusTests
         Assert.Equal(1, GuestFocusLogic.ActivityStreak(map.Keys, day.AddHours(12)));
         Assert.Equal(0, GuestFocusLogic.ActivityStreak(Array.Empty<DateTime>(), day));
         Assert.Equal(2, GuestFocusLogic.ActivityStreak(new[] { day, day.AddDays(-1) }, day));
+
+        var today = new DateTime(2026, 9, 17);
+        Assert.Equal(StreakStatus.None, HabitMath.ActivityStreakStatus(Array.Empty<DateTime>(), today).Status);
+        Assert.Equal(StreakStatus.Active, HabitMath.ActivityStreakStatus(new[] { today, today.AddDays(-1) }, today).Status);
+        Assert.Equal(2, HabitMath.ActivityStreakStatus(new[] { today, today.AddDays(-1) }, today).Streak);
+        var pending = HabitMath.ActivityStreakStatus(new[] { today.AddDays(-1), today.AddDays(-2) }, today);
+        Assert.Equal(StreakStatus.Pending, pending.Status);
+        Assert.Equal(2, pending.Streak);
+        var atRisk = HabitMath.ActivityStreakStatus(new[] { today.AddDays(-2), today.AddDays(-3) }, today);
+        Assert.Equal(StreakStatus.AtRisk, atRisk.Status);
+        Assert.Equal(2, atRisk.Streak);
+        Assert.Equal(StreakStatus.Broken, HabitMath.ActivityStreakStatus(new[] { today.AddDays(-3) }, today).Status);
+        Assert.Equal(0, HabitMath.ActivityStreakStatus(new[] { today.AddDays(-3) }, today).Streak);
     }
 
     [Fact]

@@ -263,6 +263,16 @@
             }
             else
             {
+                @if (guestStreakStatus == StreakStatus.AtRisk)
+                {
+                    <div class="alert alert-streak d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+                        <div>
+                            <strong>🔥 @Localizer["StreakAtRisk"]</strong>
+                            <div class="small">@Localizer["GuestStreakAtRiskHint"]</div>
+                        </div>
+                        <button type="button" class="btn btn-warning" @onclick="GoToTimer">@Localizer["StartFocusSession"]</button>
+                    </div>
+                }
                 <div class="stat-grid mb-4">
                     <div class="stat-card goal">
                         <div class="label">@Localizer["DailyGoal"]</div>
@@ -651,6 +661,7 @@
     private List<Habit> guestHabits = new();
     private Dictionary<DateTime, int> guestActivity = new();
     private int guestStreak;
+    private StreakStatus guestStreakStatus = StreakStatus.None;
 
     protected override async Task OnInitializedAsync()
     {
@@ -856,7 +867,9 @@
         var sessions = await GuestFocusService.GetAllAsync();
         var weekSunday = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek);
         guestActivity = GuestFocusLogic.BuildHeatmap(sessions, todayTasks, guestHabits, weekSunday.AddDays(-52 * 7));
-        guestStreak = GuestFocusLogic.ActivityStreak(guestActivity.Keys, DateTime.UtcNow);
+        var streak = HabitMath.ActivityStreakStatus(guestActivity.Keys, DateTime.UtcNow);
+        guestStreakStatus = streak.Status;
+        guestStreak = streak.Streak;
         await LoadGuestWeeklyStats();
     }
 

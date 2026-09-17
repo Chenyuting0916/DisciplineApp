@@ -122,6 +122,31 @@ public static class HabitMath
         }
         return streak;
     }
+
+    public static (StreakStatus Status, int Streak) ActivityStreakStatus(IEnumerable<DateTime> days, DateTime utcNow)
+    {
+        var dates = days.Select(d => d.Date).Distinct().ToHashSet();
+        if (dates.Count == 0) return (StreakStatus.None, 0);
+
+        var today = utcNow.Date;
+        var last = dates.Max();
+        if (last == today) return (StreakStatus.Active, CountBack(dates, today));
+        if (last == today.AddDays(-1)) return (StreakStatus.Pending, CountBack(dates, last));
+        if (last == today.AddDays(-2)) return (StreakStatus.AtRisk, CountBack(dates, last));
+        return (StreakStatus.Broken, 0);
+    }
+
+    private static int CountBack(HashSet<DateTime> dates, DateTime start)
+    {
+        var streak = 0;
+        var cursor = start.Date;
+        while (dates.Contains(cursor))
+        {
+            streak++;
+            cursor = cursor.AddDays(-1);
+        }
+        return streak;
+    }
 }
 
 public static class BreakStretchCatalog

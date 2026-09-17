@@ -426,6 +426,9 @@
   <data name="StreakSaved" xml:space="preserve">
     <value>已保護連續紀錄。今天再完成一件事，就能接上。</value>
   </data>
+  <data name="GuestStreakAtRiskHint" xml:space="preserve">
+    <value>今天做一件小事：一場專注或一個習慣。資料留在這台裝置，不用花金幣。</value>
+  </data>
   <data name="SetGoal" xml:space="preserve">
     <value>設定目標</value>
   </data>
