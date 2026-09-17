@@ -1,24 +1,40 @@
 @page "/calendar"
+@using System.Globalization
 @using Google.Apis.Calendar.v3.Data
 @using DisciplineApp.Services
 @inject CalendarService CalendarService
 @inject TokenProvider TokenProvider
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 
-<PageTitle>Calendar</PageTitle>
+<PageTitle>@Localizer["CalendarTitle"] - DisciplineApp</PageTitle>
 
 <div class="calendar-container pt-4">
-    <h2 class="mb-4">My Calendar & Tasks</h2>
+    <h2 class="mb-3">@Localizer["CalendarTitle"]</h2>
 
     @if (!isAuthenticated)
     {
-        <div class="alert alert-info">
-            Please <a href="Account/LoginWithGoogle">log in with Google</a> to view your calendar and tasks.
+        <p class="text-muted mb-4">@Localizer["CalendarGuestHint"]</p>
+        <div class="d-flex flex-wrap gap-2">
+            <a href="Account/LoginWithGoogle" class="btn btn-light d-flex align-items-center gap-2">
+                <img src="https://www.google.com/favicon.ico" alt="" width="20" height="20">
+                @Localizer["ContinueWithGoogle"]
+            </a>
+            <a href="timer" class="btn btn-primary">
+                <i class="bi bi-play-circle-fill me-2"></i>@Localizer["StartFocusSession"]
+            </a>
         </div>
     }
     else if (isLoading)
     {
-        <p>Loading your calendar and tasks...</p>
+        <p>@Localizer["Loading"]</p>
+    }
+    else if (loadFailed)
+    {
+        <p class="text-muted">@Localizer["CalendarLoadFailed"]</p>
+        <a href="timer" class="btn btn-primary">
+            <i class="bi bi-play-circle-fill me-2"></i>@Localizer["StartFocusSession"]
+        </a>
     }
     else
     {
@@ -26,31 +42,30 @@
             <div class="col-md-6 mb-4">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0">📅 Upcoming Events</h5>
+                        <h5 class="mb-0">📅 @Localizer["UpcomingEvents"]</h5>
                     </div>
                     <div class="card-body">
                         @if (events == null || !events.Any())
                         {
-                            <p class="text-muted">No upcoming events.</p>
+                            <p class="text-muted mb-0">@Localizer["NoUpcomingEvents"]</p>
                         }
                         else
                         {
                             <ul class="list-group list-group-flush">
                                 @foreach (var evt in events.Take(10))
                                 {
+                                    var when = CalendarCopy.EventWhen(
+                                        evt.Start?.DateTimeDateTimeOffset,
+                                        evt.Start?.Date,
+                                        CultureInfo.CurrentUICulture,
+                                        Localizer["AllDay"]);
                                     <li class="list-group-item">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <div>
-                                                <strong>@evt.Summary</strong>
-                                                @if (evt.Start?.DateTimeDateTimeOffset != null)
-                                                {
-                                                    <br /><small class="text-muted">@evt.Start.DateTimeDateTimeOffset.Value.ToString("MMM dd, yyyy h:mm tt")</small>
-                                                }
-                                                else if (evt.Start?.Date != null)
-                                                {
-                                                    <br /><small class="text-muted">@evt.Start.Date (All day)</small>
-                                                }
-                                            </div>
+                                        <div>
+                                            <strong>@evt.Summary</strong>
+                                            @if (!string.IsNullOrWhiteSpace(when))
+                                            {
+                                                <br /><small class="text-muted">@when</small>
+                                            }
                                         </div>
                                     </li>
                                 }
@@ -63,27 +78,26 @@
             <div class="col-md-6 mb-4">
                 <div class="card">
                     <div class="card-header">
-                        <h5 class="mb-0">✅ My Tasks</h5>
+                        <h5 class="mb-0">✅ @Localizer["GoogleTasks"]</h5>
                     </div>
                     <div class="card-body">
                         @if (tasks == null || !tasks.Any())
                         {
-                            <p class="text-muted">No tasks found.</p>
+                            <p class="text-muted mb-0">@Localizer["NoGoogleTasks"]</p>
                         }
                         else
                         {
                             <ul class="list-group list-group-flush">
                                 @foreach (var task in tasks.Take(10))
                                 {
+                                    var due = CalendarCopy.TaskDue(task.Due, CultureInfo.CurrentUICulture, Localizer["DueLabel"]);
                                     <li class="list-group-item">
-                                        <div class="d-flex justify-content-between align-items-start">
-                                            <div>
-                                                <strong>@task.Title</strong>
-                                                @if (!string.IsNullOrEmpty(task.Due))
-                                                {
-                                                    <br /><small class="text-muted">Due: @DateTime.Parse(task.Due).ToString("MMM dd, yyyy")</small>
-                                                }
-                                            </div>
+                                        <div>
+                                            <strong>@task.Title</strong>
+                                            @if (!string.IsNullOrWhiteSpace(due))
+                                            {
+                                                <br /><small class="text-muted">@due</small>
+                                            }
                                         </div>
                                     </li>
                                 }
@@ -109,6 +123,7 @@
     private IList<Google.Apis.Tasks.v1.Data.Task>? tasks;
     private bool isLoading = true;
     private bool isAuthenticated = false;
+    private bool loadFailed;
 
     protected override async Task OnInitializedAsync()
     {
@@ -120,17 +135,14 @@
         {
             try
             {
-                // Fetch events for the next 30 days
                 var startDate = DateTime.Today;
                 var endDate = DateTime.Today.AddDays(30);
                 events = await CalendarService.GetEventsAsync(startDate, endDate);
-
-                // Fetch Google Tasks
                 tasks = await CalendarService.GetTasksAsync();
             }
-            catch (Exception ex)
+            catch
             {
-                Console.WriteLine($"Error loading calendar data: {ex.Message}");
+                loadFailed = true;
             }
         }
 

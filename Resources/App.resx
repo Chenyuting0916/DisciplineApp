@@ -939,4 +939,31 @@
   <data name="HistoryEmpty" xml:space="preserve">
     <value>No focus sessions yet. Start one.</value>
   </data>
+  <data name="CalendarTitle" xml:space="preserve">
+    <value>Calendar</value>
+  </data>
+  <data name="CalendarGuestHint" xml:space="preserve">
+    <value>Google Calendar stays on your signed-in Google account. Guest focus on this device is not sent there, and nothing is imported.</value>
+  </data>
+  <data name="UpcomingEvents" xml:space="preserve">
+    <value>Upcoming events</value>
+  </data>
+  <data name="NoUpcomingEvents" xml:space="preserve">
+    <value>No upcoming events.</value>
+  </data>
+  <data name="GoogleTasks" xml:space="preserve">
+    <value>Google Tasks</value>
+  </data>
+  <data name="NoGoogleTasks" xml:space="preserve">
+    <value>No Google tasks.</value>
+  </data>
+  <data name="AllDay" xml:space="preserve">
+    <value>All day</value>
+  </data>
+  <data name="DueLabel" xml:space="preserve">
+    <value>Due</value>
+  </data>
+  <data name="CalendarLoadFailed" xml:space="preserve">
+    <value>Could not load Google Calendar. Your local focus is unchanged.</value>
+  </data>
 </root>

@@ -939,4 +939,31 @@
   <data name="HistoryEmpty" xml:space="preserve">
     <value>還沒有專注紀錄。先去開始一場。</value>
   </data>
+  <data name="CalendarTitle" xml:space="preserve">
+    <value>行事曆</value>
+  </data>
+  <data name="CalendarGuestHint" xml:space="preserve">
+    <value>Google 行事曆留在你登入的 Google 帳號。這台裝置上的訪客專注不會送過去，也不會從那裡匯入。</value>
+  </data>
+  <data name="UpcomingEvents" xml:space="preserve">
+    <value>即將到來的行程</value>
+  </data>
+  <data name="NoUpcomingEvents" xml:space="preserve">
+    <value>沒有即將到來的行程。</value>
+  </data>
+  <data name="GoogleTasks" xml:space="preserve">
+    <value>Google 工作</value>
+  </data>
+  <data name="NoGoogleTasks" xml:space="preserve">
+    <value>沒有 Google 工作。</value>
+  </data>
+  <data name="AllDay" xml:space="preserve">
+    <value>全天</value>
+  </data>
+  <data name="DueLabel" xml:space="preserve">
+    <value>截止</value>
+  </data>
+  <data name="CalendarLoadFailed" xml:space="preserve">
+    <value>無法載入 Google 行事曆。本機專注不受影響。</value>
+  </data>
 </root>
