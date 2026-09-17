@@ -75,16 +75,34 @@
                     <div class="value">@((int)guestReview.FocusMinutes)m</div>
                 </div>
                 <div class="stat-card">
+                    <div class="label">@Localizer["RecentSessions"]</div>
+                    <div class="value">@guestReview.SessionCount</div>
+                </div>
+                <div class="stat-card coins">
                     <div class="label">@Localizer["Habits"]</div>
                     <div class="value">@guestReview.HabitChecks</div>
                 </div>
-                <div class="stat-card">
-                    <div class="label">@Localizer["TasksToday"]</div>
-                    <div class="value">@guestReview.TasksCompleted</div>
-                </div>
                 <div class="stat-card streak">
-                    <div class="label">@Localizer["DailyVow"]</div>
-                    <div class="value">@guestReview.SessionCount</div>
+                    <div class="label">@Localizer["Streak"]</div>
+                    <div class="value">🔥 @guestReview.CurrentStreak</div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3">@Localizer["ReviewDetails"]</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">✅ @string.Format(Localizer["ReviewTasks"], guestReview.TasksCompleted)</li>
+                        <li class="mb-2">🗣 @string.Format(Localizer["ReviewVowDays"], guestReview.VowDays)</li>
+                        @if (guestReview.BestDay.HasValue)
+                        {
+                            <li class="mb-2">📅 @string.Format(Localizer["ReviewBestDay"], guestReview.BestDay.Value.ToString("MM/dd"), (int)guestReview.BestDayMinutes)</li>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(guestReview.TopFocus))
+                        {
+                            <li class="mb-2">🎯 @string.Format(Localizer["ReviewTopFocus"], guestReview.TopFocus)</li>
+                        }
+                    </ul>
                 </div>
             </div>
 
@@ -111,9 +129,9 @@
             : string.Format(Localizer["ReviewLetter"], (int)review.FocusMinutes, review.SessionCount, review.CurrentStreak);
 
     private string GuestLetter =>
-        guestReview.HabitChecks < 1 && guestReview.TasksCompleted < 1 && guestReview.SessionCount < 1 && guestReview.FocusMinutes < 1
+        guestReview.HabitChecks < 1 && guestReview.TasksCompleted < 1 && guestReview.SessionCount < 1 && guestReview.FocusMinutes < 1 && guestReview.VowDays < 1
             ? Localizer["ReviewGuestEmpty"]
-            : string.Format(Localizer["ReviewGuestLetter"], guestReview.HabitChecks, guestReview.TasksCompleted, guestReview.SessionCount);
+            : string.Format(Localizer["ReviewGuestLetter"], guestReview.HabitChecks, guestReview.TasksCompleted, guestReview.VowDays);
 
     protected override async Task OnInitializedAsync()
     {

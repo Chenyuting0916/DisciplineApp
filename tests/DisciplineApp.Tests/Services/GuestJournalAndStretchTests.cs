@@ -57,7 +57,8 @@ public class GuestJournalAndStretchTests
         var review = GuestJournalLogic.BuildReview(new[] { habit }, tasks, days, weekStart.AddDays(4));
         Assert.Equal(2, review.HabitChecks);
         Assert.Equal(1, review.TasksCompleted);
-        Assert.Equal(1, review.SessionCount);
+        Assert.Equal(0, review.SessionCount);
+        Assert.Equal(1, review.VowDays);
     }
 
     [Fact]
