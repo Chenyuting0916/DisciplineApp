@@ -963,4 +963,10 @@
   <data name="HeatmapActivityCount" xml:space="preserve">
     <value>{0} 次行動</value>
   </data>
+  <data name="GuestLeaderboardHint" xml:space="preserve">
+    <value>這裡是登入帳號的排行。訪客專注只在這台裝置，不會出現在榜上。</value>
+  </data>
+  <data name="LeaderboardEmpty" xml:space="preserve">
+    <value>還沒有排行。登入後開始一場專注就會算進來。</value>
+  </data>
 </root>

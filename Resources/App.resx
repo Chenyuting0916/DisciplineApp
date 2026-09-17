@@ -963,4 +963,10 @@
   <data name="HeatmapActivityCount" xml:space="preserve">
     <value>{0} activities</value>
   </data>
+  <data name="GuestLeaderboardHint" xml:space="preserve">
+    <value>This board is signed-in accounts. Guest focus stays on this device and never appears here.</value>
+  </data>
+  <data name="LeaderboardEmpty" xml:space="preserve">
+    <value>No rankings yet. Start a focus session after you sign in.</value>
+  </data>
 </root>
