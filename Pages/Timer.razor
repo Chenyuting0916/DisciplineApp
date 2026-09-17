@@ -110,10 +110,7 @@
         <div style="font-size: 3.2rem; font-weight: 800; font-family: Outfit, monospace; line-height: 1;">@TimeDisplay</div>
         <div class="small text-muted mt-1">@string.Format(Localizer["SessionsToday"], todayPomodoros)</div>
         <div class="timer-goal-strip mt-2">
-            <div class="d-flex justify-content-between small">
-                <span>@Localizer["DailyGoal"]</span>
-                <span>@(DisplayedTodayMinutes < 10 ? DisplayedTodayMinutes.ToString("0.0") : ((int)DisplayedTodayMinutes).ToString())/@goalMinutes</span>
-            </div>
+            <div class="small">@Localizer["DailyGoal"] · @((int)DisplayedTodayMinutes)/@goalMinutes</div>
             <div class="progress mt-1" style="height: 4px; background: var(--bg-tertiary);">
                 <div class="progress-bar" role="progressbar" style="width: @(GoalPercent)%; background: var(--accent-2);"></div>
             </div>

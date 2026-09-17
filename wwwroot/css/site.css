@@ -603,8 +603,8 @@ body.sanctuary-mode .timer-shell {
 }
 
 .timer-goal-strip {
-    max-width: 180px;
-    margin: 0 auto;
-    text-align: left;
+    width: 9.5rem;
+    margin: 0.15rem auto 0;
+    text-align: center;
 }
 
