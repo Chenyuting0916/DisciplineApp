@@ -1,0 +1,108 @@
+namespace DisciplineApp.Models;
+
+public class GuestFocusSession
+{
+    public int Id { get; set; }
+    public DateTime StartTime { get; set; }
+    public DateTime EndTime { get; set; }
+    public double DurationMinutes { get; set; }
+    public string TaskTag { get; set; } = string.Empty;
+    public bool IsPomodoro { get; set; }
+}
+
+public class GuestFocusStore
+{
+    public int DailyGoalMinutes { get; set; } = GuestFocusLogic.DefaultGoal;
+    public List<GuestFocusSession> Sessions { get; set; } = new();
+}
+
+public static class GuestFocusLogic
+{
+    public const int GoalMin = 10;
+    public const int GoalMax = 720;
+    public const int DefaultGoal = 60;
+    public const double MinRecordMinutes = 0.1;
+    public const double MaxRecordMinutes = 720;
+
+    public static int ClampGoal(int minutes)
+        => Math.Clamp(minutes <= 0 ? DefaultGoal : minutes, GoalMin, GoalMax);
+
+    public static GuestFocusSession? Record(
+        List<GuestFocusSession> sessions,
+        double minutes,
+        string? task,
+        bool isPomodoro,
+        DateTime utcNow,
+        DateTime? endedAt = null)
+    {
+        if (minutes < MinRecordMinutes) return null;
+        var duration = Math.Clamp(minutes, MinRecordMinutes, MaxRecordMinutes);
+        var end = NormalizeUtc(endedAt ?? utcNow);
+        var start = end.AddMinutes(-duration);
+        var session = new GuestFocusSession
+        {
+            Id = sessions.Count == 0 ? 1 : sessions.Max(s => s.Id) + 1,
+            StartTime = start,
+            EndTime = end,
+            DurationMinutes = Math.Round(duration, 2),
+            TaskTag = InputGuard.Clamp(task, InputGuard.FocusTaskMax),
+            IsPomodoro = isPomodoro
+        };
+        sessions.Add(session);
+        Trim(sessions);
+        return session;
+    }
+
+    public static void Trim(List<GuestFocusSession> sessions)
+    {
+        if (sessions.Count <= InputGuard.MaxExportSessions) return;
+        foreach (var extra in sessions.OrderBy(s => s.EndTime).Take(sessions.Count - InputGuard.MaxExportSessions).ToList())
+        {
+            sessions.Remove(extra);
+        }
+    }
+
+    public static bool Delete(List<GuestFocusSession> sessions, int id)
+        => id > 0 && sessions.RemoveAll(s => s.Id == id) > 0;
+
+    public static double TodayMinutes(IEnumerable<GuestFocusSession> sessions, DateTime utcNow)
+        => sessions.Where(s => NormalizeUtc(s.EndTime).Date == utcNow.Date).Sum(s => s.DurationMinutes);
+
+    public static double WeekMinutes(IEnumerable<GuestFocusSession> sessions, DateTime utcNow, int weeksAgo = 0)
+    {
+        var weekStart = HabitMath.WeekStart(utcNow).AddDays(-7 * weeksAgo);
+        var weekEnd = weekStart.AddDays(7);
+        return sessions
+            .Where(s =>
+            {
+                var day = NormalizeUtc(s.EndTime).Date;
+                return day >= weekStart && day < weekEnd;
+            })
+            .Sum(s => s.DurationMinutes);
+    }
+
+    public static Dictionary<string, double> DailyActivity(IEnumerable<GuestFocusSession> sessions, DateTime utcNow, int days)
+    {
+        var startDate = utcNow.Date.AddDays(-(Math.Max(days, 1) - 1));
+        return sessions
+            .Where(s => NormalizeUtc(s.EndTime).Date >= startDate)
+            .GroupBy(s => NormalizeUtc(s.EndTime).ToLocalTime().Date)
+            .OrderBy(g => g.Key)
+            .ToDictionary(g => g.Key.ToString("MM/dd"), g => g.Sum(s => s.DurationMinutes));
+    }
+
+    public static FocusSession ToFocusSession(GuestFocusSession session)
+        => new()
+        {
+            Id = session.Id,
+            UserId = "guest",
+            StartTime = session.StartTime,
+            EndTime = session.EndTime,
+            DurationMinutes = session.DurationMinutes,
+            TaskTag = session.TaskTag,
+            IsPomodoro = session.IsPomodoro
+        };
+
+    private static DateTime NormalizeUtc(DateTime value)
+        => value.Kind == DateTimeKind.Utc ? value : value.ToUniversalTime();
+}

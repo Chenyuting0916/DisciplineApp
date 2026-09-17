@@ -1,0 +1,86 @@
+using DisciplineApp.Models;
+using Xunit;
+
+namespace DisciplineApp.Tests.Services;
+
+public class GuestFocusTests
+{
+    [Fact]
+    public void Record_ClampsDurationTaskAndCapsHistory()
+    {
+        var sessions = new List<GuestFocusSession>();
+        var now = new DateTime(2026, 9, 17, 8, 0, 0, DateTimeKind.Utc);
+
+        Assert.Null(GuestFocusLogic.Record(sessions, 0.01, "x", true, now));
+
+        var recorded = GuestFocusLogic.Record(sessions, 12.4, "  寫報告  ", true, now);
+        Assert.NotNull(recorded);
+        Assert.Equal(12.4, recorded!.DurationMinutes);
+        Assert.Equal("寫報告", recorded.TaskTag);
+        Assert.True(recorded.IsPomodoro);
+        Assert.Equal(now.AddMinutes(-12.4), recorded.StartTime);
+
+        var huge = GuestFocusLogic.Record(sessions, 9999, new string('a', 200), false, now);
+        Assert.Equal(GuestFocusLogic.MaxRecordMinutes, huge!.DurationMinutes);
+        Assert.Equal(InputGuard.FocusTaskMax, huge.TaskTag.Length);
+
+        for (var i = 0; i < InputGuard.MaxExportSessions + 5; i++)
+        {
+            GuestFocusLogic.Record(sessions, 1, "cap", false, now.AddMinutes(i));
+        }
+
+        Assert.Equal(InputGuard.MaxExportSessions, sessions.Count);
+        Assert.DoesNotContain(sessions, s => s.TaskTag == "寫報告");
+    }
+
+    [Fact]
+    public void Goal_And_WeekTotals_UseUtcDayBounds()
+    {
+        Assert.Equal(10, GuestFocusLogic.ClampGoal(1));
+        Assert.Equal(720, GuestFocusLogic.ClampGoal(900));
+        Assert.Equal(60, GuestFocusLogic.ClampGoal(0));
+
+        var weekStart = HabitMath.WeekStart(new DateTime(2026, 9, 17, 12, 0, 0, DateTimeKind.Utc));
+        var sessions = new List<GuestFocusSession>
+        {
+            new() { DurationMinutes = 25, EndTime = weekStart.AddDays(1) },
+            new() { DurationMinutes = 10, EndTime = weekStart.AddDays(8) },
+            new() { DurationMinutes = 5, EndTime = weekStart.AddDays(-1) }
+        };
+
+        Assert.Equal(25, GuestFocusLogic.WeekMinutes(sessions, weekStart.AddDays(3)));
+        Assert.Equal(5, GuestFocusLogic.WeekMinutes(sessions, weekStart.AddDays(3), 1));
+        Assert.Equal(25, GuestFocusLogic.TodayMinutes(sessions, weekStart.AddDays(1)));
+
+        Assert.False(GuestFocusLogic.Delete(sessions, 0));
+        Assert.False(GuestFocusLogic.Delete(sessions, 99));
+        sessions[0].Id = 7;
+        Assert.True(GuestFocusLogic.Delete(sessions, 7));
+        Assert.Equal(2, sessions.Count);
+    }
+
+    [Fact]
+    public void BuildReview_FillsFocusMinutesWithoutLosingVowCount()
+    {
+        var weekStart = HabitMath.WeekStart(new DateTime(2026, 9, 17));
+        var days = new List<GuestDayJournal>
+        {
+            new() { Date = weekStart.AddDays(1), Vow = "stay" }
+        };
+        var sessions = new List<GuestFocusSession>
+        {
+            new() { DurationMinutes = 40, EndTime = weekStart.AddDays(2) },
+            new() { DurationMinutes = 15, EndTime = weekStart.AddDays(-2) }
+        };
+
+        var review = GuestJournalLogic.BuildReview(
+            Array.Empty<Habit>(),
+            Array.Empty<UserTask>(),
+            days,
+            weekStart.AddDays(4),
+            sessions);
+
+        Assert.Equal(1, review.SessionCount);
+        Assert.Equal(40, review.FocusMinutes);
+    }
+}

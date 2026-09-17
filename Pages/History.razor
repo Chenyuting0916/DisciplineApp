@@ -7,125 +7,122 @@
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 @inject IJSRuntime JSRuntime
 @inject ToastService ToastService
+@inject GuestFocusService GuestFocusService
 
 <PageTitle>@Localizer["History"] - DisciplineApp</PageTitle>
 
-<AuthorizeView>
-    <Authorized>
-        <div class="container mt-4">
-            <h1 class="mb-4">@Localizer["ActivityHistory"]</h1>
+<div class="container mt-4">
+    <h1 class="mb-2">@Localizer["ActivityHistory"]</h1>
+    @if (isGuest)
+    {
+        <p class="text-muted small mb-4">@Localizer["GuestHistoryHint"]</p>
+    }
 
-            @if (isLoading)
-            {
-                <div class="text-center">
-                    <div class="spinner-border text-primary" role="status">
-                        <span class="visually-hidden">@Localizer["LoadingRankings"]</span>
-                    </div>
-                </div>
-            }
-            else
-            {
-                <div class="row mb-4">
-                    <div class="col-md-4">
-                        <div class="card bg-dark text-white border-primary mb-3 h-100">
-                            <div class="card-body text-center">
-                                <h5 class="card-title text-muted">@Localizer["TotalFocusMinutes"]</h5>
-                                <h2 class="display-4 fw-bold text-primary">@((int)totalFocusMinutes)m</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card bg-dark text-white border-success mb-3 h-100">
-                            <div class="card-body text-center">
-                                <h5 class="card-title text-muted">@Localizer["ThisWeek"]</h5>
-                                <h2 class="display-4 fw-bold text-success">@((int)thisWeekMinutes)m</h2>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="card bg-dark text-white border-info mb-3 h-100">
-                            <div class="card-body text-center">
-                                <h5 class="card-title text-muted">@Localizer["LastWeek"]</h5>
-                                <h2 class="display-4 fw-bold text-info">@((int)lastWeekMinutes)m</h2>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row mb-4">
-                    <div class="col-12">
-                        <div class="card bg-dark border-secondary">
-                            <div class="card-header border-secondary">
-                                <h5 class="mb-0 text-white">@Localizer["FocusActivity"]</h5>
-                            </div>
-                            <div class="card-body">
-                                <canvas id="activityChart"></canvas>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="col-12">
-                        <div class="card bg-dark border-secondary">
-                            <div class="card-header border-secondary">
-                                <h5 class="mb-0 text-white">@Localizer["RecentSessions"]</h5>
-                            </div>
-                            <div class="card-body p-0">
-                                <div class="table-responsive">
-                                    <table class="table table-dark table-hover mb-0">
-                                        <thead>
-                                            <tr>
-                                                <th>@Localizer["Date"]</th>
-                                                <th>@Localizer["Task"]</th>
-                                                <th>@Localizer["Duration"]</th>
-                                                <th>@Localizer["Type"]</th>
-                                                <th>@Localizer["Actions"]</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach (var session in recentSessions)
-                                            {
-                                                <tr>
-                                                    <td>@session.EndTime.ToLocalTime().ToString("g")</td>
-                                                    <td>@session.TaskTag</td>
-                                                    <td>@((int)session.DurationMinutes) min</td>
-                                                    <td>
-                                                        @if (session.IsPomodoro)
-                                                        {
-                                                            <span class="badge bg-danger">@Localizer["Pomodoro"]</span>
-                                                        }
-                                                        else
-                                                        {
-                                                            <span class="badge bg-secondary">@Localizer["Stopwatch"]</span>
-                                                        }
-                                                    </td>
-                                                    <td>
-                                                        <button class="btn btn-sm btn-outline-danger" @onclick="@(() => DeleteSession(session))">
-                                                            <i class="bi bi-trash"></i> @Localizer["Delete"]
-                                                        </button>
-                                                    </td>
-                                                </tr>
-                                            }
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
+    @if (isLoading)
+    {
+        <div class="text-center">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">@Localizer["LoadingRankings"]</span>
+            </div>
         </div>
-    </Authorized>
-    <NotAuthorized>
-        <div class="text-center mt-5">
-            <h3>@Localizer["PleaseLoginHistory"]</h3>
+    }
+    else
+    {
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="card bg-dark text-white border-primary mb-3 h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title text-muted">@Localizer["TotalFocusMinutes"]</h5>
+                        <h2 class="display-4 fw-bold text-primary">@((int)totalFocusMinutes)m</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-dark text-white border-success mb-3 h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title text-muted">@Localizer["ThisWeek"]</h5>
+                        <h2 class="display-4 fw-bold text-success">@((int)thisWeekMinutes)m</h2>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card bg-dark text-white border-info mb-3 h-100">
+                    <div class="card-body text-center">
+                        <h5 class="card-title text-muted">@Localizer["LastWeek"]</h5>
+                        <h2 class="display-4 fw-bold text-info">@((int)lastWeekMinutes)m</h2>
+                    </div>
+                </div>
+            </div>
         </div>
-    </NotAuthorized>
-</AuthorizeView>
+
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-header border-secondary">
+                        <h5 class="mb-0 text-white">@Localizer["FocusActivity"]</h5>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="activityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-12">
+                <div class="card bg-dark border-secondary">
+                    <div class="card-header border-secondary">
+                        <h5 class="mb-0 text-white">@Localizer["RecentSessions"]</h5>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-dark table-hover mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>@Localizer["Date"]</th>
+                                        <th>@Localizer["Task"]</th>
+                                        <th>@Localizer["Duration"]</th>
+                                        <th>@Localizer["Type"]</th>
+                                        <th>@Localizer["Actions"]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var session in recentSessions)
+                                    {
+                                        <tr>
+                                            <td>@session.EndTime.ToLocalTime().ToString("g")</td>
+                                            <td>@session.TaskTag</td>
+                                            <td>@((int)session.DurationMinutes) min</td>
+                                            <td>
+                                                @if (session.IsPomodoro)
+                                                {
+                                                    <span class="badge bg-danger">@Localizer["Pomodoro"]</span>
+                                                }
+                                                else
+                                                {
+                                                    <span class="badge bg-secondary">@Localizer["Stopwatch"]</span>
+                                                }
+                                            </td>
+                                            <td>
+                                                <button class="btn btn-sm btn-outline-danger" @onclick="@(() => DeleteSession(session))">
+                                                    <i class="bi bi-trash"></i> @Localizer["Delete"]
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
 
 @code {
     private bool isLoading = true;
+    private bool isGuest;
     private double totalFocusMinutes;
     private double thisWeekMinutes;
     private double lastWeekMinutes;
@@ -142,16 +139,26 @@
             var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
             if (!string.IsNullOrEmpty(userId))
             {
-                // Load parallel data
                 await LoadData(userId);
-                
                 isLoading = false;
             }
+        }
+        else
+        {
+            isGuest = true;
         }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender && isGuest)
+        {
+            await LoadGuestData();
+            isLoading = false;
+            StateHasChanged();
+            return;
+        }
+
         if (!isLoading && activityData.Any())
         {
             await RenderChart();
@@ -231,39 +238,45 @@
     {
         string msg = string.Format(Localizer["AreYouSureDeleteSession"], session.TaskTag, (int)session.DurationMinutes);
         bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", msg);
-        if (confirmed)
-        {
-            var authState = await _authStateProvider.GetAuthenticationStateAsync();
-            var user = authState.User;
-            var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+        if (!confirmed) return;
 
-            if (userId != null)
+        if (isGuest)
+        {
+            if (await GuestFocusService.DeleteAsync(session.Id))
             {
-                bool success = await GamificationService.DeleteFocusSessionAsync(session.Id, userId);
-                if (success)
-                {
-                    recentSessions.Remove(session);
-                    // Also update stats manually in UI or reload? Reloading is safer for consistent state.
-                    // For now, let's just subtract from local variables to avoid full reload if possible, 
-                    // but recalculating "ThisWeek" etc locally is hard.
-                    // Simple approach: reload all stats.
-                    
-                    await LoadData(userId);
-                    
-                    ToastService.ShowSuccess(Localizer["SessionDeleted"]);
-                    StateHasChanged();
-                }
-                else
-                {
-                    ToastService.ShowError(Localizer["DeleteFailed"]);
-                }
+                await LoadGuestData();
+                ToastService.ShowSuccess(Localizer["SessionDeleted"]);
+                StateHasChanged();
+            }
+            else
+            {
+                ToastService.ShowError(Localizer["DeleteFailed"]);
+            }
+            return;
+        }
+
+        var authState = await _authStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+
+        if (userId != null)
+        {
+            bool success = await GamificationService.DeleteFocusSessionAsync(session.Id, userId);
+            if (success)
+            {
+                await LoadData(userId);
+                ToastService.ShowSuccess(Localizer["SessionDeleted"]);
+                StateHasChanged();
+            }
+            else
+            {
+                ToastService.ShowError(Localizer["DeleteFailed"]);
             }
         }
     }
     
     private async Task LoadData(string userId)
     {
-         // Refactoring OnInitialized to reusable method
          var userStats = await GamificationService.GetUserStatsAsync(userId);
          totalFocusMinutes = userStats?.TotalFocusMinutes ?? 0;
          
@@ -272,5 +285,15 @@
          
          recentSessions = await GamificationService.GetFocusSessionsAsync(userId, 20); 
          activityData = await GamificationService.GetDailyFocusActivityAsync(userId, 14); 
+    }
+
+    private async Task LoadGuestData()
+    {
+        var totals = await GuestFocusService.GetTotalsAsync();
+        totalFocusMinutes = totals.Total;
+        thisWeekMinutes = totals.ThisWeek;
+        lastWeekMinutes = totals.LastWeek;
+        recentSessions = await GuestFocusService.GetRecentAsync(20);
+        activityData = await GuestFocusService.GetDailyActivityAsync(14);
     }
 }

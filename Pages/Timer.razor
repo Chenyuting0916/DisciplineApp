@@ -14,6 +14,7 @@
 @inject GuestIfThenService GuestIfThenService
 @inject GuestTaskService GuestTaskService
 @inject GuestJournalService GuestJournalService
+@inject GuestFocusService GuestFocusService
 @inject IIntentionService IntentionService
 @implements IDisposable
 
@@ -661,6 +662,16 @@
                 }
             }
         }
+        else
+        {
+            string taskName = TimerService.FocusTask == "custom" ? customFocusTask : TimerService.FocusTask;
+            if (string.IsNullOrEmpty(taskName)) taskName = customFocusTask;
+            var saved = await GuestFocusService.RecordAsync(minutes, taskName, TimerService.IsPomodoroMode);
+            if (saved != null)
+            {
+                ToastService.ShowSuccess(Localizer["SessionRecorded"]);
+            }
+        }
     }
     
     private async Task PlaySound(string elementId)
@@ -723,7 +734,16 @@
         }
         else
         {
-            ToastService.ShowInfo(Localizer["PleaseLoginTrack"]);
+            var saved = await GuestFocusService.RecordAsync(manualDuration, taskName, false, manualDate);
+            if (saved != null)
+            {
+                ToastService.ShowSuccess(Localizer["SessionRecorded"]);
+                showManualEntry = false;
+            }
+            else
+            {
+                ToastService.ShowError(Localizer["DurationPositive"]);
+            }
         }
     }
 

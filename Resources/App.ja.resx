@@ -862,7 +862,7 @@
     <value>次回から表示しない</value>
   </data>
   <data name="GuestHomeHint" xml:space="preserve">
-    <value>この端末で誓いとチェックインを残す。同期するにはログイン。</value>
+    <value>この端末で誓い・集中・チェックインを残す。同期するにはログイン。</value>
   </data>
   <data name="WeekProgress" xml:space="preserve">
     <value>今週 {0}/{1} 日</value>
@@ -892,10 +892,10 @@
     <value>オフラインです。データはこの端末に残ります。</value>
   </data>
   <data name="GuestReviewHint" xml:space="preserve">
-    <value>この端末のゲスト週報です。集中分数とレベルはログイン後。</value>
+    <value>この端末のゲスト週報です。集中分数は端末に残り、レベルと順位はログイン後。</value>
   </data>
   <data name="ReviewGuestEmpty" xml:space="preserve">
-    <value>今週のゲスト記録はまだない。習慣か誓いから。</value>
+    <value>今週のゲスト記録はまだない。習慣・誓い、または集中から。</value>
   </data>
   <data name="ReviewGuestLetter" xml:space="preserve">
     <value>今週この端末で習慣 {0} 回、タスク {1} 件、誓い {2} 日。</value>
@@ -914,5 +914,8 @@
   </data>
   <data name="OneMoreSession" xml:space="preserve">
     <value>もう一回</value>
+  </data>
+  <data name="GuestHistoryHint" xml:space="preserve">
+    <value>これらの集中記録はこの端末だけに残り、送信されません。</value>
   </data>
 </root>

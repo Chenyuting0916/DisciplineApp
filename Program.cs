@@ -61,6 +61,7 @@ builder.Services.AddScoped<GuestTaskService>();
 builder.Services.AddScoped<GuestHabitService>();
 builder.Services.AddScoped<GuestIfThenService>();
 builder.Services.AddScoped<GuestJournalService>();
+builder.Services.AddScoped<GuestFocusService>();
 builder.Services.AddScoped<GuestExportService>();
 builder.Services.AddScoped<IHabitService, HabitService>();
 builder.Services.AddScoped<IReflectionService, ReflectionService>();

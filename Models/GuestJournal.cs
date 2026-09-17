@@ -57,7 +57,8 @@ public static class GuestJournalLogic
         IEnumerable<Habit> habits,
         IEnumerable<UserTask> tasks,
         IEnumerable<GuestDayJournal> days,
-        DateTime utcNow)
+        DateTime utcNow,
+        IEnumerable<GuestFocusSession>? sessions = null)
     {
         var weekStart = HabitMath.WeekStart(utcNow);
         var weekEnd = weekStart.AddDays(7);
@@ -65,6 +66,13 @@ public static class GuestJournalLogic
         var weekTasks = tasks.Where(t =>
             (t.CompletedAt.HasValue && t.CompletedAt.Value.Date >= weekStart && t.CompletedAt.Value.Date < weekEnd)
             || (t.IsCompleted && t.Date.Date >= weekStart && t.Date.Date < weekEnd)).ToList();
+        var weekFocus = sessions?
+            .Where(s =>
+            {
+                var day = s.EndTime.Kind == DateTimeKind.Utc ? s.EndTime.Date : s.EndTime.ToUniversalTime().Date;
+                return day >= weekStart && day < weekEnd;
+            })
+            .Sum(s => s.DurationMinutes) ?? 0;
 
         return new WeeklyReview
         {
@@ -72,7 +80,7 @@ public static class GuestJournalLogic
             TasksCompleted = weekTasks.Count,
             SessionCount = weekDays.Count(d => !string.IsNullOrWhiteSpace(d.Vow) || !string.IsNullOrWhiteSpace(d.OneThing)),
             CurrentStreak = HabitMath.LongestOpenStreak(habits.SelectMany(h => h.Logs.Select(l => l.Date)), utcNow),
-            FocusMinutes = 0
+            FocusMinutes = weekFocus
         };
     }
 }

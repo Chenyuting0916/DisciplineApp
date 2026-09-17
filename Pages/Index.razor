@@ -11,6 +11,7 @@
 @inject IReflectionService ReflectionService
 @inject IIntentionService IntentionService
 @inject GuestJournalService GuestJournalService
+@inject GuestFocusService GuestFocusService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
@@ -286,6 +287,22 @@
         {
             <div class="dashboard-container pt-2 pb-5">
                 <p class="text-muted small mb-3">@Localizer["GuestHomeHint"]</p>
+                <div class="stat-grid mb-4">
+                    <div class="stat-card goal">
+                        <div class="label">@Localizer["DailyGoal"]</div>
+                        <div class="value">@((int)todayFocusMinutes)<span class="fs-6 fw-600">/@goalMinutes</span></div>
+                        <div class="small text-muted mt-1">
+                            @Localizer["TodaysFocus"] ·
+                            <button class="btn btn-link btn-sm p-0 align-baseline" @onclick="ShowGoalModal">@Localizer["SetGoal"]</button>
+                        </div>
+                        <div class="progress mt-2" style="height: 6px; background: var(--bg-tertiary);">
+                            <div class="progress-bar" role="progressbar" style="width: @(GoalPercent)%; background: var(--accent-2);"></div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-primary mb-4" @onclick="GoToTimer">
+                    <i class="bi bi-play-fill"></i> @Localizer["StartFocusSession"]
+                </button>
                 <div class="vow-card mb-4">
                     <div class="d-flex justify-content-between align-items-center mb-2">
                         <h5 class="mb-0">@Localizer["DailyVow"]</h5>
@@ -455,7 +472,10 @@
     
     private bool isCurrentWeek => currentWeekStart >= GetStartOfWeek(DateTime.UtcNow.Date);
     private string weekRangeDisplay => $"{currentWeekStart:MM/dd} - {currentWeekStart.AddDays(6):MM/dd}";
-    private int goalMinutes => currentUser?.DailyFocusGoalMinutes > 0 ? currentUser.DailyFocusGoalMinutes : 60;
+    private int guestGoalMinutes = 60;
+    private int goalMinutes => isGuest
+        ? (guestGoalMinutes > 0 ? guestGoalMinutes : 60)
+        : (currentUser?.DailyFocusGoalMinutes > 0 ? currentUser.DailyFocusGoalMinutes : 60);
     private int GoalPercent => goalMinutes <= 0 ? 0 : (int)Math.Clamp(todayFocusMinutes / goalMinutes * 100, 0, 100);
     private int completedTaskCount => todayTasks?.Count(t => t.IsCompleted) ?? 0;
     private int totalTaskCount => todayTasks?.Count ?? 0;
@@ -529,6 +549,8 @@
                 todayReflection = new DailyReflection { Mood = today.Mood, Note = today.Note, Date = today.Date };
             }
         }
+        guestGoalMinutes = await GuestFocusService.GetGoalAsync();
+        todayFocusMinutes = await GuestFocusService.GetTodayMinutesAsync();
         guestReady = true;
         StateHasChanged();
     }
@@ -695,7 +717,13 @@
     private async Task SaveGoal()
     {
         var userId = await GetUserId();
-        if (userId == null) return;
+        if (userId == null)
+        {
+            guestGoalMinutes = await GuestFocusService.SetGoalAsync(goalDraft);
+            showGoalModal = false;
+            ToastService.ShowSuccess(Localizer["GoalUpdated"]);
+            return;
+        }
         await GamificationService.UpdateDailyFocusGoalAsync(userId, goalDraft);
         currentUser = await GamificationService.GetUserStatsAsync(userId);
         showGoalModal = false;

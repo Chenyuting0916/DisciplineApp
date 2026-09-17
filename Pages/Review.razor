@@ -8,6 +8,7 @@
 @inject GuestHabitService GuestHabitService
 @inject GuestTaskService GuestTaskService
 @inject GuestJournalService GuestJournalService
+@inject GuestFocusService GuestFocusService
 @inject IJSRuntime JSRuntime
 @inject ToastService ToastService
 
@@ -69,6 +70,10 @@
             <p class="text-muted mb-4">@GuestLetter</p>
 
             <div class="stat-grid mb-4">
+                <div class="stat-card goal">
+                    <div class="label">@Localizer["ThisWeek"]</div>
+                    <div class="value">@((int)guestReview.FocusMinutes)m</div>
+                </div>
                 <div class="stat-card">
                     <div class="label">@Localizer["Habits"]</div>
                     <div class="value">@guestReview.HabitChecks</div>
@@ -80,10 +85,6 @@
                 <div class="stat-card streak">
                     <div class="label">@Localizer["DailyVow"]</div>
                     <div class="value">@guestReview.SessionCount</div>
-                </div>
-                <div class="stat-card coins">
-                    <div class="label">@Localizer["Streak"]</div>
-                    <div class="value">🔥 @guestReview.CurrentStreak</div>
                 </div>
             </div>
 
@@ -110,7 +111,7 @@
             : string.Format(Localizer["ReviewLetter"], (int)review.FocusMinutes, review.SessionCount, review.CurrentStreak);
 
     private string GuestLetter =>
-        guestReview.HabitChecks < 1 && guestReview.TasksCompleted < 1 && guestReview.SessionCount < 1
+        guestReview.HabitChecks < 1 && guestReview.TasksCompleted < 1 && guestReview.SessionCount < 1 && guestReview.FocusMinutes < 1
             ? Localizer["ReviewGuestEmpty"]
             : string.Format(Localizer["ReviewGuestLetter"], guestReview.HabitChecks, guestReview.TasksCompleted, guestReview.SessionCount);
 
@@ -131,7 +132,8 @@
         var habits = await GuestHabitService.GetHabitsAsync();
         var tasks = await GuestTaskService.GetAllAsync();
         var days = await GuestJournalService.GetAllAsync();
-        guestReview = GuestJournalLogic.BuildReview(habits, tasks, days, DateTime.UtcNow);
+        var sessions = await GuestFocusService.GetAllAsync();
+        guestReview = GuestJournalLogic.BuildReview(habits, tasks, days, DateTime.UtcNow, sessions);
         StateHasChanged();
     }
 
