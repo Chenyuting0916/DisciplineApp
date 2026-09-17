@@ -939,4 +939,22 @@
   <data name="HistoryEmpty" xml:space="preserve">
     <value>まだ集中記録がありません。先に1回始めましょう。</value>
   </data>
+  <data name="ShortcutsTitle" xml:space="preserve">
+    <value>キーボードショートカット</value>
+  </data>
+  <data name="ShortcutsHint" xml:space="preserve">
+    <value>これらのキーは集中タイマーで使います。ゲスト記録はこの端末だけに残ります。</value>
+  </data>
+  <data name="ShortcutSpace" xml:space="preserve">
+    <value>開始または一時停止</value>
+  </data>
+  <data name="ShortcutMinutes" xml:space="preserve">
+    <value>停止中に 15／25／50 分へ切り替え</value>
+  </data>
+  <data name="ShortcutSkipBreath" xml:space="preserve">
+    <value>呼吸画面をスキップ</value>
+  </data>
+  <data name="ShortcutLeaveSanctuary" xml:space="preserve">
+    <value>サンクチュアリを終了</value>
+  </data>
 </root>
