@@ -1,3 +1,4 @@
+using System.Globalization;
 using DisciplineApp.Models;
 using Xunit;
 
@@ -85,6 +86,7 @@ public class GuestFocusTests
 
         Assert.Equal(1, review.SessionCount);
         Assert.Equal(1, review.VowDays);
+        Assert.Equal(0, review.MoodCheckIns);
         Assert.Equal(40, review.FocusMinutes);
         Assert.Equal(weekStart.AddDays(2).Date, review.BestDay!.Value.Date);
         Assert.Equal(40, review.BestDayMinutes);
@@ -123,6 +125,30 @@ public class GuestFocusTests
         Assert.Equal(1, GuestFocusLogic.ActivityStreak(map.Keys, day.AddHours(12)));
         Assert.Equal(0, GuestFocusLogic.ActivityStreak(Array.Empty<DateTime>(), day));
         Assert.Equal(2, GuestFocusLogic.ActivityStreak(new[] { day, day.AddDays(-1) }, day));
+
+        var today = new DateTime(2026, 9, 17);
+        Assert.Equal(StreakStatus.None, HabitMath.ActivityStreakStatus(Array.Empty<DateTime>(), today).Status);
+        Assert.Equal(StreakStatus.Active, HabitMath.ActivityStreakStatus(new[] { today, today.AddDays(-1) }, today).Status);
+        Assert.Equal(2, HabitMath.ActivityStreakStatus(new[] { today, today.AddDays(-1) }, today).Streak);
+        var pending = HabitMath.ActivityStreakStatus(new[] { today.AddDays(-1), today.AddDays(-2) }, today);
+        Assert.Equal(StreakStatus.Pending, pending.Status);
+        Assert.Equal(2, pending.Streak);
+        var atRisk = HabitMath.ActivityStreakStatus(new[] { today.AddDays(-2), today.AddDays(-3) }, today);
+        Assert.Equal(StreakStatus.AtRisk, atRisk.Status);
+        Assert.Equal(2, atRisk.Streak);
+        Assert.Equal(StreakStatus.Broken, HabitMath.ActivityStreakStatus(new[] { today.AddDays(-3) }, today).Status);
+        Assert.Equal(0, HabitMath.ActivityStreakStatus(new[] { today.AddDays(-3) }, today).Streak);
+    }
+
+    [Fact]
+    public void HeatmapCopy_UsesCultureForDaysAndKeepsTooltipSafe()
+    {
+        var zh = CultureInfo.GetCultureInfo("zh-TW");
+        var en = CultureInfo.GetCultureInfo("en");
+        Assert.Contains("一", HeatmapCopy.DayLabel(DayOfWeek.Monday, zh));
+        Assert.Equal("Mon", HeatmapCopy.DayLabel(DayOfWeek.Monday, en));
+        Assert.Equal("2026-09-17: 3 activities", HeatmapCopy.Tooltip(new DateTime(2026, 9, 17), 3, "{0} activities"));
+        Assert.Equal("2026-09-17: 0 次行動", HeatmapCopy.Tooltip(new DateTime(2026, 9, 17), -4, "{0} 次行動"));
     }
 
     [Fact]
@@ -145,6 +171,10 @@ public class GuestFocusTests
         Assert.Equal(50, GuestFocusLogic.PercentTowardGoal(5, 10));
         Assert.Equal(0, GuestFocusLogic.PercentTowardGoal(0, 60));
         Assert.Equal(100, GuestFocusLogic.PercentTowardGoal(80, 60));
+        Assert.True(GuestFocusLogic.ShouldOfferReview(0.1, false));
+        Assert.True(GuestFocusLogic.ShouldOfferReview(25, false));
+        Assert.False(GuestFocusLogic.ShouldOfferReview(0.01, false));
+        Assert.False(GuestFocusLogic.ShouldOfferReview(25, true));
     }
 
     [Fact]

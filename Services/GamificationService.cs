@@ -457,6 +457,10 @@ public class GamificationService : IGamificationService
             .Select(g => g.Key)
             .FirstOrDefault();
 
+        var reflections = await _context.DailyReflections
+            .Where(r => r.UserId == userId && r.Date >= startOfWeek && r.Date < endOfWeek)
+            .ToListAsync();
+
         return new WeeklyReview
         {
             FocusMinutes = sessions.Sum(s => s.DurationMinutes),
@@ -468,7 +472,9 @@ public class GamificationService : IGamificationService
             BestDayMinutes = best?.Minutes ?? 0,
             CurrentStreak = user?.CurrentStreak ?? 0,
             LongestStreak = user?.LongestStreak ?? 0,
-            Level = user?.Level ?? 1
+            Level = user?.Level ?? 1,
+            MoodCheckIns = reflections.Count,
+            AverageMood = MoodMath.AverageRounded(reflections.Select(r => r.Mood))
         };
     }
 }
