@@ -77,12 +77,40 @@
         </div>
     </Authorized>
     <NotAuthorized>
-        <div class="hero-landing">
-            <h1>@Localizer["Habits"]</h1>
+        <section class="hero-landing">
+            <p class="hero-kicker">@Localizer["Habits"]</p>
+            <h1>@Localizer["HabitsTitle"]</h1>
             <p class="lead">@Localizer["PleaseLoginHabits"]</p>
+            <button class="btn btn-lg btn-primary px-4" @onclick="ShowLoginModal">@Localizer["LandingCta"]</button>
+        </section>
+        <div class="d-flex flex-wrap justify-content-center gap-2 mb-5">
+            @foreach (var template in templates)
+            {
+                <span class="preset-chip">@template.Icon @template.Title</span>
+            }
         </div>
     </NotAuthorized>
 </AuthorizeView>
+
+@if (showLoginModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">@Localizer["Login"]</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="HideLoginModal"></button>
+                </div>
+                <div class="modal-body text-center p-5">
+                    <a href="Account/LoginWithGoogle" class="btn btn-lg btn-light w-100 d-flex align-items-center justify-content-center gap-2">
+                        <img src="https://www.google.com/favicon.ico" alt="Google" width="20" height="20">
+                        @Localizer["ContinueWithGoogle"]
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 @if (showAdd)
 {
@@ -133,6 +161,9 @@
     private List<Habit> habits = new();
     private string? userId;
     private bool showAdd;
+    private bool showLoginModal;
+    private void ShowLoginModal() => showLoginModal = true;
+    private void HideLoginModal() => showLoginModal = false;
     private string newTitle = "";
     private string newIcon = "✅";
     private string newColor = "#F5A524";
