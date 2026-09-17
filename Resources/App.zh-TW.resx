@@ -642,4 +642,145 @@
   <data name="Quote10" xml:space="preserve">
     <value>今天只問你：下一個誠實的專注時段。</value>
   </data>
+  <data name="Shop" xml:space="preserve">
+    <value>商店</value>
+  </data>
+  <data name="ShopTitle" xml:space="preserve">
+    <value>用金幣，換你正在成為的人</value>
+  </data>
+  <data name="ShopIntro" xml:space="preserve">
+    <value>沒有真錢。金幣靠出現賺來，用來換稱號、主題，以及連續紀錄的護甲。</value>
+  </data>
+  <data name="ShopTitles" xml:space="preserve">
+    <value>稱號</value>
+  </data>
+  <data name="ShopThemes" xml:space="preserve">
+    <value>主題</value>
+  </data>
+  <data name="ShopUtilities" xml:space="preserve">
+    <value>道具</value>
+  </data>
+  <data name="ShopTitleMonk" xml:space="preserve">
+    <value>專注僧</value>
+  </data>
+  <data name="ShopTitleIron" xml:space="preserve">
+    <value>鐵意志</value>
+  </data>
+  <data name="ShopTitleFlame" xml:space="preserve">
+    <value>不熄之火</value>
+  </data>
+  <data name="ShopTitleDawn" xml:space="preserve">
+    <value>黎明</value>
+  </data>
+  <data name="ShopThemeEmber" xml:space="preserve">
+    <value>餘燼</value>
+  </data>
+  <data name="ShopThemeForest" xml:space="preserve">
+    <value>森林</value>
+  </data>
+  <data name="ShopThemeMidnight" xml:space="preserve">
+    <value>午夜</value>
+  </data>
+  <data name="ShopThemeRose" xml:space="preserve">
+    <value>玫瑰</value>
+  </data>
+  <data name="ShopFreezePack" xml:space="preserve">
+    <value>連續凍結代幣</value>
+  </data>
+  <data name="ShopFreezeDesc" xml:space="preserve">
+    <value>留給生活真的卡住的那一天。</value>
+  </data>
+  <data name="Equip" xml:space="preserve">
+    <value>裝備</value>
+  </data>
+  <data name="Equipped" xml:space="preserve">
+    <value>使用中</value>
+  </data>
+  <data name="Buy" xml:space="preserve">
+    <value>購買</value>
+  </data>
+  <data name="PurchaseOk" xml:space="preserve">
+    <value>已購買。</value>
+  </data>
+  <data name="AlreadyOwned" xml:space="preserve">
+    <value>你已經擁有這個。</value>
+  </data>
+  <data name="PurchaseFailed" xml:space="preserve">
+    <value>無法完成購買。</value>
+  </data>
+  <data name="PleaseLoginShop" xml:space="preserve">
+    <value>登入後，才能花掉你靠自律賺來的金幣。</value>
+  </data>
+  <data name="FreezeTokens" xml:space="preserve">
+    <value>{0} 枚凍結代幣</value>
+  </data>
+  <data name="Review" xml:space="preserve">
+    <value>每週回顧</value>
+  </data>
+  <data name="ReviewHeadline" xml:space="preserve">
+    <value>這週，你沒有消失。</value>
+  </data>
+  <data name="ReviewLetter" xml:space="preserve">
+    <value>你守住了 {0} 分鐘的專注，共 {1} 個時段。連續紀錄是 {2}。這是一個守承諾的人。</value>
+  </data>
+  <data name="ReviewEmpty" xml:space="preserve">
+    <value>這週還是空白。一次誠實的專注，就夠開始寫這封信。</value>
+  </data>
+  <data name="ReviewDetails" xml:space="preserve">
+    <value>收據</value>
+  </data>
+  <data name="ReviewTasks" xml:space="preserve">
+    <value>完成 {0} 項任務</value>
+  </data>
+  <data name="ReviewBestDay" xml:space="preserve">
+    <value>最好的一天 {0}：{1} 分鐘</value>
+  </data>
+  <data name="ReviewTopFocus" xml:space="preserve">
+    <value>你最常回到：{0}</value>
+  </data>
+  <data name="ReviewLevel" xml:space="preserve">
+    <value>等級 {0} · 最長連續 {1}</value>
+  </data>
+  <data name="EnterSanctuary" xml:space="preserve">
+    <value>進入聖域</value>
+  </data>
+  <data name="LeaveSanctuary" xml:space="preserve">
+    <value>離開聖域</value>
+  </data>
+  <data name="SanctuaryHint" xml:space="preserve">
+    <value>雨聲、爐火與棕噪在瀏覽器裡即時產生 — 沒有檔案，也沒有追蹤。空白鍵開始或暫停，Esc 離開聖域。</value>
+  </data>
+  <data name="SoundOff" xml:space="preserve">
+    <value>靜音</value>
+  </data>
+  <data name="SoundRain" xml:space="preserve">
+    <value>雨</value>
+  </data>
+  <data name="SoundBrown" xml:space="preserve">
+    <value>棕噪</value>
+  </data>
+  <data name="SoundCafe" xml:space="preserve">
+    <value>咖啡廳</value>
+  </data>
+  <data name="SoundFire" xml:space="preserve">
+    <value>爐火</value>
+  </data>
+  <data name="DailyVow" xml:space="preserve">
+    <value>今日誓言</value>
+  </data>
+  <data name="DailyVowHint" xml:space="preserve">
+    <value>寫下未來十六小時你要成為誰。再點名一件，讓今天算數的事。</value>
+  </data>
+  <data name="VowPlaceholder" xml:space="preserve">
+    <value>我不會跟想漂走的衝動談判…</value>
+  </data>
+  <data name="OneThingPlaceholder" xml:space="preserve">
+    <value>今天最重要的一件事</value>
+  </data>
+  <data name="CommitVow" xml:space="preserve">
+    <value>立誓</value>
+  </data>
+  <data name="VowSet" xml:space="preserve">
+    <value>誓言已鎖定。</value>
+  </data>
 </root>

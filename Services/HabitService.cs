@@ -35,9 +35,9 @@ public class HabitService : IHabitService
         var habit = new Habit
         {
             UserId = userId,
-            Title = title.Trim(),
-            Icon = string.IsNullOrWhiteSpace(icon) ? "✅" : icon.Trim(),
-            Color = string.IsNullOrWhiteSpace(color) ? "#F5A524" : color,
+            Title = InputGuard.Clamp(title, InputGuard.TitleMax),
+            Icon = string.IsNullOrWhiteSpace(icon) ? "✅" : InputGuard.Clamp(icon, 8),
+            Color = IsSafeColor(color) ? color : "#F5A524",
             TargetDaysPerWeek = Math.Clamp(targetDaysPerWeek, 1, 7),
             CreatedAt = DateTime.UtcNow
         };
@@ -137,5 +137,11 @@ public class HabitService : IHabitService
         var today = DateTime.UtcNow.Date;
         var completed = habits.Count(h => h.Logs.Any(l => l.Date.Date == today));
         return (completed, habits.Count);
+    }
+
+    private static bool IsSafeColor(string? color)
+    {
+        if (string.IsNullOrWhiteSpace(color) || color.Length != 7 || color[0] != '#') return false;
+        return color.Skip(1).All(c => Uri.IsHexDigit(c));
     }
 }

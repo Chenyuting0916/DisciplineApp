@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
+using DisciplineApp.Models;
 
 namespace DisciplineApp.Controllers;
 
@@ -8,14 +9,22 @@ public class CultureController : Controller
 {
     public IActionResult Set(string culture, string redirectUri)
     {
-        if (culture != null)
+        if (InputGuard.IsAllowedCulture(culture))
         {
             HttpContext.Response.Cookies.Append(
                 CookieRequestCultureProvider.DefaultCookieName,
                 CookieRequestCultureProvider.MakeCookieValue(
-                    new RequestCulture(culture, culture)));
+                    new RequestCulture(culture, culture)),
+                new CookieOptions
+                {
+                    HttpOnly = true,
+                    IsEssential = true,
+                    SameSite = SameSiteMode.Lax,
+                    MaxAge = TimeSpan.FromDays(365)
+                });
         }
 
-        return LocalRedirect(redirectUri);
+        var target = Url.IsLocalUrl(redirectUri) ? redirectUri : "/";
+        return LocalRedirect(target);
     }
 }

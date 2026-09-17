@@ -73,9 +73,9 @@
                                     </td>
                                     <td class="align-middle">
                                         <div class="d-flex align-items-center">
-                                            @if (!string.IsNullOrEmpty(user.PhotoUrl))
+                                            @if (InputGuard.IsHttpsUrl(user.PhotoUrl))
                                             {
-                                                <img src="@user.PhotoUrl" alt="@user.DisplayName" class="avatar-circle me-2" style="object-fit: cover;" />
+                                                <img src="@user.PhotoUrl" alt="" class="avatar-circle me-2" style="object-fit: cover;" />
                                             }
                                             else
                                             {

@@ -13,7 +13,25 @@
 
 <PageTitle>@Localizer["Timer"] — Discipline</PageTitle>
 
-<div class="timer-shell text-center">
+<div class="timer-shell text-center" @onkeydown="HandleKey" tabindex="0">
+    <div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
+        @if (!sanctuary)
+        {
+            <button class="btn btn-outline-primary" @onclick="EnterSanctuary">🕯 @Localizer["EnterSanctuary"]</button>
+        }
+        else
+        {
+            <button class="btn btn-outline-primary" @onclick="ExitSanctuary">@Localizer["LeaveSanctuary"]</button>
+        }
+    </div>
+    <div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
+        @foreach (var sound in sounds)
+        {
+            <button class="preset-chip @(ambient == sound.Id ? "active" : "")" @onclick="() => SetAmbient(sound.Id)">@sound.Label</button>
+        }
+    </div>
+    <p class="small text-muted mb-3">@Localizer["SanctuaryHint"]</p>
+
     <div class="btn-group mb-4" role="group">
         <button class="btn @(TimerService.IsPomodoroMode && !TimerService.IsBreakMode ? "btn-primary" : "btn-outline-primary")"
                 @onclick="@(() => TimerService.SetMode(true))" disabled="@TimerService.IsRunning">
@@ -58,6 +76,7 @@
         {
             <input type="text" class="form-control text-center" 
                    placeholder="@Localizer["FocusPlaceholder"]" 
+                   maxlength="80"
                    @bind="customFocusTask" 
                    disabled="@TimerService.IsRunning" />
         }
@@ -179,6 +198,10 @@
     private string customFocusTask = "";
     private List<UserTask>? todayTasks;
     private bool offerBreak;
+    private bool sanctuary;
+    private string ambient = "off";
+    private record SoundOpt(string Id, string Label);
+    private List<SoundOpt> sounds = new();
     
     private bool showCoinReward = false;
     private int coinsEarned = 0;
@@ -203,6 +226,15 @@
         {
             customFocusTask = TimerService.FocusTask;
         }
+
+        sounds = new()
+        {
+            new("off", Localizer["SoundOff"]),
+            new("rain", Localizer["SoundRain"]),
+            new("brown", Localizer["SoundBrown"]),
+            new("cafe", Localizer["SoundCafe"]),
+            new("fire", Localizer["SoundFire"]),
+        };
         
         await LoadTasks();
     }
@@ -261,9 +293,13 @@
             taskName = TimerService.IsBreakMode ? Localizer["Break"] : (Localizer["Focus Session"] ?? "Focus Session");
         }
         
-        TimerService.FocusTask = taskName;
+        TimerService.FocusTask = InputGuard.Clamp(taskName, InputGuard.FocusTaskMax);
         TimerService.Start();
         await PlaySound("startSound");
+        if (ambient != "off")
+        {
+            await JSRuntime.InvokeVoidAsync("sanctuary.start", ambient);
+        }
 
         var trackData = System.Text.Json.JsonSerializer.Serialize(new { 
             Mode = TimerService.IsBreakMode ? "Break" : TimerService.IsPomodoroMode ? "Pomodoro" : "Stopwatch",
@@ -440,9 +476,46 @@
         }
     }
 
+    private async Task EnterSanctuary()
+    {
+        sanctuary = true;
+        await JSRuntime.InvokeVoidAsync("sanctuary.enter");
+        if (ambient != "off")
+        {
+            await JSRuntime.InvokeVoidAsync("sanctuary.start", ambient);
+        }
+    }
+
+    private async Task ExitSanctuary()
+    {
+        sanctuary = false;
+        await JSRuntime.InvokeVoidAsync("sanctuary.exit");
+        ambient = "off";
+    }
+
+    private async Task SetAmbient(string kind)
+    {
+        ambient = kind;
+        await JSRuntime.InvokeVoidAsync("sanctuary.start", kind);
+    }
+
+    private async Task HandleKey(KeyboardEventArgs e)
+    {
+        if (e.Code == "Space")
+        {
+            if (TimerService.IsRunning) PauseTimer();
+            else await StartTimer();
+        }
+        else if (e.Code == "Escape" && sanctuary)
+        {
+            await ExitSanctuary();
+        }
+    }
+
     public void Dispose()
     {
         TimerService.OnTick -= UpdateUI;
         TimerService.OnTimerCompleted -= HandleTimerCompleted;
+        _ = JSRuntime.InvokeVoidAsync("sanctuary.exit");
     }
 }

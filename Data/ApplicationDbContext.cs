@@ -20,6 +20,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Habit> Habits { get; set; }
     public DbSet<HabitLog> HabitLogs { get; set; }
     public DbSet<DailyReflection> DailyReflections { get; set; }
+    public DbSet<DailyIntention> DailyIntentions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -38,6 +39,10 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
 
         builder.Entity<DailyReflection>()
             .HasIndex(r => new { r.UserId, r.Date })
+            .IsUnique();
+
+        builder.Entity<DailyIntention>()
+            .HasIndex(i => new { i.UserId, i.Date })
             .IsUnique();
 
         builder.Entity<Habit>()

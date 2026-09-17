@@ -88,7 +88,7 @@ public class GamificationService : IGamificationService
             StartTime = (endTime ?? DateTime.UtcNow).AddMinutes(-minutes),
             EndTime = endTime ?? DateTime.UtcNow,
             DurationMinutes = minutes,
-            TaskTag = taskTag,
+            TaskTag = InputGuard.Clamp(taskTag, InputGuard.FocusTaskMax),
             IsPomodoro = isPomodoro
         };
         _context.FocusSessions.Add(session);
@@ -377,9 +377,20 @@ public class GamificationService : IGamificationService
 
         var status = await GetStreakStatusAsync(userId);
         if (status != StreakStatus.AtRisk) return (false, user.GoldCoins);
-        if (user.GoldCoins < cost) return (false, user.GoldCoins);
 
-        user.GoldCoins -= cost;
+        if (user.StreakFreezeTokens > 0)
+        {
+            user.StreakFreezeTokens--;
+        }
+        else if (user.GoldCoins >= cost)
+        {
+            user.GoldCoins -= cost;
+        }
+        else
+        {
+            return (false, user.GoldCoins);
+        }
+
         user.LastActiveDate = DateTime.UtcNow.Date.AddDays(-1);
         await _userManager.UpdateAsync(user);
         return (true, user.GoldCoins);
@@ -402,5 +413,54 @@ public class GamificationService : IGamificationService
         user.DailyFocusGoalMinutes = Math.Clamp(minutes, 10, 720);
         await _userManager.UpdateAsync(user);
         return true;
+    }
+
+    public async Task<WeeklyReview> GetWeeklyReviewAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        var today = DateTime.UtcNow.Date;
+        var diff = (7 + (today.DayOfWeek - DayOfWeek.Sunday)) % 7;
+        var startOfWeek = today.AddDays(-1 * diff);
+        var endOfWeek = startOfWeek.AddDays(7);
+
+        var sessions = await _context.FocusSessions
+            .Where(s => s.UserId == userId && s.EndTime >= startOfWeek && s.EndTime < endOfWeek)
+            .ToListAsync();
+
+        var tasksCompleted = await _context.UserTasks
+            .Where(t => t.UserId == userId && t.IsCompleted && t.CompletedAt >= startOfWeek && t.CompletedAt < endOfWeek)
+            .CountAsync();
+
+        var habitChecks = await _context.HabitLogs
+            .Join(_context.Habits, l => l.HabitId, h => h.Id, (l, h) => new { l, h })
+            .Where(x => x.h.UserId == userId && x.l.Date >= startOfWeek && x.l.Date < endOfWeek)
+            .CountAsync();
+
+        var best = sessions
+            .GroupBy(s => s.EndTime.ToLocalTime().Date)
+            .Select(g => new { Day = g.Key, Minutes = g.Sum(s => s.DurationMinutes) })
+            .OrderByDescending(x => x.Minutes)
+            .FirstOrDefault();
+
+        var topFocus = sessions
+            .Where(s => !string.IsNullOrWhiteSpace(s.TaskTag))
+            .GroupBy(s => s.TaskTag!)
+            .OrderByDescending(g => g.Sum(s => s.DurationMinutes))
+            .Select(g => g.Key)
+            .FirstOrDefault();
+
+        return new WeeklyReview
+        {
+            FocusMinutes = sessions.Sum(s => s.DurationMinutes),
+            SessionCount = sessions.Count,
+            TasksCompleted = tasksCompleted,
+            HabitChecks = habitChecks,
+            TopFocus = topFocus,
+            BestDay = best?.Day,
+            BestDayMinutes = best?.Minutes ?? 0,
+            CurrentStreak = user?.CurrentStreak ?? 0,
+            LongestStreak = user?.LongestStreak ?? 0,
+            Level = user?.Level ?? 1
+        };
     }
 }

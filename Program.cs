@@ -60,6 +60,8 @@ builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddScoped<GuestTaskService>();
 builder.Services.AddScoped<IHabitService, HabitService>();
 builder.Services.AddScoped<IReflectionService, ReflectionService>();
+builder.Services.AddScoped<IShopService, ShopService>();
+builder.Services.AddScoped<IIntentionService, IntentionService>();
 builder.Services.AddScoped<QuoteService>();
 
 builder.Services.AddAuthentication()
@@ -139,6 +141,15 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseCookiePolicy();
+
+app.Use(async (context, next) =>
+{
+    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
+    context.Response.Headers["X-Frame-Options"] = "DENY";
+    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=()";
+    await next();
+});
 
 app.UseStaticFiles();
 

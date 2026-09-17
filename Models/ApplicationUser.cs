@@ -22,4 +22,10 @@ public class ApplicationUser : IdentityUser
     public int LongestStreak { get; set; }
     public DateTime? LastActiveDate { get; set; }
     public int DailyFocusGoalMinutes { get; set; } = 60;
+
+    // Identity cosmetics — never trust client-supplied values without an allowlist.
+    public string? EquippedTitle { get; set; }
+    public string ThemeKey { get; set; } = "ember";
+    public string OwnedItems { get; set; } = ShopCatalog.DefaultOwned;
+    public int StreakFreezeTokens { get; set; }
 }

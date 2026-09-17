@@ -40,7 +40,7 @@ public class ReflectionService : IReflectionService
         }
 
         existing.Mood = Math.Clamp(mood, 1, 5);
-        existing.Note = string.IsNullOrWhiteSpace(note) ? null : note.Trim();
+        existing.Note = string.IsNullOrWhiteSpace(note) ? null : InputGuard.Clamp(note, InputGuard.NoteMax);
         await _context.SaveChangesAsync();
 
         if (isNew)

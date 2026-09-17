@@ -417,3 +417,82 @@ a:hover {
         grid-template-columns: 1fr;
     }
 }
+
+html[data-theme="forest"] {
+    --accent-color: #34d399;
+    --accent-hover: #6ee7b7;
+    --accent-soft: rgba(52, 211, 153, 0.16);
+    --streak-color: #f59e0b;
+}
+
+html[data-theme="midnight"] {
+    --accent-color: #818cf8;
+    --accent-hover: #a5b4fc;
+    --accent-soft: rgba(129, 140, 248, 0.18);
+    --accent-2: #38bdf8;
+}
+
+html[data-theme="rose"] {
+    --accent-color: #fb7185;
+    --accent-hover: #fda4af;
+    --accent-soft: rgba(251, 113, 133, 0.16);
+    --streak-color: #f97316;
+}
+
+body.sanctuary-mode .sidebar,
+body.sanctuary-mode .top-row {
+    display: none !important;
+}
+
+body.sanctuary-mode .page {
+    display: block;
+}
+
+body.sanctuary-mode main,
+body.sanctuary-mode article.content {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+body.sanctuary-mode .timer-shell {
+    max-width: 680px;
+    margin: 8vh auto 0;
+    background: transparent;
+    border: none;
+    box-shadow: none;
+}
+
+.shop-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 1rem;
+}
+
+.shop-card {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 1.2rem;
+}
+
+.vow-card {
+    background: linear-gradient(135deg, rgba(245,165,36,0.12), rgba(45,212,191,0.08));
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius);
+    padding: 1.25rem 1.4rem;
+}
+
+.review-hero {
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    line-height: 1.15;
+}
+
+.title-chip {
+    display: inline-block;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--accent-color);
+    font-weight: 700;
+}
+

@@ -1,0 +1,187 @@
+@page "/shop"
+@inject IShopService ShopService
+@inject IGamificationService GamificationService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ToastService ToastService
+@inject IJSRuntime JSRuntime
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
+
+<PageTitle>@Localizer["Shop"] — Discipline</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="dashboard-container pt-3 pb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <p class="hero-kicker mb-1">@Localizer["Shop"]</p>
+                    <h1 class="mb-0">@Localizer["ShopTitle"]</h1>
+                </div>
+                <div class="stat-card coins py-3 px-4" style="min-height: auto;">
+                    <div class="label">@Localizer["GoldCoins"]</div>
+                    <div class="value">💰 @(user?.GoldCoins ?? 0)</div>
+                    <div class="small text-muted">🧊 @string.Format(Localizer["FreezeTokens"], user?.StreakFreezeTokens ?? 0)</div>
+                </div>
+            </div>
+            <p class="text-muted mb-4">@Localizer["ShopIntro"]</p>
+
+            <h5 class="mb-3">@Localizer["ShopTitles"]</h5>
+            <div class="shop-grid mb-4">
+                @foreach (var item in ShopCatalog.Items.Where(i => i.Kind == "title"))
+                {
+                    <div class="shop-card">
+                        <div class="fs-2 mb-2">@item.Icon</div>
+                        <h5>@Localizer[item.TitleKey]</h5>
+                        <p class="text-muted small">@item.Price @Localizer["Coins"]</p>
+                        @if (Owned(item.Id))
+                        {
+                            @if (user?.EquippedTitle == item.Id)
+                            {
+                                <button class="btn btn-sm btn-outline-primary" disabled>@Localizer["Equipped"]</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-primary" @onclick="() => EquipTitle(item.Id)">@Localizer["Equip"]</button>
+                            }
+                        }
+                        else
+                        {
+                            <button class="btn btn-sm btn-warning" @onclick="() => Buy(item.Id)">@Localizer["Buy"]</button>
+                        }
+                    </div>
+                }
+            </div>
+
+            <h5 class="mb-3">@Localizer["ShopThemes"]</h5>
+            <div class="shop-grid mb-4">
+                <div class="shop-card">
+                    <div class="fs-2 mb-2">🔥</div>
+                    <h5>@Localizer["ShopThemeEmber"]</h5>
+                    @if (user?.ThemeKey == "ember")
+                    {
+                        <button class="btn btn-sm btn-outline-primary" disabled>@Localizer["Equipped"]</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-sm btn-primary" @onclick="EquipEmber">@Localizer["Equip"]</button>
+                    }
+                </div>
+                @foreach (var item in ShopCatalog.Items.Where(i => i.Kind == "theme"))
+                {
+                    var theme = ShopCatalog.ThemeFromItem(item.Id);
+                    <div class="shop-card">
+                        <div class="fs-2 mb-2">@item.Icon</div>
+                        <h5>@Localizer[item.TitleKey]</h5>
+                        <p class="text-muted small">@item.Price @Localizer["Coins"]</p>
+                        @if (Owned(item.Id))
+                        {
+                            @if (user?.ThemeKey == theme)
+                            {
+                                <button class="btn btn-sm btn-outline-primary" disabled>@Localizer["Equipped"]</button>
+                            }
+                            else
+                            {
+                                <button class="btn btn-sm btn-primary" @onclick="() => EquipTheme(theme)">@Localizer["Equip"]</button>
+                            }
+                        }
+                        else
+                        {
+                            <button class="btn btn-sm btn-warning" @onclick="() => Buy(item.Id)">@Localizer["Buy"]</button>
+                        }
+                    </div>
+                }
+            </div>
+
+            <h5 class="mb-3">@Localizer["ShopUtilities"]</h5>
+            <div class="shop-grid">
+                @foreach (var item in ShopCatalog.Items.Where(i => i.Kind == "consumable"))
+                {
+                    <div class="shop-card">
+                        <div class="fs-2 mb-2">@item.Icon</div>
+                        <h5>@Localizer[item.TitleKey]</h5>
+                        <p class="text-muted small">@Localizer["ShopFreezeDesc"]</p>
+                        <button class="btn btn-sm btn-warning" @onclick="() => Buy(item.Id)">@item.Price @Localizer["Coins"]</button>
+                    </div>
+                }
+            </div>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <section class="hero-landing">
+            <h1>@Localizer["Shop"]</h1>
+            <p class="lead">@Localizer["PleaseLoginShop"]</p>
+        </section>
+    </NotAuthorized>
+</AuthorizeView>
+
+<style>
+    .dashboard-container { max-width: 960px; margin: 0 auto; }
+</style>
+
+@code {
+    private ApplicationUser? user;
+    private string? userId;
+    private HashSet<string> owned = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        userId = auth.User.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            user = await GamificationService.GetUserStatsAsync(userId);
+            if (user != null) owned = ShopService.ParseOwned(user);
+        }
+    }
+
+    private bool Owned(string id) => owned.Contains(id);
+
+    private async Task Refresh()
+    {
+        if (string.IsNullOrEmpty(userId)) return;
+        user = await GamificationService.GetUserStatsAsync(userId);
+        if (user != null) owned = ShopService.ParseOwned(user);
+    }
+
+    private async Task Buy(string itemId)
+    {
+        if (string.IsNullOrEmpty(userId)) return;
+        var result = await ShopService.PurchaseAsync(userId, itemId);
+        if (result.success)
+        {
+            ToastService.ShowSuccess(Localizer["PurchaseOk"]);
+            await Refresh();
+        }
+        else if (result.reason == "coins")
+        {
+            ToastService.ShowWarning(Localizer["NotEnoughCoins"]);
+        }
+        else if (result.reason == "owned")
+        {
+            ToastService.ShowInfo(Localizer["AlreadyOwned"]);
+        }
+        else
+        {
+            ToastService.ShowError(Localizer["PurchaseFailed"]);
+        }
+    }
+
+    private async Task EquipTitle(string titleId)
+    {
+        if (string.IsNullOrEmpty(userId)) return;
+        var result = await ShopService.EquipTitleAsync(userId, titleId);
+        if (result.success) await Refresh();
+    }
+
+    private Task EquipEmber() => EquipTheme("ember");
+
+    private async Task EquipTheme(string theme)
+    {
+        if (string.IsNullOrEmpty(userId)) return;
+        var result = await ShopService.EquipThemeAsync(userId, theme);
+        if (result.success)
+        {
+            await Refresh();
+            await JSRuntime.InvokeVoidAsync("sanctuary.setTheme", theme);
+        }
+    }
+}

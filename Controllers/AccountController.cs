@@ -27,14 +27,10 @@ public class AccountController : Controller
     [HttpGet]
     public IActionResult LoginWithGoogle(string returnUrl = "/")
     {
-        var redirectUrl = Url.Action("GoogleCallback", "Account", new { returnUrl });
+        var redirectUrl = Url.Action("GoogleCallback", "Account", new { returnUrl = SafeLocal(returnUrl) });
         var properties = _signInManager.ConfigureExternalAuthenticationProperties(GoogleDefaults.AuthenticationScheme, redirectUrl);
-        
-        // Request offline access to get refresh token and access to Calendar API
-        properties.Items["scope"] = "openid profile email https://www.googleapis.com/auth/calendar.readonly https://www.googleapis.com/auth/tasks.readonly";
-        properties.Items["access_type"] = "offline";
-        properties.Items["prompt"] = "consent";
-        
+        // Only identity scopes. Calendar/Tasks were unused and over-privileged.
+        properties.Items["scope"] = "openid profile email";
         return new ChallengeResult(GoogleDefaults.AuthenticationScheme, properties);
     }
 
@@ -71,27 +67,16 @@ public class AccountController : Controller
                     if (string.IsNullOrEmpty(user.DisplayName))
                     {
                         var name = info.Principal.FindFirstValue(ClaimTypes.Name);
-                        user.DisplayName = name ?? email;
-                        
-                        // Update PhotoUrl
-                        var photoUrl = info.Principal.FindFirstValue("picture");
-                        if (!string.IsNullOrEmpty(photoUrl) && user.PhotoUrl != photoUrl)
-                        {
-                            user.PhotoUrl = photoUrl;
-                        }
+                        user.DisplayName = InputGuard.Clamp(name ?? email, InputGuard.DisplayNameMax);
+                    }
 
-                        await _userManager.UpdateAsync(user);
-                    }
-                    else
+                    var photoUrl = SafePhoto(info.Principal.FindFirstValue("picture"));
+                    if (!string.IsNullOrEmpty(photoUrl) && user.PhotoUrl != photoUrl)
                     {
-                        // Update PhotoUrl even if DisplayName is already set
-                        var photoUrl = info.Principal.FindFirstValue("picture");
-                        if (!string.IsNullOrEmpty(photoUrl) && user.PhotoUrl != photoUrl)
-                        {
-                            user.PhotoUrl = photoUrl;
-                            await _userManager.UpdateAsync(user);
-                        }
+                        user.PhotoUrl = photoUrl;
                     }
+
+                    await _userManager.UpdateAsync(user);
                 }
             }
         }
@@ -114,8 +99,8 @@ public class AccountController : Controller
                     { 
                         UserName = email, 
                         Email = email,
-                        DisplayName = name ?? email,
-                        PhotoUrl = info.Principal.FindFirstValue("picture")
+                        DisplayName = InputGuard.Clamp(name ?? email, InputGuard.DisplayNameMax),
+                        PhotoUrl = SafePhoto(info.Principal.FindFirstValue("picture"))
                     };
                     var createResult = await _userManager.CreateAsync(user);
                     if (createResult.Succeeded)
@@ -138,35 +123,20 @@ public class AccountController : Controller
             }
         }
 
-        // Store tokens if user exists (either logged in or just created)
-        if (user != null)
-        {
-            var accessToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "access_token")?.Value;
-            var refreshToken = info.AuthenticationTokens?.FirstOrDefault(t => t.Name == "refresh_token")?.Value;
-
-            if (!string.IsNullOrEmpty(accessToken))
-            {
-                await _userManager.SetAuthenticationTokenAsync(user, "Google", "access_token", accessToken);
-                _tokenProvider.AccessToken = accessToken; // Also update session cache
-                Console.WriteLine($"GoogleCallback - Access token stored in DB");
-            }
-
-            if (!string.IsNullOrEmpty(refreshToken))
-            {
-                await _userManager.SetAuthenticationTokenAsync(user, "Google", "refresh_token", refreshToken);
-                Console.WriteLine($"GoogleCallback - Refresh token stored in DB");
-            }
-        }
-
-        return LocalRedirect(returnUrl);
+        // Do not persist Google API tokens. This app only needs identity.
+        return LocalRedirect(SafeLocal(returnUrl));
     }
     
     [HttpGet]
     public async Task<IActionResult> LogOut(string returnUrl = "/")
     {
         await _signInManager.SignOutAsync();
-        _tokenProvider.AccessToken = null; // Clear the token on logout
-        return LocalRedirect(returnUrl);
+        _tokenProvider.AccessToken = null;
+        return LocalRedirect(SafeLocal(returnUrl));
     }
+
+    private string SafeLocal(string? url) => Url.IsLocalUrl(url) ? url! : "/";
+
+    private static string? SafePhoto(string? url) => InputGuard.IsHttpsUrl(url) ? url : null;
 }
 

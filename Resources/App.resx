@@ -642,4 +642,145 @@
   <data name="Quote10" xml:space="preserve">
     <value>Today only asks for the next honest block of focus.</value>
   </data>
+  <data name="Shop" xml:space="preserve">
+    <value>Shop</value>
+  </data>
+  <data name="ShopTitle" xml:space="preserve">
+    <value>Spend coins on who you’re becoming</value>
+  </data>
+  <data name="ShopIntro" xml:space="preserve">
+    <value>No real money. Coins are earned by showing up — then spent on titles, themes, and streak armor.</value>
+  </data>
+  <data name="ShopTitles" xml:space="preserve">
+    <value>Titles</value>
+  </data>
+  <data name="ShopThemes" xml:space="preserve">
+    <value>Themes</value>
+  </data>
+  <data name="ShopUtilities" xml:space="preserve">
+    <value>Utilities</value>
+  </data>
+  <data name="ShopTitleMonk" xml:space="preserve">
+    <value>Focus Monk</value>
+  </data>
+  <data name="ShopTitleIron" xml:space="preserve">
+    <value>Iron Will</value>
+  </data>
+  <data name="ShopTitleFlame" xml:space="preserve">
+    <value>Unextinguished</value>
+  </data>
+  <data name="ShopTitleDawn" xml:space="preserve">
+    <value>Early Light</value>
+  </data>
+  <data name="ShopThemeEmber" xml:space="preserve">
+    <value>Ember</value>
+  </data>
+  <data name="ShopThemeForest" xml:space="preserve">
+    <value>Forest</value>
+  </data>
+  <data name="ShopThemeMidnight" xml:space="preserve">
+    <value>Midnight</value>
+  </data>
+  <data name="ShopThemeRose" xml:space="preserve">
+    <value>Rose</value>
+  </data>
+  <data name="ShopFreezePack" xml:space="preserve">
+    <value>Streak freeze token</value>
+  </data>
+  <data name="ShopFreezeDesc" xml:space="preserve">
+    <value>Keep in your pocket for the day life gets in the way.</value>
+  </data>
+  <data name="Equip" xml:space="preserve">
+    <value>Equip</value>
+  </data>
+  <data name="Equipped" xml:space="preserve">
+    <value>Equipped</value>
+  </data>
+  <data name="Buy" xml:space="preserve">
+    <value>Buy</value>
+  </data>
+  <data name="PurchaseOk" xml:space="preserve">
+    <value>Purchased.</value>
+  </data>
+  <data name="AlreadyOwned" xml:space="preserve">
+    <value>You already own this.</value>
+  </data>
+  <data name="PurchaseFailed" xml:space="preserve">
+    <value>Could not complete that purchase.</value>
+  </data>
+  <data name="PleaseLoginShop" xml:space="preserve">
+    <value>Log in to spend the coins you earn by staying consistent.</value>
+  </data>
+  <data name="FreezeTokens" xml:space="preserve">
+    <value>{0} freeze tokens</value>
+  </data>
+  <data name="Review" xml:space="preserve">
+    <value>Weekly Review</value>
+  </data>
+  <data name="ReviewHeadline" xml:space="preserve">
+    <value>You did not disappear this week.</value>
+  </data>
+  <data name="ReviewLetter" xml:space="preserve">
+    <value>You held {0} minutes of focus across {1} sessions. Your streak is {2}. That is a person keeping a promise.</value>
+  </data>
+  <data name="ReviewEmpty" xml:space="preserve">
+    <value>This week is still a blank page. One honest session is enough to start the letter.</value>
+  </data>
+  <data name="ReviewDetails" xml:space="preserve">
+    <value>The receipts</value>
+  </data>
+  <data name="ReviewTasks" xml:space="preserve">
+    <value>{0} tasks completed</value>
+  </data>
+  <data name="ReviewBestDay" xml:space="preserve">
+    <value>Best day {0}: {1} minutes</value>
+  </data>
+  <data name="ReviewTopFocus" xml:space="preserve">
+    <value>You returned most to: {0}</value>
+  </data>
+  <data name="ReviewLevel" xml:space="preserve">
+    <value>Level {0} · longest streak {1}</value>
+  </data>
+  <data name="EnterSanctuary" xml:space="preserve">
+    <value>Enter sanctuary</value>
+  </data>
+  <data name="LeaveSanctuary" xml:space="preserve">
+    <value>Leave sanctuary</value>
+  </data>
+  <data name="SanctuaryHint" xml:space="preserve">
+    <value>Rain, fire, and brown noise are generated in your browser — no files, no tracking. Space starts or pauses. Esc leaves sanctuary.</value>
+  </data>
+  <data name="SoundOff" xml:space="preserve">
+    <value>Silence</value>
+  </data>
+  <data name="SoundRain" xml:space="preserve">
+    <value>Rain</value>
+  </data>
+  <data name="SoundBrown" xml:space="preserve">
+    <value>Brown noise</value>
+  </data>
+  <data name="SoundCafe" xml:space="preserve">
+    <value>Cafe</value>
+  </data>
+  <data name="SoundFire" xml:space="preserve">
+    <value>Fire</value>
+  </data>
+  <data name="DailyVow" xml:space="preserve">
+    <value>Today’s vow</value>
+  </data>
+  <data name="DailyVowHint" xml:space="preserve">
+    <value>Write the person you will be for the next 16 hours. Then name the one thing that would make today count.</value>
+  </data>
+  <data name="VowPlaceholder" xml:space="preserve">
+    <value>I will not negotiate with the urge to drift…</value>
+  </data>
+  <data name="OneThingPlaceholder" xml:space="preserve">
+    <value>The one thing today</value>
+  </data>
+  <data name="CommitVow" xml:space="preserve">
+    <value>Commit</value>
+  </data>
+  <data name="VowSet" xml:space="preserve">
+    <value>Vow locked in.</value>
+  </data>
 </root>

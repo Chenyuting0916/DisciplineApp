@@ -9,6 +9,7 @@
 @inject IChallengeService ChallengeService
 @inject IHabitService HabitService
 @inject IReflectionService ReflectionService
+@inject IIntentionService IntentionService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
@@ -22,6 +23,10 @@
                 <div>
                     <p class="hero-kicker mb-1">@Greeting</p>
                     <h1 class="mb-1">@(currentUser?.DisplayName ?? context.User.Identity?.Name ?? "User")</h1>
+                    @if (!string.IsNullOrEmpty(currentUser?.EquippedTitle))
+                    {
+                        <div class="title-chip mb-1">@Localizer[ShopCatalog.TitleFor(currentUser.EquippedTitle)]</div>
+                    }
                     <p class="text-muted mb-0">@Localizer["StayConsistent"]</p>
                 </div>
                 <div class="d-flex align-items-center gap-2 flex-wrap">
@@ -76,6 +81,22 @@
                 </div>
             </div>
 
+            <div class="vow-card mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0">@Localizer["DailyVow"]</h5>
+                    @if (todayIntention != null)
+                    {
+                        <span class="badge bg-success">@Localizer["VowSet"]</span>
+                    }
+                </div>
+                <p class="text-muted small mb-3">@Localizer["DailyVowHint"]</p>
+                <div class="mb-2">
+                    <input class="form-control mb-2" maxlength="140" @bind="vowText" placeholder="@Localizer["VowPlaceholder"]" />
+                    <input class="form-control" maxlength="80" @bind="oneThing" placeholder="@Localizer["OneThingPlaceholder"]" />
+                </div>
+                <button class="btn btn-primary mt-2" @onclick="SaveVow">@Localizer["CommitVow"]</button>
+            </div>
+
             <div class="card mb-4">
                 <div class="card-body">
                     <div class="d-flex justify-content-between align-items-center mb-3">
@@ -93,7 +114,7 @@
                         }
                     </div>
                     <div class="d-flex gap-2">
-                        <input class="form-control" @bind="reflectionNote" placeholder="@Localizer["ReflectionPlaceholder"]" />
+                        <input class="form-control" maxlength="280" @bind="reflectionNote" placeholder="@Localizer["ReflectionPlaceholder"]" />
                         <button class="btn btn-primary" @onclick="SaveReflection">@Localizer["Save"]</button>
                     </div>
                 </div>
@@ -374,6 +395,9 @@
     private int habitCompleted;
     private int habitTotal;
     private DailyReflection? todayReflection;
+    private DailyIntention? todayIntention;
+    private string vowText = "";
+    private string oneThing = "";
     private int selectedMood = 3;
     private string reflectionNote = "";
     private bool showGoalModal;
@@ -437,10 +461,16 @@
         todayFocusMinutes = await GamificationService.GetTodayFocusMinutesAsync(userId);
         (habitCompleted, habitTotal) = await HabitService.GetTodayProgressAsync(userId);
         todayReflection = await ReflectionService.GetTodayAsync(userId);
+        todayIntention = await IntentionService.GetTodayAsync(userId);
         if (todayReflection != null)
         {
             selectedMood = todayReflection.Mood;
             reflectionNote = todayReflection.Note ?? "";
+        }
+        if (todayIntention != null)
+        {
+            vowText = todayIntention.Vow;
+            oneThing = todayIntention.OneThing;
         }
         await LoadWeeklyStats(userId);
     }
@@ -536,6 +566,16 @@
         currentUser = await GamificationService.GetUserStatsAsync(userId);
         streakStatus = await GamificationService.GetStreakStatusAsync(userId);
         ToastService.ShowSuccess(Localizer["SavedReflection"]);
+    }
+
+    private async Task SaveVow()
+    {
+        var userId = await GetUserId();
+        if (userId == null) return;
+        todayIntention = await IntentionService.SaveTodayAsync(userId, vowText, oneThing);
+        streakStatus = await GamificationService.GetStreakStatusAsync(userId);
+        currentUser = await GamificationService.GetUserStatsAsync(userId);
+        ToastService.ShowSuccess(Localizer["VowSet"]);
     }
 
     private async Task FreezeStreak()

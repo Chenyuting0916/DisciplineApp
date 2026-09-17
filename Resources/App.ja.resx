@@ -642,4 +642,145 @@
   <data name="Quote10" xml:space="preserve">
     <value>今日が求めているのは、次の正直な集中ブロックだけ。</value>
   </data>
+  <data name="Shop" xml:space="preserve">
+    <value>ショップ</value>
+  </data>
+  <data name="ShopTitle" xml:space="preserve">
+    <value>コインは、なりたい自分に使う</value>
+  </data>
+  <data name="ShopIntro" xml:space="preserve">
+    <value>現金は不要。コインは継続で稼ぎ、称号・テーマ・連続防御に使う。</value>
+  </data>
+  <data name="ShopTitles" xml:space="preserve">
+    <value>称号</value>
+  </data>
+  <data name="ShopThemes" xml:space="preserve">
+    <value>テーマ</value>
+  </data>
+  <data name="ShopUtilities" xml:space="preserve">
+    <value>道具</value>
+  </data>
+  <data name="ShopTitleMonk" xml:space="preserve">
+    <value>集中僧</value>
+  </data>
+  <data name="ShopTitleIron" xml:space="preserve">
+    <value>鉄の意志</value>
+  </data>
+  <data name="ShopTitleFlame" xml:space="preserve">
+    <value>消えぬ火</value>
+  </data>
+  <data name="ShopTitleDawn" xml:space="preserve">
+    <value>黎明</value>
+  </data>
+  <data name="ShopThemeEmber" xml:space="preserve">
+    <value>残り火</value>
+  </data>
+  <data name="ShopThemeForest" xml:space="preserve">
+    <value>森</value>
+  </data>
+  <data name="ShopThemeMidnight" xml:space="preserve">
+    <value>真夜中</value>
+  </data>
+  <data name="ShopThemeRose" xml:space="preserve">
+    <value>薔薇</value>
+  </data>
+  <data name="ShopFreezePack" xml:space="preserve">
+    <value>連続フリーズ</value>
+  </data>
+  <data name="ShopFreezeDesc" xml:space="preserve">
+    <value>どうしても無理な日のために、ポケットへ。</value>
+  </data>
+  <data name="Equip" xml:space="preserve">
+    <value>装備</value>
+  </data>
+  <data name="Equipped" xml:space="preserve">
+    <value>使用中</value>
+  </data>
+  <data name="Buy" xml:space="preserve">
+    <value>購入</value>
+  </data>
+  <data name="PurchaseOk" xml:space="preserve">
+    <value>購入しました。</value>
+  </data>
+  <data name="AlreadyOwned" xml:space="preserve">
+    <value>すでに持っています。</value>
+  </data>
+  <data name="PurchaseFailed" xml:space="preserve">
+    <value>購入できませんでした。</value>
+  </data>
+  <data name="PleaseLoginShop" xml:space="preserve">
+    <value>ログインすると、継続で得たコインを使えます。</value>
+  </data>
+  <data name="FreezeTokens" xml:space="preserve">
+    <value>フリーズ {0}</value>
+  </data>
+  <data name="Review" xml:space="preserve">
+    <value>週間レビュー</value>
+  </data>
+  <data name="ReviewHeadline" xml:space="preserve">
+    <value>今週、あなたは消えなかった。</value>
+  </data>
+  <data name="ReviewLetter" xml:space="preserve">
+    <value>{1} セッションで {0} 分の集中を守った。連続は {2}。約束を守る人だ。</value>
+  </data>
+  <data name="ReviewEmpty" xml:space="preserve">
+    <value>今週はまだ白紙。正直な集中が一つあれば、手紙は書き始められる。</value>
+  </data>
+  <data name="ReviewDetails" xml:space="preserve">
+    <value>記録</value>
+  </data>
+  <data name="ReviewTasks" xml:space="preserve">
+    <value>タスク {0} 件完了</value>
+  </data>
+  <data name="ReviewBestDay" xml:space="preserve">
+    <value>最良の日 {0}：{1} 分</value>
+  </data>
+  <data name="ReviewTopFocus" xml:space="preserve">
+    <value>いちばん戻った対象：{0}</value>
+  </data>
+  <data name="ReviewLevel" xml:space="preserve">
+    <value>レベル {0} · 最長連続 {1}</value>
+  </data>
+  <data name="EnterSanctuary" xml:space="preserve">
+    <value>聖域に入る</value>
+  </data>
+  <data name="LeaveSanctuary" xml:space="preserve">
+    <value>聖域を出る</value>
+  </data>
+  <data name="SanctuaryHint" xml:space="preserve">
+    <value>雨・炉火・ブラウンノイズはブラウザ内で生成。ファイルも追跡もない。Space で開始/停止、Esc で退出。</value>
+  </data>
+  <data name="SoundOff" xml:space="preserve">
+    <value>無音</value>
+  </data>
+  <data name="SoundRain" xml:space="preserve">
+    <value>雨</value>
+  </data>
+  <data name="SoundBrown" xml:space="preserve">
+    <value>ブラウン</value>
+  </data>
+  <data name="SoundCafe" xml:space="preserve">
+    <value>カフェ</value>
+  </data>
+  <data name="SoundFire" xml:space="preserve">
+    <value>炉火</value>
+  </data>
+  <data name="DailyVow" xml:space="preserve">
+    <value>今日の誓い</value>
+  </data>
+  <data name="DailyVowHint" xml:space="preserve">
+    <value>これから16時間、誰でいるかを書く。今日を意味ある一日にする一事を名指しする。</value>
+  </data>
+  <data name="VowPlaceholder" xml:space="preserve">
+    <value>流されたい自分とは交渉しない…</value>
+  </data>
+  <data name="OneThingPlaceholder" xml:space="preserve">
+    <value>今日いちばん大切なこと</value>
+  </data>
+  <data name="CommitVow" xml:space="preserve">
+    <value>誓う</value>
+  </data>
+  <data name="VowSet" xml:space="preserve">
+    <value>誓いをロックした。</value>
+  </data>
 </root>

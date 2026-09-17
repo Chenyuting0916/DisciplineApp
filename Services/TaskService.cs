@@ -55,7 +55,7 @@ public class TaskService : ITaskService
         var task = new UserTask
         {
             UserId = userId,
-            Title = title,
+            Title = InputGuard.Clamp(title, InputGuard.TitleMax),
             Date = date,
             IsRoutine = isRoutine,
             CategoryId = categoryId,
