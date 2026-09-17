@@ -1,0 +1,20 @@
+@page "/shortcuts"
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
+
+<PageTitle>@Localizer["ShortcutsTitle"]</PageTitle>
+
+<div class="card border-0 mt-4">
+    <div class="card-body p-4 p-md-5">
+        <h1 class="h4 mb-3">@Localizer["ShortcutsTitle"]</h1>
+        <p class="mb-4">@Localizer["ShortcutsHint"]</p>
+        <dl class="row mb-4">
+            @foreach (var row in ShortcutCopy.Rows)
+            {
+                <dt class="col-sm-3"><kbd>@row.Keys</kbd></dt>
+                <dd class="col-sm-9">@Localizer[row.ActionKey]</dd>
+            }
+        </dl>
+        <a href="/" class="btn btn-outline-primary me-2">@Localizer["GoHome"]</a>
+        <a href="timer" class="btn btn-primary">@Localizer["StartFocusSession"]</a>
+    </div>
+</div>
