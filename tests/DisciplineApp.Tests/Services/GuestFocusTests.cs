@@ -84,7 +84,10 @@ public class GuestFocusTests
             sessions);
 
         Assert.Equal(1, review.SessionCount);
+        Assert.Equal(1, review.VowDays);
         Assert.Equal(40, review.FocusMinutes);
+        Assert.Equal(weekStart.AddDays(2).Date, review.BestDay!.Value.Date);
+        Assert.Equal(40, review.BestDayMinutes);
     }
 
     [Fact]
@@ -168,5 +171,10 @@ public class GuestFocusTests
         Assert.Equal("", GuestFocusLogic.DisplayTag("custom"));
         Assert.Equal("", GuestFocusLogic.DisplayTag("Uncategorized"));
         Assert.Equal("", GuestFocusLogic.DisplayTag("   "));
+        Assert.Equal(4, GuestFocusLogic.WeekSessionCount(sessions, weekStart));
+        Assert.Equal("寫報告", GuestFocusLogic.TopTaggedFocus(sessions, weekStart));
+        var (bestDay, bestMinutes) = GuestFocusLogic.BestDay(sessions, weekStart);
+        Assert.Equal(weekStart.AddDays(1).Date, bestDay!.Value.Date);
+        Assert.Equal(25, bestMinutes);
     }
 }

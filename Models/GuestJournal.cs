@@ -74,13 +74,20 @@ public static class GuestJournalLogic
             })
             .Sum(s => s.DurationMinutes) ?? 0;
 
+        var weekFocusSessions = sessions ?? Array.Empty<GuestFocusSession>();
+        var (bestDay, bestMinutes) = GuestFocusLogic.BestDay(weekFocusSessions, weekStart);
+
         return new WeeklyReview
         {
             HabitChecks = habits.Sum(h => HabitMath.ChecksThisWeek(h, weekStart)),
             TasksCompleted = weekTasks.Count,
-            SessionCount = weekDays.Count(d => !string.IsNullOrWhiteSpace(d.Vow) || !string.IsNullOrWhiteSpace(d.OneThing)),
+            SessionCount = GuestFocusLogic.WeekSessionCount(weekFocusSessions, weekStart),
+            VowDays = weekDays.Count(d => !string.IsNullOrWhiteSpace(d.Vow) || !string.IsNullOrWhiteSpace(d.OneThing)),
             CurrentStreak = HabitMath.LongestOpenStreak(habits.SelectMany(h => h.Logs.Select(l => l.Date)), utcNow),
-            FocusMinutes = weekFocus
+            FocusMinutes = weekFocus,
+            BestDay = bestDay,
+            BestDayMinutes = bestMinutes,
+            TopFocus = GuestFocusLogic.TopTaggedFocus(weekFocusSessions, weekStart)
         };
     }
 }

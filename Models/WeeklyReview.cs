@@ -12,4 +12,5 @@ public class WeeklyReview
     public int CurrentStreak { get; set; }
     public int LongestStreak { get; set; }
     public int Level { get; set; }
+    public int VowDays { get; set; }
 }

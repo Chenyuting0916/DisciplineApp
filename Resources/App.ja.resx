@@ -738,6 +738,9 @@
   <data name="ReviewTopFocus" xml:space="preserve">
     <value>いちばん戻った対象：{0}</value>
   </data>
+  <data name="ReviewVowDays" xml:space="preserve">
+    <value>誓い {0} 日</value>
+  </data>
   <data name="ReviewLevel" xml:space="preserve">
     <value>レベル {0} · 最長連続 {1}</value>
   </data>
