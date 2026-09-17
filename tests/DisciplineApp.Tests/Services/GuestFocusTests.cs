@@ -86,4 +86,36 @@ public class GuestFocusTests
         Assert.Equal(1, review.SessionCount);
         Assert.Equal(40, review.FocusMinutes);
     }
+
+    [Fact]
+    public void BuildHeatmap_CountsSessionsTasksHabitsAndDropsOldDays()
+    {
+        var start = new DateTime(2026, 1, 1);
+        var day = new DateTime(2026, 9, 17);
+        var sessions = new List<GuestFocusSession>
+        {
+            new() { EndTime = new DateTime(2026, 9, 17, 8, 0, 0, DateTimeKind.Utc) }
+        };
+        var tasks = new List<UserTask>
+        {
+            new() { IsCompleted = true, CompletedAt = day.AddHours(10) },
+            new() { IsCompleted = false, CompletedAt = day.AddHours(11) }
+        };
+        var habits = new List<Habit>
+        {
+            new()
+            {
+                Logs =
+                {
+                    new HabitLog { Date = day },
+                    new HabitLog { Date = new DateTime(2025, 6, 1) }
+                }
+            }
+        };
+
+        var map = GuestFocusLogic.BuildHeatmap(sessions, tasks, habits, start);
+        Assert.Equal(3, map[day.Date]);
+        Assert.False(map.ContainsKey(new DateTime(2025, 6, 1)));
+        Assert.Empty(GuestFocusLogic.BuildHeatmap(null, null, null, start));
+    }
 }

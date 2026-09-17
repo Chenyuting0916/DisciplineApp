@@ -921,4 +921,7 @@
   <data name="GoalReached" xml:space="preserve">
     <value>今天的專注目標達成了。</value>
   </data>
+  <data name="GuestHeatmapHint" xml:space="preserve">
+    <value>顏色來自這台裝置的專注、任務與習慣，不會上傳。</value>
+  </data>
 </root>

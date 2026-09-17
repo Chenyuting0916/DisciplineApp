@@ -921,4 +921,7 @@
   <data name="GoalReached" xml:space="preserve">
     <value>今日の集中目標を達成した。</value>
   </data>
+  <data name="GuestHeatmapHint" xml:space="preserve">
+    <value>色はこの端末の集中・タスク・習慣から。送信しない。</value>
+  </data>
 </root>

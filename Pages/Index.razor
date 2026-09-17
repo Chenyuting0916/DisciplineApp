@@ -416,6 +416,9 @@
                 </div>
 
                 <IfThenPanel IsGuest="true" />
+                <div class="mt-4">
+                    <Heatmap GuestActivity="@guestActivity" Hint="@Localizer["GuestHeatmapHint"]" />
+                </div>
             </div>
         }
     </NotAuthorized>
@@ -573,6 +576,7 @@
     private int coinsEarned = 0;
     private int xpEarned = 0;
     private List<Habit> guestHabits = new();
+    private Dictionary<DateTime, int> guestActivity = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -753,6 +757,9 @@
         guestHabits = await GuestHabitService.GetHabitsAsync();
         habitCompleted = guestHabits.Count(GuestHabitDoneToday);
         habitTotal = guestHabits.Count;
+        var sessions = await GuestFocusService.GetAllAsync();
+        var weekSunday = DateTime.Today.AddDays(-(int)DateTime.Today.DayOfWeek);
+        guestActivity = GuestFocusLogic.BuildHeatmap(sessions, todayTasks, guestHabits, weekSunday.AddDays(-52 * 7));
     }
 
     private async Task ToggleGuestHabit(Habit habit)

@@ -921,4 +921,7 @@
   <data name="GoalReached" xml:space="preserve">
     <value>Today’s focus goal is done.</value>
   </data>
+  <data name="GuestHeatmapHint" xml:space="preserve">
+    <value>Color comes from focus, tasks, and habits on this device. Nothing is uploaded.</value>
+  </data>
 </root>

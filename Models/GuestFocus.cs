@@ -97,6 +97,49 @@ public static class GuestFocusLogic
             .ToDictionary(g => g.Key.ToString("MM/dd"), g => g.Sum(s => s.DurationMinutes));
     }
 
+    public static Dictionary<DateTime, int> BuildHeatmap(
+        IEnumerable<GuestFocusSession>? sessions,
+        IEnumerable<UserTask>? tasks,
+        IEnumerable<Habit>? habits,
+        DateTime startDate)
+    {
+        var activity = new Dictionary<DateTime, int>();
+        var start = startDate.Date;
+
+        void Add(DateTime date, int count)
+        {
+            var day = date.Date;
+            if (day < start) return;
+            activity[day] = activity.GetValueOrDefault(day) + count;
+        }
+
+        if (sessions != null)
+        {
+            foreach (var session in sessions)
+            {
+                Add(NormalizeUtc(session.EndTime).ToLocalTime(), 1);
+            }
+        }
+
+        if (tasks != null)
+        {
+            foreach (var task in tasks.Where(t => t.IsCompleted && t.CompletedAt.HasValue))
+            {
+                Add(task.CompletedAt!.Value.ToLocalTime(), 1);
+            }
+        }
+
+        if (habits != null)
+        {
+            foreach (var date in habits.SelectMany(h => h.Logs.Select(l => l.Date)))
+            {
+                Add(date, 1);
+            }
+        }
+
+        return activity;
+    }
+
     public static FocusSession ToFocusSession(GuestFocusSession session)
         => new()
         {

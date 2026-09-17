@@ -18,7 +18,7 @@
 @inject IIntentionService IntentionService
 @implements IDisposable
 
-<PageTitle>@Localizer["Timer"] — Discipline</PageTitle>
+<PageTitle>@(TimerService.IsRunning || TimerService.IsPaused ? $"{TimeDisplay} · {Localizer["Timer"]}" : $"{Localizer["Timer"]} — Discipline")</PageTitle>
 
 <div class="timer-shell text-center" @onkeydown="HandleKey" tabindex="0">
     <div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
