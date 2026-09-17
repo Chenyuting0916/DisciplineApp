@@ -741,6 +741,9 @@
   <data name="ReviewVowDays" xml:space="preserve">
     <value>{0} vow days</value>
   </data>
+  <data name="ReviewMoodSummary" xml:space="preserve">
+    <value>{0} mood check-ins · {1}</value>
+  </data>
   <data name="ReviewLevel" xml:space="preserve">
     <value>Level {0} · longest streak {1}</value>
   </data>
