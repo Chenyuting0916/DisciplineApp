@@ -1,7 +1,7 @@
 .skip-link {
     position: fixed;
-    left: -10000px;
-    top: 0.75rem;
+    left: 0.75rem;
+    top: -40px;
     z-index: 10000;
     padding: 0.5rem 0.9rem;
     border-radius: 999px;
@@ -13,7 +13,7 @@
 
 .skip-link:focus,
 .skip-link:focus-visible {
-    left: 0.75rem;
+    top: 0.75rem;
     outline: 2px solid var(--text-primary);
     color: #1a1205;
 }
