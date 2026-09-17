@@ -27,6 +27,11 @@ public class GuestJournalAndStretchTests
 
         Assert.Equal(GuestJournalLogic.MaxDays, days.Count);
         Assert.DoesNotContain(days, d => d.Date.Date == now.Date);
+
+        var vowOnly = new List<GuestDayJournal>();
+        var vow = GuestJournalLogic.Upsert(vowOnly, now, "stay", "write", null, null);
+        Assert.False(vow.HasMood);
+        Assert.Equal(0, vow.Mood);
     }
 
     [Fact]
