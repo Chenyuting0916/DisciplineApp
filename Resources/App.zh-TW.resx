@@ -939,4 +939,7 @@
   <data name="HistoryEmpty" xml:space="preserve">
     <value>還沒有專注紀錄。先去開始一場。</value>
   </data>
+  <data name="StartThisThen" xml:space="preserve">
+    <value>開始這一步</value>
+  </data>
 </root>

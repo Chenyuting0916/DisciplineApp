@@ -1,6 +1,8 @@
 @inject IIfThenService IfThenService
 @inject GuestIfThenService GuestIfThenService
 @inject ToastService ToastService
+@inject TimerService TimerService
+@inject NavigationManager NavigationManager
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 
 <div class="vow-card mb-4">
@@ -44,7 +46,10 @@
                         <span class="text-muted mx-1">→</span>
                         <strong>@Localizer["ThenLabel"]</strong> @plan.ThenAction
                     </div>
-                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeletePlan(plan)">@Localizer["Delete"]</button>
+                    <div class="d-flex gap-2 flex-wrap">
+                        <button type="button" class="btn btn-sm btn-outline-primary" @onclick="() => StartThen(plan)">@Localizer["StartThisThen"]</button>
+                        <button type="button" class="btn btn-sm btn-outline-danger" @onclick="() => DeletePlan(plan)">@Localizer["Delete"]</button>
+                    </div>
                 </li>
             }
         </ul>
@@ -134,5 +139,14 @@
             await IfThenService.DeleteAsync(UserId, plan.Id);
         }
         await Reload();
+    }
+
+    private void StartThen(IfThenPlan plan)
+    {
+        if (!TimerService.IsRunning && IfThenStart.CanStart(plan.ThenAction))
+        {
+            TimerService.FocusTask = IfThenStart.FocusTitle(plan.ThenAction);
+        }
+        NavigationManager.NavigateTo("/timer");
     }
 }

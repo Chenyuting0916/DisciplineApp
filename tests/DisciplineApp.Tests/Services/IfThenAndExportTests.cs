@@ -49,6 +49,36 @@ public class IfThenAndExportTests
     }
 
     [Fact]
+    public void IfThenStart_ClampsAndMapsToTimer()
+    {
+        Assert.False(IfThenStart.CanStart("   "));
+        Assert.Equal("", IfThenStart.FocusTitle("   "));
+        Assert.Equal(InputGuard.FocusTaskMax, IfThenStart.FocusTitle(new string('a', 200)).Length);
+
+        var empty = IfThenStart.ForTimer(null, "  open notes  ");
+        Assert.Equal("open notes", empty.FocusTask);
+        Assert.Equal("open notes", empty.CustomTitle);
+
+        var tasks = new List<UserTask>
+        {
+            new() { Title = "Inbox", IsCompleted = false },
+            new() { Title = "Done", IsCompleted = true }
+        };
+
+        var listed = IfThenStart.ForTimer(tasks, "Inbox");
+        Assert.Equal("Inbox", listed.FocusTask);
+        Assert.Equal("", listed.CustomTitle);
+
+        var completed = IfThenStart.ForTimer(tasks, "Done");
+        Assert.Equal("custom", completed.FocusTask);
+        Assert.Equal("Done", completed.CustomTitle);
+
+        var custom = IfThenStart.ForTimer(tasks, "write the essay");
+        Assert.Equal("custom", custom.FocusTask);
+        Assert.Equal("write the essay", custom.CustomTitle);
+    }
+
+    [Fact]
     public async Task IfThen_DeleteOnlyOwnPlan()
     {
         await using var db = CreateDb();

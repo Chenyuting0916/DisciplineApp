@@ -939,4 +939,7 @@
   <data name="HistoryEmpty" xml:space="preserve">
     <value>まだ集中記録がありません。先に1回始めましょう。</value>
   </data>
+  <data name="StartThisThen" xml:space="preserve">
+    <value>これを始める</value>
+  </data>
 </root>
