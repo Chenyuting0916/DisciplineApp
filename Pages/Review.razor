@@ -1,0 +1,87 @@
+@page "/review"
+@inject IGamificationService GamificationService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
+@inject NavigationManager NavigationManager
+
+<PageTitle>@Localizer["Review"] — Discipline</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="dashboard-container pt-4 pb-5">
+            <p class="hero-kicker mb-2">@Localizer["Review"]</p>
+            <h1 class="review-hero mb-3">@Localizer["ReviewHeadline"]</h1>
+            <p class="text-muted mb-4">@ReviewLetter</p>
+
+            <div class="stat-grid mb-4">
+                <div class="stat-card goal">
+                    <div class="label">@Localizer["ThisWeek"]</div>
+                    <div class="value">@((int)review.FocusMinutes)m</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">@Localizer["RecentSessions"]</div>
+                    <div class="value">@review.SessionCount</div>
+                </div>
+                <div class="stat-card streak">
+                    <div class="label">@Localizer["Streak"]</div>
+                    <div class="value">🔥 @review.CurrentStreak</div>
+                </div>
+                <div class="stat-card coins">
+                    <div class="label">@Localizer["Habits"]</div>
+                    <div class="value">@review.HabitChecks</div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="mb-3">@Localizer["ReviewDetails"]</h5>
+                    <ul class="list-unstyled mb-0">
+                        <li class="mb-2">✅ @string.Format(Localizer["ReviewTasks"], review.TasksCompleted)</li>
+                        @if (review.BestDay.HasValue)
+                        {
+                            <li class="mb-2">📅 @string.Format(Localizer["ReviewBestDay"], review.BestDay.Value.ToString("MM/dd"), (int)review.BestDayMinutes)</li>
+                        }
+                        @if (!string.IsNullOrWhiteSpace(review.TopFocus))
+                        {
+                            <li class="mb-2">🎯 @string.Format(Localizer["ReviewTopFocus"], review.TopFocus)</li>
+                        }
+                        <li>🏅 @string.Format(Localizer["ReviewLevel"], review.Level, review.LongestStreak)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <button class="btn btn-primary" @onclick="GoTimer">@Localizer["StartFocusSession"]</button>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <section class="hero-landing">
+            <h1>@Localizer["Review"]</h1>
+            <p class="lead">@Localizer["PleaseLoginHistory"]</p>
+        </section>
+    </NotAuthorized>
+</AuthorizeView>
+
+<style>
+    .dashboard-container { max-width: 860px; margin: 0 auto; }
+</style>
+
+@code {
+    private WeeklyReview review = new();
+
+    private string ReviewLetter =>
+        review.FocusMinutes < 1
+            ? Localizer["ReviewEmpty"]
+            : string.Format(Localizer["ReviewLetter"], (int)review.FocusMinutes, review.SessionCount, review.CurrentStreak);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userId = auth.User.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            review = await GamificationService.GetWeeklyReviewAsync(userId);
+        }
+    }
+
+    private void GoTimer() => NavigationManager.NavigateTo("/timer");
+}

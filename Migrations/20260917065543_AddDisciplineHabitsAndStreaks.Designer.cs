@@ -3,6 +3,7 @@ using System;
 using DisciplineApp.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -10,9 +11,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DisciplineApp.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260917065543_AddDisciplineHabitsAndStreaks")]
+    partial class AddDisciplineHabitsAndStreaks
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "7.0.14");
@@ -78,9 +81,6 @@ namespace DisciplineApp.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("EquippedTitle")
-                        .HasColumnType("TEXT");
-
                     b.Property<int>("GoldCoins")
                         .HasColumnType("INTEGER");
 
@@ -113,10 +113,6 @@ namespace DisciplineApp.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("OwnedItems")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
                     b.Property<string>("PasswordHash")
                         .HasColumnType("TEXT");
 
@@ -130,13 +126,6 @@ namespace DisciplineApp.Migrations
                         .HasColumnType("TEXT");
 
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("TEXT");
-
-                    b.Property<int>("StreakFreezeTokens")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("ThemeKey")
-                        .IsRequired()
                         .HasColumnType("TEXT");
 
                     b.Property<double>("TotalFocusMinutes")
@@ -264,37 +253,6 @@ namespace DisciplineApp.Migrations
                     b.HasIndex("CreatedById");
 
                     b.ToTable("Challenges");
-                });
-
-            modelBuilder.Entity("DisciplineApp.Models.DailyIntention", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("OneThing")
-                        .IsRequired()
-                        .HasMaxLength(80)
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Vow")
-                        .IsRequired()
-                        .HasMaxLength(140)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId", "Date")
-                        .IsUnique();
-
-                    b.ToTable("DailyIntentions");
                 });
 
             modelBuilder.Entity("DisciplineApp.Models.DailyReflection", b =>

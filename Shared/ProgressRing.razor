@@ -1,0 +1,22 @@
+<div class="progress-ring" style="--size: @(Size)px; --color: @Color;">
+    <svg viewBox="0 0 120 120" aria-hidden="true">
+        <circle class="track" cx="60" cy="60" r="52"></circle>
+        <circle class="value" cx="60" cy="60" r="52"
+                stroke-dasharray="@Circumference.ToString("0.###")"
+                stroke-dashoffset="@Offset.ToString("0.###")"></circle>
+    </svg>
+    <div class="progress-ring-label">
+        @ChildContent
+    </div>
+</div>
+
+@code {
+    [Parameter] public double Percent { get; set; }
+    [Parameter] public int Size { get; set; } = 220;
+    [Parameter] public string Color { get; set; } = "#f5a524";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+
+    private const double Radius = 52;
+    private double Circumference => 2 * Math.PI * Radius;
+    private double Offset => Circumference * (1 - Math.Clamp(Percent, 0, 1));
+}

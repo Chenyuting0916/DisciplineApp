@@ -16,4 +16,16 @@ public class ApplicationUser : IdentityUser
     // New Gamification Properties
     public int GoldCoins { get; set; }
     public double TotalFocusMinutes { get; set; }
+
+    // Streak & daily goal
+    public int CurrentStreak { get; set; }
+    public int LongestStreak { get; set; }
+    public DateTime? LastActiveDate { get; set; }
+    public int DailyFocusGoalMinutes { get; set; } = 60;
+
+    // Identity cosmetics — never trust client-supplied values without an allowlist.
+    public string? EquippedTitle { get; set; }
+    public string ThemeKey { get; set; } = "ember";
+    public string OwnedItems { get; set; } = ShopCatalog.DefaultOwned;
+    public int StreakFreezeTokens { get; set; }
 }

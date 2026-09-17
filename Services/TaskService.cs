@@ -55,7 +55,7 @@ public class TaskService : ITaskService
         var task = new UserTask
         {
             UserId = userId,
-            Title = title,
+            Title = InputGuard.Clamp(title, InputGuard.TitleMax),
             Date = date,
             IsRoutine = isRoutine,
             CategoryId = categoryId,
@@ -108,6 +108,7 @@ public class TaskService : ITaskService
                 
                 task.XpAwarded = true; 
                 await _context.SaveChangesAsync();
+                await _gamificationService.RecordActivityAsync(userId);
                 return (result.success, result.xpAwarded, result.remainingDaily, !result.success && result.remainingDaily <= 0, result.levelUp);
             }
             else

@@ -26,7 +26,7 @@
                 </button>
             }
             <button class="btn btn-primary" @onclick="ShowAddTaskModal">
-                <span class="oi oi-plus"></span> Add Task
+                <span class="oi oi-plus"></span> @Localizer["AddTask"]
             </button>
         </div>
     </div>
@@ -206,8 +206,12 @@
         color: var(--text-muted);
     }
     .task-container {
-        max-width: 600px;
+        max-width: 680px;
         margin: 0 auto;
+    }
+    .task-item {
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
     }
 </style>
 

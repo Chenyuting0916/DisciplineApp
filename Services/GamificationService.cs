@@ -88,7 +88,7 @@ public class GamificationService : IGamificationService
             StartTime = (endTime ?? DateTime.UtcNow).AddMinutes(-minutes),
             EndTime = endTime ?? DateTime.UtcNow,
             DurationMinutes = minutes,
-            TaskTag = taskTag,
+            TaskTag = InputGuard.Clamp(taskTag, InputGuard.FocusTaskMax),
             IsPomodoro = isPomodoro
         };
         _context.FocusSessions.Add(session);
@@ -148,6 +148,7 @@ public class GamificationService : IGamificationService
         await _context.SaveChangesAsync();
 
         bool levelUp = user.Level > initialLevel;
+        await RecordActivityAsync(userId);
 
         return (true, actualXpAwarded, coinsToAward, levelUp);
     }
@@ -163,6 +164,9 @@ public class GamificationService : IGamificationService
                 break;
             case "focus":
                 query = query.OrderByDescending(u => u.TotalFocusMinutes);
+                break;
+            case "streak":
+                query = query.OrderByDescending(u => u.CurrentStreak).ThenByDescending(u => u.LongestStreak);
                 break;
             case "xp":
             default:
@@ -306,5 +310,157 @@ public class GamificationService : IGamificationService
         _context.FocusSessions.Remove(session);
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    public async Task<StreakStatus> RecordActivityAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return StreakStatus.None;
+
+        var today = DateTime.UtcNow.Date;
+        var last = user.LastActiveDate?.Date;
+
+        if (last == today)
+        {
+            return StreakStatus.Active;
+        }
+
+        if (last == today.AddDays(-1))
+        {
+            user.CurrentStreak = Math.Max(1, user.CurrentStreak + 1);
+        }
+        else
+        {
+            user.CurrentStreak = 1;
+        }
+
+        user.LastActiveDate = today;
+        if (user.CurrentStreak > user.LongestStreak)
+        {
+            user.LongestStreak = user.CurrentStreak;
+        }
+
+        await _userManager.UpdateAsync(user);
+        return StreakStatus.Active;
+    }
+
+    public async Task<StreakStatus> GetStreakStatusAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return StreakStatus.None;
+
+        var today = DateTime.UtcNow.Date;
+        var last = user.LastActiveDate?.Date;
+
+        if (user.CurrentStreak <= 0 || last == null)
+        {
+            return StreakStatus.None;
+        }
+
+        if (last == today) return StreakStatus.Active;
+        if (last == today.AddDays(-1)) return StreakStatus.Pending;
+        if (last == today.AddDays(-2)) return StreakStatus.AtRisk;
+
+        if (user.CurrentStreak > 0)
+        {
+            user.CurrentStreak = 0;
+            await _userManager.UpdateAsync(user);
+        }
+
+        return StreakStatus.Broken;
+    }
+
+    public async Task<(bool success, int remainingCoins)> FreezeStreakAsync(string userId, int cost = 30)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return (false, 0);
+
+        var status = await GetStreakStatusAsync(userId);
+        if (status != StreakStatus.AtRisk) return (false, user.GoldCoins);
+
+        if (user.StreakFreezeTokens > 0)
+        {
+            user.StreakFreezeTokens--;
+        }
+        else if (user.GoldCoins >= cost)
+        {
+            user.GoldCoins -= cost;
+        }
+        else
+        {
+            return (false, user.GoldCoins);
+        }
+
+        user.LastActiveDate = DateTime.UtcNow.Date.AddDays(-1);
+        await _userManager.UpdateAsync(user);
+        return (true, user.GoldCoins);
+    }
+
+    public async Task<double> GetTodayFocusMinutesAsync(string userId)
+    {
+        var start = DateTime.UtcNow.Date;
+        var end = start.AddDays(1);
+        return await _context.FocusSessions
+            .Where(s => s.UserId == userId && s.EndTime >= start && s.EndTime < end)
+            .SumAsync(s => s.DurationMinutes);
+    }
+
+    public async Task<bool> UpdateDailyFocusGoalAsync(string userId, int minutes)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return false;
+
+        user.DailyFocusGoalMinutes = Math.Clamp(minutes, 10, 720);
+        await _userManager.UpdateAsync(user);
+        return true;
+    }
+
+    public async Task<WeeklyReview> GetWeeklyReviewAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        var today = DateTime.UtcNow.Date;
+        var diff = (7 + (today.DayOfWeek - DayOfWeek.Sunday)) % 7;
+        var startOfWeek = today.AddDays(-1 * diff);
+        var endOfWeek = startOfWeek.AddDays(7);
+
+        var sessions = await _context.FocusSessions
+            .Where(s => s.UserId == userId && s.EndTime >= startOfWeek && s.EndTime < endOfWeek)
+            .ToListAsync();
+
+        var tasksCompleted = await _context.UserTasks
+            .Where(t => t.UserId == userId && t.IsCompleted && t.CompletedAt >= startOfWeek && t.CompletedAt < endOfWeek)
+            .CountAsync();
+
+        var habitChecks = await _context.HabitLogs
+            .Join(_context.Habits, l => l.HabitId, h => h.Id, (l, h) => new { l, h })
+            .Where(x => x.h.UserId == userId && x.l.Date >= startOfWeek && x.l.Date < endOfWeek)
+            .CountAsync();
+
+        var best = sessions
+            .GroupBy(s => s.EndTime.ToLocalTime().Date)
+            .Select(g => new { Day = g.Key, Minutes = g.Sum(s => s.DurationMinutes) })
+            .OrderByDescending(x => x.Minutes)
+            .FirstOrDefault();
+
+        var topFocus = sessions
+            .Where(s => !string.IsNullOrWhiteSpace(s.TaskTag))
+            .GroupBy(s => s.TaskTag!)
+            .OrderByDescending(g => g.Sum(s => s.DurationMinutes))
+            .Select(g => g.Key)
+            .FirstOrDefault();
+
+        return new WeeklyReview
+        {
+            FocusMinutes = sessions.Sum(s => s.DurationMinutes),
+            SessionCount = sessions.Count,
+            TasksCompleted = tasksCompleted,
+            HabitChecks = habitChecks,
+            TopFocus = topFocus,
+            BestDay = best?.Day,
+            BestDayMinutes = best?.Minutes ?? 0,
+            CurrentStreak = user?.CurrentStreak ?? 0,
+            LongestStreak = user?.LongestStreak ?? 0,
+            Level = user?.Level ?? 1
+        };
     }
 }

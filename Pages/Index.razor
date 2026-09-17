@@ -7,38 +7,115 @@
 @inject ToastService ToastService
 @inject IGamificationService GamificationService
 @inject IChallengeService ChallengeService
+@inject IHabitService HabitService
+@inject IReflectionService ReflectionService
+@inject IIntentionService IntentionService
 @inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 
-<PageTitle>DisciplineApp - @Localizer["Home"]</PageTitle>
-
-<HeadContent>
-    <meta property="og:title" content="DisciplineApp - @Localizer["Home"]" />
-    <meta property="og:description" content="A gamified productivity app to help you build discipline, track tasks, focus with Pomodoro timer, and compete on leaderboards." />
-    <meta property="og:image" content="https://disciplineapp.azurewebsites.net/og-image.png" />
-</HeadContent>
+<PageTitle>Discipline — @Localizer["Home"]</PageTitle>
 
 <AuthorizeView>
     <Authorized>
-        <div class="dashboard-container pt-4">
-            <div class="welcome-section mb-4 d-flex justify-content-between align-items-center">
+        <div class="dashboard-container pt-3 pb-5">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
                 <div>
-                    <h1>@Localizer["Welcome"], @(currentUser?.DisplayName ?? context.User.Identity?.Name ?? "User")!</h1>
-                    <p class="text-muted">@Localizer["StayConsistent"]</p>
+                    <p class="hero-kicker mb-1">@Greeting</p>
+                    <h1 class="mb-1">@(currentUser?.DisplayName ?? context.User.Identity?.Name ?? "User")</h1>
+                    @if (!string.IsNullOrEmpty(currentUser?.EquippedTitle))
+                    {
+                        <div class="title-chip mb-1">@Localizer[ShopCatalog.TitleFor(currentUser.EquippedTitle)]</div>
+                    }
+                    <p class="text-muted mb-0">@Localizer["StayConsistent"]</p>
                 </div>
-                <div class="text-end">
-                    <div class="d-flex align-items-center gap-3">
-                        <button class="btn btn-outline-primary" @onclick="ShowShareChallengeModal">
-                            <i class="bi bi-share"></i> @Localizer["ShareChallenge"]
-                        </button>
-                        <div class="coin-display bg-dark p-2 rounded border border-warning text-warning fw-bold">
-                            💰 @(currentUser?.GoldCoins ?? 0)
-                        </div>
-                        <div class="focus-display bg-dark p-2 rounded border border-info text-info fw-bold">
-                            <div>⏱️ Total: @((int)(currentUser?.TotalFocusMinutes ?? 0))m</div>
-                            <div class="small text-muted">Weekly: @((int)weeklyFocusMinutes)m</div>
-                        </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <button class="btn btn-outline-primary" @onclick="ShowShareChallengeModal">
+                        <i class="bi bi-share"></i> @Localizer["ShareChallenge"]
+                    </button>
+                    <button class="btn btn-primary" @onclick="GoToTimer">
+                        <i class="bi bi-play-fill"></i> @Localizer["StartFocusSession"]
+                    </button>
+                </div>
+            </div>
+
+            <DailyQuote />
+
+            @if (streakStatus == StreakStatus.AtRisk)
+            {
+                <div class="alert alert-streak d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+                    <div>
+                        <strong>🔥 @Localizer["StreakAtRisk"]</strong>
+                        <div class="small">@string.Format(Localizer["FreezeCost"], 30)</div>
+                    </div>
+                    <button class="btn btn-warning" @onclick="FreezeStreak">@Localizer["ProtectStreak"]</button>
+                </div>
+            }
+
+            <div class="stat-grid mb-4">
+                <div class="stat-card streak">
+                    <div class="label">@Localizer["Streak"]</div>
+                    <div class="value">🔥 @(currentUser?.CurrentStreak ?? 0)</div>
+                    <div class="small text-muted mt-1">@Localizer["LongestStreak"]: @(currentUser?.LongestStreak ?? 0)</div>
+                </div>
+                <div class="stat-card goal">
+                    <div class="label">@Localizer["DailyGoal"]</div>
+                    <div class="value">@((int)todayFocusMinutes)<span class="fs-6 fw-600">/@goalMinutes</span></div>
+                    <div class="small text-muted mt-1">
+                        @Localizer["TodaysFocus"] ·
+                        <button class="btn btn-link btn-sm p-0 align-baseline" @onclick="ShowGoalModal">@Localizer["SetGoal"]</button>
+                    </div>
+                    <div class="progress mt-2" style="height: 6px; background: var(--bg-tertiary);">
+                        <div class="progress-bar" role="progressbar" style="width: @(GoalPercent)%; background: var(--accent-2);"></div>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">@Localizer["TasksToday"]</div>
+                    <div class="value">@completedTaskCount<span class="fs-6">/@totalTaskCount</span></div>
+                    <div class="small text-muted mt-1">@Localizer["CompletedOf"]</div>
+                </div>
+                <div class="stat-card coins">
+                    <div class="label">@Localizer["HabitsToday"]</div>
+                    <div class="value">@habitCompleted<span class="fs-6">/@habitTotal</span></div>
+                    <div class="small text-muted mt-1">💰 @(currentUser?.GoldCoins ?? 0) · ⏱️ @((int)(currentUser?.TotalFocusMinutes ?? 0))m</div>
+                </div>
+            </div>
+
+            <div class="vow-card mb-4">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0">@Localizer["DailyVow"]</h5>
+                    @if (todayIntention != null)
+                    {
+                        <span class="badge bg-success">@Localizer["VowSet"]</span>
+                    }
+                </div>
+                <p class="text-muted small mb-3">@Localizer["DailyVowHint"]</p>
+                <div class="mb-2">
+                    <input class="form-control mb-2" maxlength="140" @bind="vowText" placeholder="@Localizer["VowPlaceholder"]" />
+                    <input class="form-control" maxlength="80" @bind="oneThing" placeholder="@Localizer["OneThingPlaceholder"]" />
+                </div>
+                <button class="btn btn-primary mt-2" @onclick="SaveVow">@Localizer["CommitVow"]</button>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h5 class="mb-0">@Localizer["DailyCheckIn"]</h5>
+                        @if (todayReflection != null)
+                        {
+                            <span class="badge bg-success">@Localizer["SavedReflection"]</span>
+                        }
+                    </div>
+                    <p class="text-muted small mb-3">@Localizer["HowAreYouFeeling"]</p>
+                    <div class="mood-picker mb-3">
+                        @foreach (var mood in moods)
+                        {
+                            <button class="mood-btn @(selectedMood == mood.Value ? "active" : "")" @onclick="() => selectedMood = mood.Value" title="@mood.Label">@mood.Emoji</button>
+                        }
+                    </div>
+                    <div class="d-flex gap-2">
+                        <input class="form-control" maxlength="280" @bind="reflectionNote" placeholder="@Localizer["ReflectionPlaceholder"]" />
+                        <button class="btn btn-primary" @onclick="SaveReflection">@Localizer["Save"]</button>
                     </div>
                 </div>
             </div>
@@ -50,7 +127,7 @@
             </div>
 
             <div class="row mb-4">
-                <div class="col-md-6">
+                <div class="col-md-6 mb-4 mb-md-0">
                     <div class="card h-100">
                         <div class="card-header d-flex justify-content-between align-items-center">
                             <h5 class="mb-0">@Localizer["TasksToday"]</h5>
@@ -101,7 +178,7 @@
                 <div class="col-md-6">
                      <div class="card h-100">
                         <div class="card-header d-flex justify-content-between align-items-center">
-                            <h5 class="mb-0">@Localizer["Weekly Focus"]</h5>
+                            <h5 class="mb-0">@Localizer["WeeklyFocus"]</h5>
                             <div class="d-flex align-items-center gap-2">
                                 <button class="btn btn-sm btn-outline-secondary" @onclick="PreviousWeek">
                                     <i class="bi bi-chevron-left"></i>
@@ -146,10 +223,60 @@
         </div>
     </Authorized>
     <NotAuthorized>
-        <div class="text-center mt-5">
-            <h1>@Localizer["Welcome"]</h1>
-            <p class="lead">@Localizer["PleaseLoginTrack"]</p>
-            <button class="btn btn-lg btn-primary" @onclick="ShowLoginModal">@Localizer["Login"]</button>
+        <section class="hero-landing">
+            <p class="hero-kicker">Discipline</p>
+            <h1>@Localizer["LandingTitle"]</h1>
+            <p class="lead">@Localizer["LandingSubtitle"]</p>
+            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <button class="btn btn-lg btn-primary px-4" @onclick="ShowLoginModal">@Localizer["LandingCta"]</button>
+                <a class="btn btn-lg btn-outline-primary px-4" href="timer">@Localizer["TryTimer"]</a>
+            </div>
+        </section>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="icon">🍅</div>
+                <h5>@Localizer["FeatureTimer"]</h5>
+                <p class="text-muted mb-0">@Localizer["FeatureTimerDesc"]</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🔥</div>
+                <h5>@Localizer["FeatureStreaks"]</h5>
+                <p class="text-muted mb-0">@Localizer["FeatureStreaksDesc"]</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">✅</div>
+                <h5>@Localizer["FeatureHabits"]</h5>
+                <p class="text-muted mb-0">@Localizer["FeatureHabitsDesc"]</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🎮</div>
+                <h5>@Localizer["FeatureXp"]</h5>
+                <p class="text-muted mb-0">@Localizer["FeatureXpDesc"]</p>
+            </div>
+        </div>
+
+        <div class="card mx-auto mb-5" style="max-width: 880px;">
+            <div class="card-body p-4">
+                <h4 class="mb-4">@Localizer["HowItWorks"]</h4>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="hero-kicker mb-2">01</div>
+                        <h5>@Localizer["Step1Title"]</h5>
+                        <p class="text-muted mb-0">@Localizer["Step1Desc"]</p>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="hero-kicker mb-2">02</div>
+                        <h5>@Localizer["Step2Title"]</h5>
+                        <p class="text-muted mb-0">@Localizer["Step2Desc"]</p>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="hero-kicker mb-2">03</div>
+                        <h5>@Localizer["Step3Title"]</h5>
+                        <p class="text-muted mb-0">@Localizer["Step3Desc"]</p>
+                    </div>
+                </div>
+            </div>
         </div>
     </NotAuthorized>
 </AuthorizeView>
@@ -227,15 +354,32 @@
     </div>
 }
 
+@if (showGoalModal)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">@Localizer["SetGoal"]</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="() => showGoalModal = false"></button>
+                </div>
+                <div class="modal-body">
+                    <label class="form-label">@Localizer["DailyGoalHint"]</label>
+                    <input type="number" class="form-control" min="10" max="720" @bind="goalDraft" />
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button class="btn btn-secondary" @onclick="() => showGoalModal = false">@Localizer["Cancel"]</button>
+                    <button class="btn btn-primary" @onclick="SaveGoal">@Localizer["Save"]</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 <style>
     .dashboard-container {
-        max-width: 900px;
+        max-width: 980px;
         margin: 0 auto;
-    }
-    .coin-display, .focus-display {
-        min-width: 100px;
-        text-align: center;
     }
 </style>
 
@@ -246,21 +390,57 @@
     private double weeklyFocusMinutes = 0;
     private Dictionary<string, double> weeklyFocusBreakdown = new();
     private DateTime currentWeekStart = DateTime.UtcNow.Date;
+    private double todayFocusMinutes;
+    private StreakStatus streakStatus = StreakStatus.None;
+    private int habitCompleted;
+    private int habitTotal;
+    private DailyReflection? todayReflection;
+    private DailyIntention? todayIntention;
+    private string vowText = "";
+    private string oneThing = "";
+    private int selectedMood = 3;
+    private string reflectionNote = "";
+    private bool showGoalModal;
+    private int goalDraft = 60;
     
     private bool isCurrentWeek => currentWeekStart >= GetStartOfWeek(DateTime.UtcNow.Date);
     private string weekRangeDisplay => $"{currentWeekStart:MM/dd} - {currentWeekStart.AddDays(6):MM/dd}";
+    private int goalMinutes => currentUser?.DailyFocusGoalMinutes > 0 ? currentUser.DailyFocusGoalMinutes : 60;
+    private int GoalPercent => goalMinutes <= 0 ? 0 : (int)Math.Clamp(todayFocusMinutes / goalMinutes * 100, 0, 100);
+    private int completedTaskCount => todayTasks?.Count(t => t.IsCompleted) ?? 0;
+    private int totalTaskCount => todayTasks?.Count ?? 0;
 
-    // Reward State
+    private string Greeting
+    {
+        get
+        {
+            var hour = DateTime.Now.Hour;
+            if (hour < 12) return Localizer["GreetingMorning"];
+            if (hour < 18) return Localizer["GreetingAfternoon"];
+            return Localizer["GreetingEvening"];
+        }
+    }
+
+    private record MoodOption(int Value, string Emoji, string Label);
+    private List<MoodOption> moods = new();
+
     private bool showCoinReward = false;
     private int coinsEarned = 0;
     private int xpEarned = 0;
 
     protected override async Task OnInitializedAsync()
     {
+        moods = new List<MoodOption>
+        {
+            new(1, "😞", Localizer["MoodTerrible"]),
+            new(2, "😕", Localizer["MoodBad"]),
+            new(3, "😐", Localizer["MoodOk"]),
+            new(4, "🙂", Localizer["MoodGood"]),
+            new(5, "😄", Localizer["MoodGreat"]),
+        };
+
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var user = authState.User;
-        
-        // Initialize current week start
         currentWeekStart = GetStartOfWeek(DateTime.UtcNow.Date);
 
         if (user.Identity?.IsAuthenticated ?? false)
@@ -268,12 +448,31 @@
             var userId = user.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
             if (!string.IsNullOrEmpty(userId))
             {
-                todayTasks = await TaskService.GetTasksForDateAsync(userId, DateTime.Today);
-                currentUser = await GamificationService.GetUserStatsAsync(userId);
-                // Load for current week
-                await LoadWeeklyStats(userId);
+                await ReloadDashboard(userId);
             }
         }
+    }
+
+    private async Task ReloadDashboard(string userId)
+    {
+        todayTasks = await TaskService.GetTasksForDateAsync(userId, DateTime.Today);
+        currentUser = await GamificationService.GetUserStatsAsync(userId);
+        streakStatus = await GamificationService.GetStreakStatusAsync(userId);
+        todayFocusMinutes = await GamificationService.GetTodayFocusMinutesAsync(userId);
+        (habitCompleted, habitTotal) = await HabitService.GetTodayProgressAsync(userId);
+        todayReflection = await ReflectionService.GetTodayAsync(userId);
+        todayIntention = await IntentionService.GetTodayAsync(userId);
+        if (todayReflection != null)
+        {
+            selectedMood = todayReflection.Mood;
+            reflectionNote = todayReflection.Note ?? "";
+        }
+        if (todayIntention != null)
+        {
+            vowText = todayIntention.Vow;
+            oneThing = todayIntention.OneThing;
+        }
+        await LoadWeeklyStats(userId);
     }
     
     private DateTime GetStartOfWeek(DateTime date)
@@ -308,7 +507,6 @@
     
     private async Task LoadWeeklyStats(string userId)
     {
-        // Pass currentWeekStart as the reference date
         weeklyFocusMinutes = await GamificationService.GetWeeklyFocusTimeAsync(userId, currentWeekStart);
         weeklyFocusBreakdown = await GamificationService.GetWeeklyFocusBreakdownAsync(userId, currentWeekStart);
     }
@@ -329,7 +527,7 @@
                 {
                     xpEarned = result.xpAwarded;
                     
-                    var coinResult = new Random().Next(0, 4); // 0-3 coins
+                    var coinResult = new Random().Next(0, 4);
                     if (coinResult > 0)
                     {
                         await GamificationService.AwardCoinsAsync(userId, coinResult, coinResult);
@@ -354,22 +552,74 @@
                     ToastService.ShowWarning(Localizer["DailyCapReached"]);
                 }
                 
-                // Reload tasks
-                todayTasks = await TaskService.GetTasksForDateAsync(userId, DateTime.Today);
-                // Reload user stats to update header name/level/coins
-                currentUser = await GamificationService.GetUserStatsAsync(userId);
-                // Reload weekly stats just in case (though tasks don't affect focus time, XP does)
-                // actually we don't strictly need to reload focus stats here if completing a task doesn't change focus time.
-                // But let's leave as is or simplify.
+                await ReloadDashboard(userId);
                 StateHasChanged();
             }
         }
     }
 
+    private async Task SaveReflection()
+    {
+        var userId = await GetUserId();
+        if (userId == null) return;
+        todayReflection = await ReflectionService.SaveTodayAsync(userId, selectedMood, reflectionNote);
+        currentUser = await GamificationService.GetUserStatsAsync(userId);
+        streakStatus = await GamificationService.GetStreakStatusAsync(userId);
+        ToastService.ShowSuccess(Localizer["SavedReflection"]);
+    }
+
+    private async Task SaveVow()
+    {
+        var userId = await GetUserId();
+        if (userId == null) return;
+        todayIntention = await IntentionService.SaveTodayAsync(userId, vowText, oneThing);
+        streakStatus = await GamificationService.GetStreakStatusAsync(userId);
+        currentUser = await GamificationService.GetUserStatsAsync(userId);
+        ToastService.ShowSuccess(Localizer["VowSet"]);
+    }
+
+    private async Task FreezeStreak()
+    {
+        var userId = await GetUserId();
+        if (userId == null) return;
+        var result = await GamificationService.FreezeStreakAsync(userId);
+        if (result.success)
+        {
+            ToastService.ShowSuccess(Localizer["StreakSaved"]);
+            await ReloadDashboard(userId);
+        }
+        else
+        {
+            ToastService.ShowWarning(Localizer["NotEnoughCoins"]);
+        }
+    }
+
+    private void ShowGoalModal()
+    {
+        goalDraft = goalMinutes;
+        showGoalModal = true;
+    }
+
+    private async Task SaveGoal()
+    {
+        var userId = await GetUserId();
+        if (userId == null) return;
+        await GamificationService.UpdateDailyFocusGoalAsync(userId, goalDraft);
+        currentUser = await GamificationService.GetUserStatsAsync(userId);
+        showGoalModal = false;
+        ToastService.ShowSuccess(Localizer["GoalUpdated"]);
+    }
+
+    private async Task<string?> GetUserId()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        return authState.User.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+    }
+
     private void ShowLoginModal() => showLoginModal = true;
     private void HideLoginModal() => showLoginModal = false;
+    private void GoToTimer() => NavigationManager.NavigateTo("/timer");
 
-    // Share Challenge Modal
     private bool showShareChallengeModal = false;
     private string? shareLink;
     private bool isGeneratingLink = false;
@@ -403,7 +653,8 @@
     }
 
     private async Task CopyToClipboard()
-    {        if (!string.IsNullOrEmpty(shareLink))
+    {
+        if (!string.IsNullOrEmpty(shareLink))
         {
             await JSRuntime.InvokeVoidAsync("navigator.clipboard.writeText", shareLink);
             ToastService.ShowSuccess(Localizer["LinkCopied"]);

@@ -11,16 +11,53 @@
 @inject IAnalyticsService AnalyticsService
 @implements IDisposable
 
-<div class="container text-center mt-5">
-    <div class="mb-4">
-        <div class="btn-group" role="group">
-            <input type="radio" class="btn-check" name="mode" id="mode-pomodoro" autocomplete="off" checked="@TimerService.IsPomodoroMode" @onchange="@(() => TimerService.SetMode(true))">
-            <label class="btn btn-outline-primary" for="mode-pomodoro">@Localizer["Pomodoro"]</label>
+<PageTitle>@Localizer["Timer"] — Discipline</PageTitle>
 
-            <input type="radio" class="btn-check" name="mode" id="mode-stopwatch" autocomplete="off" checked="@(!TimerService.IsPomodoroMode)" @onchange="@(() => TimerService.SetMode(false))">
-            <label class="btn btn-outline-primary" for="mode-stopwatch">@Localizer["Stopwatch"]</label>
-        </div>
+<div class="timer-shell text-center" @onkeydown="HandleKey" tabindex="0">
+    <div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
+        @if (!sanctuary)
+        {
+            <button class="btn btn-outline-primary" @onclick="EnterSanctuary">🕯 @Localizer["EnterSanctuary"]</button>
+        }
+        else
+        {
+            <button class="btn btn-outline-primary" @onclick="ExitSanctuary">@Localizer["LeaveSanctuary"]</button>
+        }
     </div>
+    <div class="d-flex justify-content-center gap-2 mb-3 flex-wrap">
+        @foreach (var sound in sounds)
+        {
+            <button class="preset-chip @(ambient == sound.Id ? "active" : "")" @onclick="() => SetAmbient(sound.Id)">@sound.Label</button>
+        }
+    </div>
+    <p class="small text-muted mb-3">@Localizer["SanctuaryHint"]</p>
+
+    <div class="btn-group mb-4" role="group">
+        <button class="btn @(TimerService.IsPomodoroMode && !TimerService.IsBreakMode ? "btn-primary" : "btn-outline-primary")"
+                @onclick="@(() => TimerService.SetMode(true))" disabled="@TimerService.IsRunning">
+            @Localizer["Focus"]
+        </button>
+        <button class="btn @(!TimerService.IsPomodoroMode ? "btn-primary" : "btn-outline-primary")"
+                @onclick="@(() => TimerService.SetMode(false))" disabled="@TimerService.IsRunning">
+            @Localizer["Stopwatch"]
+        </button>
+        <button class="btn @(TimerService.IsBreakMode ? "btn-primary" : "btn-outline-primary")"
+                @onclick="StartSuggestedBreak" disabled="@TimerService.IsRunning">
+            @Localizer["Break"]
+        </button>
+    </div>
+
+    @if (TimerService.IsPomodoroMode && !TimerService.IsBreakMode)
+    {
+        <div class="d-flex justify-content-center gap-2 mb-4">
+            @foreach (var preset in new[] { 15, 25, 50 })
+            {
+                <button class="preset-chip @(TimerService.PomodoroMinutes == preset ? "active" : "")"
+                        @onclick="@(() => TimerService.SetPomodoroMinutes(preset))"
+                        disabled="@TimerService.IsRunning">@preset @Localizer["MinutesShort"]</button>
+            }
+        </div>
+    }
 
     <div class="mb-4" style="max-width: 400px; margin: 0 auto;">
         @if (todayTasks != null && todayTasks.Any())
@@ -37,31 +74,36 @@
         
         @if (TimerService.FocusTask == "custom" || todayTasks == null || !todayTasks.Any())
         {
-            <input type="text" class="form-control bg-dark text-white border-secondary text-center" 
+            <input type="text" class="form-control text-center" 
                    placeholder="@Localizer["FocusPlaceholder"]" 
+                   maxlength="80"
                    @bind="customFocusTask" 
                    disabled="@TimerService.IsRunning" />
         }
     </div>
 
-    <div class="timer-display mb-5" style="font-size: 6rem; font-weight: bold; font-family: monospace;">
-        @TimeDisplay
-    </div>
+    <ProgressRing Percent="@RingPercent" Size="260" Color="@(TimerService.IsBreakMode ? "#2dd4bf" : "#f5a524")">
+        <div class="small text-muted text-uppercase fw-bold" style="letter-spacing: .12em;">
+            @(TimerService.IsBreakMode ? Localizer["Break"] : Localizer["Focus"])
+        </div>
+        <div style="font-size: 3.2rem; font-weight: 800; font-family: Outfit, monospace; line-height: 1;">@TimeDisplay</div>
+        <div class="small text-muted mt-1">@string.Format(Localizer["SessionsToday"], TimerService.CompletedPomodoros)</div>
+    </ProgressRing>
 
-    <div class="controls d-flex flex-column align-items-center gap-3">
+    <div class="controls d-flex flex-column align-items-center gap-3 mt-4">
         @if (!TimerService.IsRunning && !TimerService.IsPaused)
         {
-            <button class="btn btn-lg btn-success px-5 rounded-pill" @onclick="StartTimer">
+            <button class="btn btn-lg btn-success px-5" @onclick="StartTimer">
                 <i class="bi bi-play-fill"></i> @Localizer["Start"]
             </button>
         }
         else if (TimerService.IsRunning)
         {
             <div class="d-flex gap-2">
-                <button class="btn btn-lg btn-warning px-4 rounded-pill" @onclick="PauseTimer">
+                <button class="btn btn-lg btn-warning px-4" @onclick="PauseTimer">
                     <i class="bi bi-pause-fill"></i> @Localizer["Pause"]
                 </button>
-                <button class="btn btn-lg btn-danger px-4 rounded-pill" @onclick="StopTimer">
+                <button class="btn btn-lg btn-danger px-4" @onclick="StopTimer">
                     <i class="bi bi-stop-fill"></i> @Localizer["Finish"]
                 </button>
             </div>
@@ -69,103 +111,130 @@
         else if (TimerService.IsPaused)
         {
              <div class="d-flex gap-2">
-                <button class="btn btn-lg btn-success px-4 rounded-pill" @onclick="StartTimer">
+                <button class="btn btn-lg btn-success px-4" @onclick="StartTimer">
                     <i class="bi bi-play-fill"></i> @Localizer["Resume"]
                 </button>
-                <button class="btn btn-lg btn-danger px-4 rounded-pill" @onclick="StopTimer">
+                <button class="btn btn-lg btn-danger px-4" @onclick="StopTimer">
                     <i class="bi bi-stop-fill"></i> @Localizer["Finish"]
                 </button>
             </div>
         }
     </div>
+
+    @if (offerBreak)
+    {
+        <div class="mt-4">
+            <p class="text-muted mb-2">@Localizer["TakeABreak"]</p>
+            <div class="d-flex justify-content-center gap-2">
+                <button class="btn btn-outline-primary" @onclick="@(() => BeginBreak(false))">@Localizer["ShortBreak"] · 5m</button>
+                <button class="btn btn-outline-primary" @onclick="@(() => BeginBreak(true))">@Localizer["LongBreak"] · 15m</button>
+                <button class="btn btn-link text-muted" @onclick="() => offerBreak = false">@Localizer["ContinueFocusing"]</button>
+            </div>
+        </div>
+    }
     
     <div class="mt-4">
         <button class="btn btn-link text-muted text-decoration-none" @onclick="ShowManualEntryModal">
             <small>@Localizer["ForgotToTrack"]</small>
         </button>
     </div>
+</div>
 
-    @if (showManualEntry)
-    {
-        <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
-            <div class="modal-dialog modal-dialog-centered">
-                <div class="modal-content bg-dark text-white border-secondary">
-                    <div class="modal-header border-secondary">
-                        <h5 class="modal-title">@Localizer["AddManualEntry"]</h5>
-                        <button type="button" class="btn-close btn-close-white" @onclick="CloseManualEntryModal"></button>
+@if (showManualEntry)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content bg-dark text-white border-secondary">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">@Localizer["AddManualEntry"]</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="CloseManualEntryModal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["Task"]</label>
+                         @if (todayTasks != null && todayTasks.Any())
+                        {
+                            <select class="form-select bg-dark text-white border-secondary mb-2" @bind="manualTaskSelection">
+                                <option value="">@Localizer["SelectTask"]</option>
+                                @foreach (var task in todayTasks.Where(t => !t.IsCompleted || t.IsRoutine))
+                                {
+                                    <option value="@task.Title">@task.Title</option>
+                                }
+                                <option value="custom">@Localizer["CustomTask"]</option>
+                            </select>
+                        }
+                        
+                        @if (manualTaskSelection == "custom" || todayTasks == null || !todayTasks.Any())
+                        {
+                            <input type="text" class="form-control bg-dark text-white border-secondary" 
+                                   placeholder="@Localizer["EnterTaskName"]" 
+                                   @bind="manualCustomTask" />
+                        }
                     </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">@Localizer["Task"]</label>
-                             @if (todayTasks != null && todayTasks.Any())
-                            {
-                                <select class="form-select bg-dark text-white border-secondary mb-2" @bind="manualTaskSelection">
-                                    <option value="">@Localizer["SelectTask"]</option>
-                                    @foreach (var task in todayTasks.Where(t => !t.IsCompleted || t.IsRoutine))
-                                    {
-                                        <option value="@task.Title">@task.Title</option>
-                                    }
-                                    <option value="custom">@Localizer["CustomTask"]</option>
-                                </select>
-                            }
-                            
-                            @if (manualTaskSelection == "custom" || todayTasks == null || !todayTasks.Any())
-                            {
-                                <input type="text" class="form-control bg-dark text-white border-secondary" 
-                                       placeholder="@Localizer["EnterTaskName"]" 
-                                       @bind="manualCustomTask" />
-                            }
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">@Localizer["DurationMinutes"]</label>
-                            <input type="number" class="form-control bg-dark text-white border-secondary" @bind="manualDuration" min="1" max="1440" />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">@Localizer["When"]</label>
-                            <input type="datetime-local" class="form-control bg-dark text-white border-secondary" @bind="manualDate" />
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["DurationMinutes"]</label>
+                        <input type="number" class="form-control bg-dark text-white border-secondary" @bind="manualDuration" min="1" max="1440" />
                     </div>
-                    <div class="modal-footer border-secondary">
-                        <button type="button" class="btn btn-secondary" @onclick="CloseManualEntryModal">@Localizer["Cancel"]</button>
-                        <button type="button" class="btn btn-primary" @onclick="SaveManualEntry">@Localizer["Save"]</button>
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["When"]</label>
+                        <input type="datetime-local" class="form-control bg-dark text-white border-secondary" @bind="manualDate" />
                     </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseManualEntryModal">@Localizer["Cancel"]</button>
+                    <button type="button" class="btn btn-primary" @onclick="SaveManualEntry">@Localizer["Save"]</button>
                 </div>
             </div>
         </div>
-    }
-    
-    <DisciplineApp.Shared.CoinReward IsVisible="@showCoinReward" Coins="@coinsEarned" Xp="@xpEarned" />
-    
-    <audio id="timerSound" src="sounds/alarm.mp3" preload="auto"></audio>
-    <audio id="startSound" src="sounds/start.mp3" preload="auto"></audio>
-</div>
+    </div>
+}
+
+<DisciplineApp.Shared.CoinReward IsVisible="@showCoinReward" Coins="@coinsEarned" Xp="@xpEarned" />
+
+<audio id="timerSound" src="sounds/alarm.mp3" preload="auto"></audio>
+<audio id="startSound" src="sounds/start.mp3" preload="auto"></audio>
 
 @code {
     private string customFocusTask = "";
     private List<UserTask>? todayTasks;
+    private bool offerBreak;
+    private bool sanctuary;
+    private string ambient = "off";
+    private record SoundOpt(string Id, string Label);
+    private List<SoundOpt> sounds = new();
     
-    // Reward State
     private bool showCoinReward = false;
     private int coinsEarned = 0;
     private int xpEarned = 0;
     
-    // Manual Entry State
     private bool showManualEntry = false;
     private string manualTaskSelection = "";
     private string manualCustomTask = "";
     private int manualDuration = 30;
     private DateTime manualDate = DateTime.Now;
 
+    private double RingPercent => TimerService.IsPomodoroMode
+        ? TimerService.Progress
+        : Math.Min(TimerService.TimeElapsed.TotalMinutes / 60.0, 1);
+
     protected override async Task OnInitializedAsync()
     {
         TimerService.OnTick += UpdateUI;
         TimerService.OnTimerCompleted += HandleTimerCompleted;
         
-        // Restore state if timer is running or has a task set
         if (!string.IsNullOrEmpty(TimerService.FocusTask))
         {
             customFocusTask = TimerService.FocusTask;
         }
+
+        sounds = new()
+        {
+            new("off", Localizer["SoundOff"]),
+            new("rain", Localizer["SoundRain"]),
+            new("brown", Localizer["SoundBrown"]),
+            new("cafe", Localizer["SoundCafe"]),
+            new("fire", Localizer["SoundFire"]),
+        };
         
         await LoadTasks();
     }
@@ -193,11 +262,23 @@
         $"{(int)TimerService.TimeLeft.TotalMinutes:D2}:{TimerService.TimeLeft.Seconds:D2}" : 
         $"{(int)TimerService.TimeElapsed.TotalMinutes:D2}:{TimerService.TimeElapsed.Seconds:D2}";
 
+    private void StartSuggestedBreak()
+    {
+        var isLong = TimerService.CompletedPomodoros > 0 && TimerService.CompletedPomodoros % 4 == 0;
+        TimerService.StartBreak(isLong);
+    }
+
+    private void BeginBreak(bool isLong)
+    {
+        offerBreak = false;
+        TimerService.StartBreak(isLong);
+        TimerService.Start();
+    }
+
     private async Task StartTimer()
     {
         string taskName;
         
-        // Determine the task name based on the current mode
         if (todayTasks == null || !todayTasks.Any() || TimerService.FocusTask == "custom")
         {
             taskName = customFocusTask;
@@ -207,20 +288,21 @@
             taskName = TimerService.FocusTask;
         }
 
-        // If no task name is provided, default to "Focus Session"
         if (string.IsNullOrWhiteSpace(taskName))
         {
-            taskName = Localizer["Focus Session"] ?? "Focus Session";
+            taskName = TimerService.IsBreakMode ? Localizer["Break"] : (Localizer["Focus Session"] ?? "Focus Session");
         }
         
-        // Update the service with the actual task name being used
-        TimerService.FocusTask = taskName;
-        
+        TimerService.FocusTask = InputGuard.Clamp(taskName, InputGuard.FocusTaskMax);
         TimerService.Start();
         await PlaySound("startSound");
+        if (ambient != "off")
+        {
+            await JSRuntime.InvokeVoidAsync("sanctuary.start", ambient);
+        }
 
         var trackData = System.Text.Json.JsonSerializer.Serialize(new { 
-            Mode = TimerService.IsPomodoroMode ? "Pomodoro" : "Stopwatch",
+            Mode = TimerService.IsBreakMode ? "Break" : TimerService.IsPomodoroMode ? "Pomodoro" : "Stopwatch",
             Task = TimerService.FocusTask 
         });
         await AnalyticsService.TrackEventAsync("Timer_Start", "Timer", trackData);
@@ -235,13 +317,11 @@
     {
         TimerService.Stop();
         
-        // Calculate duration
         double durationMinutes = TimerService.IsPomodoroMode ? 
             (TimerService.DefaultPomodoroTime - TimerService.TimeLeft).TotalMinutes : 
             TimerService.TimeElapsed.TotalMinutes;
 
-        // Only record if > 1 minute
-        if (durationMinutes >= 0.1) 
+        if (durationMinutes >= 0.1 && !TimerService.IsBreakMode) 
         {
             await RecordSession(durationMinutes);
         }
@@ -253,7 +333,15 @@
         });
         await AnalyticsService.TrackEventAsync("Timer_Stop", "Timer", trackData);
 
-        TimerService.ResetTimer();
+        if (TimerService.IsBreakMode)
+        {
+            TimerService.EndBreak();
+        }
+        else
+        {
+            TimerService.ResetTimer();
+        }
+        offerBreak = false;
     }
 
     private async void HandleTimerCompleted()
@@ -261,6 +349,14 @@
         await InvokeAsync(async () => 
         {
             await PlaySound("timerSound");
+
+            if (TimerService.IsBreakMode)
+            {
+                ToastService.ShowSuccess(Localizer["BreakComplete"]);
+                TimerService.EndBreak();
+                return;
+            }
+
             await RecordSession(TimerService.DefaultPomodoroTime.TotalMinutes);
             
             var trackData = System.Text.Json.JsonSerializer.Serialize(new { 
@@ -271,6 +367,7 @@
             await AnalyticsService.TrackEventAsync("Timer_Stop", "Timer", trackData);
 
             TimerService.ResetTimer();
+            offerBreak = true;
             ToastService.ShowSuccess(Localizer["PomodoroCompleted"]);
         });
     }
@@ -301,7 +398,6 @@
                         showCoinReward = true;
                         StateHasChanged();
                         
-                        // Hide animation after 3 seconds
                         var _ = Task.Delay(3000).ContinueWith(_ => 
                         {
                             showCoinReward = false;
@@ -353,7 +449,6 @@
         string taskName = manualTaskSelection == "custom" ? manualCustomTask : manualTaskSelection;
         if (string.IsNullOrWhiteSpace(taskName))
         {
-            // Try to use custom task buffer if selection is empty/null which might happen if "custom" logic isn't perfectly mutually exclusive
             if (!string.IsNullOrWhiteSpace(manualCustomTask)) taskName = manualCustomTask;
             else taskName = Localizer["ManualSession"];
         }
@@ -375,11 +470,52 @@
                  }
              }
         }
+        else
+        {
+            ToastService.ShowInfo(Localizer["PleaseLoginTrack"]);
+        }
+    }
+
+    private async Task EnterSanctuary()
+    {
+        sanctuary = true;
+        await JSRuntime.InvokeVoidAsync("sanctuary.enter");
+        if (ambient != "off")
+        {
+            await JSRuntime.InvokeVoidAsync("sanctuary.start", ambient);
+        }
+    }
+
+    private async Task ExitSanctuary()
+    {
+        sanctuary = false;
+        await JSRuntime.InvokeVoidAsync("sanctuary.exit");
+        ambient = "off";
+    }
+
+    private async Task SetAmbient(string kind)
+    {
+        ambient = kind;
+        await JSRuntime.InvokeVoidAsync("sanctuary.start", kind);
+    }
+
+    private async Task HandleKey(KeyboardEventArgs e)
+    {
+        if (e.Code == "Space")
+        {
+            if (TimerService.IsRunning) PauseTimer();
+            else await StartTimer();
+        }
+        else if (e.Code == "Escape" && sanctuary)
+        {
+            await ExitSanctuary();
+        }
     }
 
     public void Dispose()
     {
         TimerService.OnTick -= UpdateUI;
         TimerService.OnTimerCompleted -= HandleTimerCompleted;
+        _ = JSRuntime.InvokeVoidAsync("sanctuary.exit");
     }
 }

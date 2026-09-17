@@ -7,6 +7,7 @@
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 @inject ToastService ToastService
 @inject IAnalyticsService AnalyticsService
+@inject IJSRuntime JSRuntime
 @inject NavigationManager NavigationManager
 
 <PageTitle>DisciplineApp</PageTitle>
@@ -22,7 +23,11 @@
             <AuthorizeView>
                 <Authorized>
                     <div class="user-stats d-flex align-items-center gap-3">
-                        <span class="fw-bold">@(currentUser?.DisplayName ?? context.User.Identity?.Name ?? "User")</span>
+                            <span class="fw-bold">@(currentUser?.DisplayName ?? context.User.Identity?.Name ?? "User")</span>
+                            @if (!string.IsNullOrEmpty(TitleLabel))
+                            {
+                                <span class="title-chip">@TitleLabel</span>
+                            }
                         @if (currentUser != null)
                         {
                             <span class="badge bg-info text-dark">Lvl @currentUser.Level</span>
@@ -92,7 +97,7 @@
                     <h4 class="mb-4">@Localizer["Welcome"]</h4>
                     <a href="Account/LoginWithGoogle" class="btn btn-lg btn-light w-100 d-flex align-items-center justify-content-center gap-2">
                         <img src="https://www.google.com/favicon.ico" alt="Google" width="20" height="20">
-                        Continue with Google
+                        @Localizer["ContinueWithGoogle"]
                     </a>
                 </div>
             </div>
@@ -104,6 +109,9 @@
     private ApplicationUser? currentUser;
     private bool showLoginModal = false;
     private List<ToastMessage> toasts = new();
+    private string TitleLabel => string.IsNullOrEmpty(currentUser?.EquippedTitle)
+        ? ""
+        : Localizer[ShopCatalog.TitleFor(currentUser.EquippedTitle)];
 
     private void ShowLoginModal() => showLoginModal = true;
     private void HideLoginModal() => showLoginModal = false;
@@ -168,6 +176,19 @@
             {
                 currentUser = await GamificationService.GetUserStatsAsync(userId);
             }
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var theme = InputGuard.IsAllowedTheme(currentUser?.ThemeKey) ? currentUser!.ThemeKey : "ember";
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("sanctuary.setTheme", theme);
+        }
+        catch
+        {
+            // JS may not be ready on first prerender.
         }
     }
 
