@@ -783,4 +783,82 @@
   <data name="VowSet" xml:space="preserve">
     <value>誓いをロックした。</value>
   </data>
+  <data name="GuestHabitsHint" xml:space="preserve">
+    <value>ゲストの習慣はこの端末に保存されます。同期するにはログインしてください。</value>
+  </data>
+  <data name="HabitLimit" xml:space="preserve">
+    <value>習慣の上限に達しました。</value>
+  </data>
+  <data name="IfThenTitle" xml:space="preserve">
+    <value>もし…なら…</value>
+  </data>
+  <data name="IfThenHint" xml:space="preserve">
+    <value>きっかけを書き、自動でやりたい行動を結びつける。意志力より強い。</value>
+  </data>
+  <data name="IfPlaceholder" xml:space="preserve">
+    <value>もしスマホを手にしたら…</value>
+  </data>
+  <data name="ThenPlaceholder" xml:space="preserve">
+    <value>タイマーを開く</value>
+  </data>
+  <data name="IfLabel" xml:space="preserve">
+    <value>もし</value>
+  </data>
+  <data name="ThenLabel" xml:space="preserve">
+    <value>なら</value>
+  </data>
+  <data name="NoIfThen" xml:space="preserve">
+    <value>まだ意図がない。いちばん詰まりやすい場面から。</value>
+  </data>
+  <data name="IfThenSaved" xml:space="preserve">
+    <value>意図を保存した。</value>
+  </data>
+  <data name="IfThenEmpty" xml:space="preserve">
+    <value>もし と なら の両方を入力してください。</value>
+  </data>
+  <data name="IfThenLimit" xml:space="preserve">
+    <value>意図の上限に達しました。</value>
+  </data>
+  <data name="IfThenTpl1If" xml:space="preserve">
+    <value>スマホを手にする</value>
+  </data>
+  <data name="IfThenTpl1Then" xml:space="preserve">
+    <value>タイマーを開く</value>
+  </data>
+  <data name="IfThenTpl2If" xml:space="preserve">
+    <value>ポモドーロを終える</value>
+  </data>
+  <data name="IfThenTpl2Then" xml:space="preserve">
+    <value>立って水を飲む</value>
+  </data>
+  <data name="IfThenTpl3If" xml:space="preserve">
+    <value>夜の10時</value>
+  </data>
+  <data name="IfThenTpl3Then" xml:space="preserve">
+    <value>スマホを別の部屋に置く</value>
+  </data>
+  <data name="ExportData" xml:space="preserve">
+    <value>データを書き出す</value>
+  </data>
+  <data name="ExportReady" xml:space="preserve">
+    <value>データのコピーをダウンロードしました。</value>
+  </data>
+  <data name="BreathHint" xml:space="preserve">
+    <value>一呼吸してから始める。スキップもできる。</value>
+  </data>
+  <data name="BreathInhale" xml:space="preserve">
+    <value>吸う</value>
+  </data>
+  <data name="BreathHold" xml:space="preserve">
+    <value>止める</value>
+  </data>
+  <data name="BreathExhale" xml:space="preserve">
+    <value>吐く</value>
+  </data>
+  <data name="SkipBreath" xml:space="preserve">
+    <value>スキップして開始</value>
+  </data>
+  <data name="SkipBreathAlways" xml:space="preserve">
+    <value>次回から表示しない</value>
+  </data>
 </root>

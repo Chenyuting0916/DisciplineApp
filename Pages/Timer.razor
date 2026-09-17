@@ -9,6 +9,9 @@
 @inject TimerService TimerService
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 @inject IAnalyticsService AnalyticsService
+@inject LocalStorageService LocalStorageService
+@inject IIfThenService IfThenService
+@inject GuestIfThenService GuestIfThenService
 @implements IDisposable
 
 <PageTitle>@Localizer["Timer"] — Discipline</PageTitle>
@@ -31,6 +34,11 @@
         }
     </div>
     <p class="small text-muted mb-3">@Localizer["SanctuaryHint"]</p>
+    <div class="volume-row">
+        <span aria-hidden="true">🔊</span>
+        <input type="range" min="0" max="100" value="@volumePercent" @oninput="OnVolumeInput" />
+        <span class="small text-muted">@volumePercent%</span>
+    </div>
 
     <div class="btn-group mb-4" role="group">
         <button class="btn @(TimerService.IsPomodoroMode && !TimerService.IsBreakMode ? "btn-primary" : "btn-outline-primary")"
@@ -93,7 +101,7 @@
     <div class="controls d-flex flex-column align-items-center gap-3 mt-4">
         @if (!TimerService.IsRunning && !TimerService.IsPaused)
         {
-            <button class="btn btn-lg btn-success px-5" @onclick="StartTimer">
+            <button class="btn btn-lg btn-success px-5" @onclick="RequestStart">
                 <i class="bi bi-play-fill"></i> @Localizer["Start"]
             </button>
         }
@@ -111,7 +119,7 @@
         else if (TimerService.IsPaused)
         {
              <div class="d-flex gap-2">
-                <button class="btn btn-lg btn-success px-4" @onclick="StartTimer">
+                <button class="btn btn-lg btn-success px-4" @onclick="RequestStart">
                     <i class="bi bi-play-fill"></i> @Localizer["Resume"]
                 </button>
                 <button class="btn btn-lg btn-danger px-4" @onclick="StopTimer">
@@ -133,12 +141,36 @@
         </div>
     }
     
+    @if (activePlans.Any())
+    {
+        <div class="mt-4 text-start">
+            <p class="small text-muted mb-2">@Localizer["IfThenTitle"]</p>
+            @foreach (var plan in activePlans.Take(3))
+            {
+                <div class="small mb-1">@Localizer["IfLabel"] @plan.IfCue → @plan.ThenAction</div>
+            }
+        </div>
+    }
+
     <div class="mt-4">
         <button class="btn btn-link text-muted text-decoration-none" @onclick="ShowManualEntryModal">
             <small>@Localizer["ForgotToTrack"]</small>
         </button>
     </div>
 </div>
+
+@if (showBreath)
+{
+    <div class="breath-overlay">
+        <div class="breath-circle @breathPhase"></div>
+        <div class="h4 mb-1">@BreathLabel</div>
+        <p class="text-muted mb-3">@Localizer["BreathHint"]</p>
+        <div class="d-flex gap-2 flex-wrap justify-content-center">
+            <button class="btn btn-outline-primary" @onclick="SkipBreath">@Localizer["SkipBreath"]</button>
+            <button class="btn btn-link text-muted" @onclick="SkipBreathForever">@Localizer["SkipBreathAlways"]</button>
+        </div>
+    </div>
+}
 
 @if (showManualEntry)
 {
@@ -212,6 +244,23 @@
     private string manualCustomTask = "";
     private int manualDuration = 30;
     private DateTime manualDate = DateTime.Now;
+    private int volumePercent = 37;
+    private bool skipBreath;
+    private bool showBreath;
+    private string breathPhase = "inhale";
+    private CancellationTokenSource? breathCts;
+    private List<IfThenPlan> activePlans = new();
+    private string? timerUserId;
+
+    private string BreathLabel => breathPhase switch
+    {
+        "inhale" => Localizer["BreathInhale"],
+        "hold-in" => Localizer["BreathHold"],
+        "exhale" => Localizer["BreathExhale"],
+        _ => Localizer["BreathHold"]
+    };
+
+    private double VolumeGain => volumePercent / 100.0 * 0.6;
 
     private double RingPercent => TimerService.IsPomodoroMode
         ? TimerService.Progress
@@ -237,6 +286,32 @@
         };
         
         await LoadTasks();
+
+        var authState = await _authStateProvider.GetAuthenticationStateAsync();
+        timerUserId = authState.User.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+        if (!string.IsNullOrEmpty(timerUserId))
+        {
+            activePlans = await IfThenService.GetActiveAsync(timerUserId);
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+
+        var storedVolume = await LocalStorageService.GetItemAsync<int?>("discipline_volume");
+        if (storedVolume.HasValue)
+        {
+            volumePercent = Math.Clamp(storedVolume.Value, 0, 100);
+        }
+        skipBreath = await LocalStorageService.GetItemAsync<bool>("discipline_skip_breath");
+        await JSRuntime.InvokeVoidAsync("sanctuary.setVolume", VolumeGain);
+
+        if (string.IsNullOrEmpty(timerUserId))
+        {
+            activePlans = await GuestIfThenService.GetActiveAsync();
+        }
+        StateHasChanged();
     }
     
     private async Task LoadTasks()
@@ -275,7 +350,65 @@
         TimerService.Start();
     }
 
-    private async Task StartTimer()
+    private async Task RequestStart()
+    {
+        if (showBreath)
+        {
+            await SkipBreath();
+            return;
+        }
+
+        if (TimerService.IsPaused || TimerService.IsBreakMode || skipBreath)
+        {
+            await BeginSession();
+            return;
+        }
+
+        showBreath = true;
+        breathPhase = "inhale";
+        breathCts?.Cancel();
+        breathCts = new CancellationTokenSource();
+        var token = breathCts.Token;
+        try
+        {
+            foreach (var phase in new[] { "inhale", "hold-in", "exhale", "hold-out" })
+            {
+                breathPhase = phase;
+                StateHasChanged();
+                await Task.Delay(4000, token);
+            }
+            showBreath = false;
+            await BeginSession();
+        }
+        catch (TaskCanceledException)
+        {
+            showBreath = false;
+        }
+    }
+
+    private async Task SkipBreath()
+    {
+        breathCts?.Cancel();
+        showBreath = false;
+        await BeginSession();
+    }
+
+    private async Task SkipBreathForever()
+    {
+        skipBreath = true;
+        await LocalStorageService.SetItemAsync("discipline_skip_breath", true);
+        await SkipBreath();
+    }
+
+    private async Task OnVolumeInput(ChangeEventArgs e)
+    {
+        if (!int.TryParse(e.Value?.ToString(), out var percent)) return;
+        volumePercent = Math.Clamp(percent, 0, 100);
+        await JSRuntime.InvokeVoidAsync("sanctuary.setVolume", VolumeGain);
+        await LocalStorageService.SetItemAsync("discipline_volume", volumePercent);
+    }
+
+    private async Task BeginSession()
     {
         string taskName;
         
@@ -299,6 +432,7 @@
         if (ambient != "off")
         {
             await JSRuntime.InvokeVoidAsync("sanctuary.start", ambient);
+            await JSRuntime.InvokeVoidAsync("sanctuary.setVolume", VolumeGain);
         }
 
         var trackData = System.Text.Json.JsonSerializer.Serialize(new { 
@@ -483,6 +617,7 @@
         if (ambient != "off")
         {
             await JSRuntime.InvokeVoidAsync("sanctuary.start", ambient);
+            await JSRuntime.InvokeVoidAsync("sanctuary.setVolume", VolumeGain);
         }
     }
 
@@ -497,6 +632,7 @@
     {
         ambient = kind;
         await JSRuntime.InvokeVoidAsync("sanctuary.start", kind);
+        await JSRuntime.InvokeVoidAsync("sanctuary.setVolume", VolumeGain);
     }
 
     private async Task HandleKey(KeyboardEventArgs e)
@@ -504,7 +640,7 @@
         if (e.Code == "Space")
         {
             if (TimerService.IsRunning) PauseTimer();
-            else await StartTimer();
+            else await RequestStart();
         }
         else if (e.Code == "Escape" && sanctuary)
         {
@@ -514,6 +650,8 @@
 
     public void Dispose()
     {
+        breathCts?.Cancel();
+        breathCts?.Dispose();
         TimerService.OnTick -= UpdateUI;
         TimerService.OnTimerCompleted -= HandleTimerCompleted;
         _ = JSRuntime.InvokeVoidAsync("sanctuary.exit");

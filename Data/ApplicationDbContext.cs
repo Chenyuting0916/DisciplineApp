@@ -21,6 +21,7 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<HabitLog> HabitLogs { get; set; }
     public DbSet<DailyReflection> DailyReflections { get; set; }
     public DbSet<DailyIntention> DailyIntentions { get; set; }
+    public DbSet<IfThenPlan> IfThenPlans { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -44,6 +45,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<DailyIntention>()
             .HasIndex(i => new { i.UserId, i.Date })
             .IsUnique();
+
+        builder.Entity<IfThenPlan>()
+            .HasIndex(p => p.UserId);
 
         builder.Entity<Habit>()
             .HasMany(h => h.Logs)

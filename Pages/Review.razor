@@ -3,6 +3,9 @@
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 @inject NavigationManager NavigationManager
+@inject IDataExportService DataExportService
+@inject IJSRuntime JSRuntime
+@inject ToastService ToastService
 
 <PageTitle>@Localizer["Review"] — Discipline</PageTitle>
 
@@ -51,6 +54,7 @@
             </div>
 
             <button class="btn btn-primary" @onclick="GoTimer">@Localizer["StartFocusSession"]</button>
+            <button class="btn btn-outline-secondary ms-2" @onclick="ExportData">@Localizer["ExportData"]</button>
         </div>
     </Authorized>
     <NotAuthorized>
@@ -84,4 +88,15 @@
     }
 
     private void GoTimer() => NavigationManager.NavigateTo("/timer");
+
+    private async Task ExportData()
+    {
+        var auth = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var userId = auth.User.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+        if (string.IsNullOrEmpty(userId)) return;
+
+        var json = await DataExportService.ExportJsonAsync(userId);
+        await JSRuntime.InvokeVoidAsync("downloadTextFile", InputGuard.ExportFileName(), json, "application/json");
+        ToastService.ShowSuccess(Localizer["ExportReady"]);
+    }
 }

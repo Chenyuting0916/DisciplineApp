@@ -85,6 +85,20 @@
             }
         };
 
+        window.downloadTextFile = (filename, content, mime) => {
+            if (typeof filename !== 'string' || typeof content !== 'string') return;
+            if (!/^[a-zA-Z0-9._-]+$/.test(filename)) return;
+            var blob = new Blob([content], { type: mime || 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
+        };
+
         window.renderChart = (canvasId, config) => {
             var ctx = document.getElementById(canvasId).getContext('2d');
             if (window.myCharts && window.myCharts[canvasId]) {
@@ -111,7 +125,6 @@
                }
 
                var particleCount = 50 * (timeLeft / duration);
-               // since particles fall down, start a bit higher than random
                confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.1, 0.3), y: Math.random() - 0.2 } }));
                confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 } }));
              }, 250);

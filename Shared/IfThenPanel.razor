@@ -1,0 +1,138 @@
+@inject IIfThenService IfThenService
+@inject GuestIfThenService GuestIfThenService
+@inject ToastService ToastService
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
+
+<div class="vow-card mb-4">
+    <div class="d-flex justify-content-between align-items-center mb-2">
+        <h5 class="mb-0">@Localizer["IfThenTitle"]</h5>
+        <span class="small text-muted">@plans.Count / @InputGuard.MaxIfThenPlans</span>
+    </div>
+    <p class="text-muted small mb-3">@Localizer["IfThenHint"]</p>
+
+    <div class="d-flex flex-wrap gap-2 mb-3">
+        @foreach (var template in templates)
+        {
+            <button class="preset-chip" type="button" @onclick="() => UseTemplate(template)">@template.IfCue → @template.ThenAction</button>
+        }
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-md-5">
+            <input class="form-control" maxlength="80" @bind="ifCue" placeholder="@Localizer["IfPlaceholder"]" />
+        </div>
+        <div class="col-md-5">
+            <input class="form-control" maxlength="80" @bind="thenAction" placeholder="@Localizer["ThenPlaceholder"]" />
+        </div>
+        <div class="col-md-2 d-grid">
+            <button class="btn btn-primary" @onclick="AddPlan">@Localizer["Save"]</button>
+        </div>
+    </div>
+
+    @if (!plans.Any())
+    {
+        <p class="text-muted mb-0">@Localizer["NoIfThen"]</p>
+    }
+    else
+    {
+        <ul class="list-unstyled mb-0">
+            @foreach (var plan in plans)
+            {
+                <li class="ifthen-row">
+                    <div>
+                        <strong>@Localizer["IfLabel"]</strong> @plan.IfCue
+                        <span class="text-muted mx-1">→</span>
+                        <strong>@Localizer["ThenLabel"]</strong> @plan.ThenAction
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger" @onclick="() => DeletePlan(plan)">@Localizer["Delete"]</button>
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    [Parameter] public bool IsGuest { get; set; }
+    [Parameter] public string? UserId { get; set; }
+
+    private List<IfThenPlan> plans = new();
+    private string ifCue = "";
+    private string thenAction = "";
+    private List<IfThenTemplate> templates = new();
+
+    private record IfThenTemplate(string IfCue, string ThenAction);
+
+    protected override async Task OnParametersSetAsync()
+    {
+        templates = new()
+        {
+            new(Localizer["IfThenTpl1If"], Localizer["IfThenTpl1Then"]),
+            new(Localizer["IfThenTpl2If"], Localizer["IfThenTpl2Then"]),
+            new(Localizer["IfThenTpl3If"], Localizer["IfThenTpl3Then"]),
+        };
+        await Reload();
+    }
+
+    public async Task Reload()
+    {
+        if (IsGuest)
+        {
+            plans = await GuestIfThenService.GetActiveAsync();
+        }
+        else if (!string.IsNullOrEmpty(UserId))
+        {
+            plans = await IfThenService.GetActiveAsync(UserId);
+        }
+        else
+        {
+            plans = new();
+        }
+    }
+
+    private void UseTemplate(IfThenTemplate template)
+    {
+        ifCue = template.IfCue;
+        thenAction = template.ThenAction;
+    }
+
+    private async Task AddPlan()
+    {
+        (bool ok, string reason) result;
+        if (IsGuest)
+        {
+            result = await GuestIfThenService.AddAsync(ifCue, thenAction);
+        }
+        else if (!string.IsNullOrEmpty(UserId))
+        {
+            result = await IfThenService.AddAsync(UserId, ifCue, thenAction);
+        }
+        else
+        {
+            return;
+        }
+
+        if (!result.ok)
+        {
+            ToastService.ShowError(result.reason == "limit" ? Localizer["IfThenLimit"] : Localizer["IfThenEmpty"]);
+            return;
+        }
+
+        ifCue = "";
+        thenAction = "";
+        await Reload();
+        ToastService.ShowSuccess(Localizer["IfThenSaved"]);
+    }
+
+    private async Task DeletePlan(IfThenPlan plan)
+    {
+        if (IsGuest)
+        {
+            await GuestIfThenService.DeleteAsync(plan.Id);
+        }
+        else if (!string.IsNullOrEmpty(UserId))
+        {
+            await IfThenService.DeleteAsync(UserId, plan.Id);
+        }
+        await Reload();
+    }
+}

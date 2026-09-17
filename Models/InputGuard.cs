@@ -9,6 +9,10 @@ public static class InputGuard
     public const int VowMax = 140;
     public const int DisplayNameMax = 40;
     public const int FocusTaskMax = 80;
+    public const int MaxHabits = 30;
+    public const int MaxIfThenPlans = 12;
+    public const int MaxExportTasks = 500;
+    public const int MaxExportSessions = 400;
 
     public static readonly string[] AllowedCultures = { "zh-TW", "en", "ja" };
     public static readonly string[] AllowedThemes = { "ember", "forest", "midnight", "rose" };
@@ -41,4 +45,13 @@ public static class InputGuard
 
     public static bool IsAllowedTheme(string? theme)
         => !string.IsNullOrWhiteSpace(theme) && AllowedThemes.Contains(theme);
+
+    public static bool IsSafeHexColor(string? color)
+    {
+        if (string.IsNullOrWhiteSpace(color) || color.Length != 7 || color[0] != '#') return false;
+        return color.Skip(1).All(Uri.IsHexDigit);
+    }
+
+    public static string ExportFileName()
+        => $"discipline-export-{DateTime.UtcNow:yyyyMMdd}.json";
 }

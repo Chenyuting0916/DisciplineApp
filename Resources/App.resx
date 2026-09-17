@@ -783,4 +783,82 @@
   <data name="VowSet" xml:space="preserve">
     <value>Vow locked in.</value>
   </data>
+  <data name="GuestHabitsHint" xml:space="preserve">
+    <value>Guest habits stay on this device. Sign in to sync them to an account.</value>
+  </data>
+  <data name="HabitLimit" xml:space="preserve">
+    <value>You have reached the habit limit.</value>
+  </data>
+  <data name="IfThenTitle" xml:space="preserve">
+    <value>If… then…</value>
+  </data>
+  <data name="IfThenHint" xml:space="preserve">
+    <value>Name the cue, then the action you want to happen automatically. Beats willpower.</value>
+  </data>
+  <data name="IfPlaceholder" xml:space="preserve">
+    <value>If I pick up my phone…</value>
+  </data>
+  <data name="ThenPlaceholder" xml:space="preserve">
+    <value>then open the timer</value>
+  </data>
+  <data name="IfLabel" xml:space="preserve">
+    <value>If</value>
+  </data>
+  <data name="ThenLabel" xml:space="preserve">
+    <value>then</value>
+  </data>
+  <data name="NoIfThen" xml:space="preserve">
+    <value>No plans yet. Start with the cue that usually derails you.</value>
+  </data>
+  <data name="IfThenSaved" xml:space="preserve">
+    <value>Intention saved.</value>
+  </data>
+  <data name="IfThenEmpty" xml:space="preserve">
+    <value>Both if and then are required.</value>
+  </data>
+  <data name="IfThenLimit" xml:space="preserve">
+    <value>You have reached the intention limit.</value>
+  </data>
+  <data name="IfThenTpl1If" xml:space="preserve">
+    <value>I pick up my phone</value>
+  </data>
+  <data name="IfThenTpl1Then" xml:space="preserve">
+    <value>open the timer</value>
+  </data>
+  <data name="IfThenTpl2If" xml:space="preserve">
+    <value>I finish a pomodoro</value>
+  </data>
+  <data name="IfThenTpl2Then" xml:space="preserve">
+    <value>stand up and drink water</value>
+  </data>
+  <data name="IfThenTpl3If" xml:space="preserve">
+    <value>it is 10pm</value>
+  </data>
+  <data name="IfThenTpl3Then" xml:space="preserve">
+    <value>leave the phone in another room</value>
+  </data>
+  <data name="ExportData" xml:space="preserve">
+    <value>Export data</value>
+  </data>
+  <data name="ExportReady" xml:space="preserve">
+    <value>Your data copy has been downloaded.</value>
+  </data>
+  <data name="BreathHint" xml:space="preserve">
+    <value>One round of breath, then start. You can skip.</value>
+  </data>
+  <data name="BreathInhale" xml:space="preserve">
+    <value>Inhale</value>
+  </data>
+  <data name="BreathHold" xml:space="preserve">
+    <value>Hold</value>
+  </data>
+  <data name="BreathExhale" xml:space="preserve">
+    <value>Exhale</value>
+  </data>
+  <data name="SkipBreath" xml:space="preserve">
+    <value>Skip and start</value>
+  </data>
+  <data name="SkipBreathAlways" xml:space="preserve">
+    <value>Don’t show this again</value>
+  </data>
 </root>

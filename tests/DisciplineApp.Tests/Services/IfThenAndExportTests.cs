@@ -1,0 +1,131 @@
+using DisciplineApp.Data;
+using DisciplineApp.Models;
+using DisciplineApp.Services;
+using DisciplineApp.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Moq;
+using Xunit;
+
+namespace DisciplineApp.Tests.Services;
+
+public class IfThenAndExportTests
+{
+    private static ApplicationDbContext CreateDb()
+    {
+        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
+            .UseInMemoryDatabase(Guid.NewGuid().ToString())
+            .Options;
+        return new ApplicationDbContext(options);
+    }
+
+    [Fact]
+    public async Task IfThen_ClampsAndEnforcesLimit()
+    {
+        await using var db = CreateDb();
+        var service = new IfThenService(db);
+
+        var empty = await service.AddAsync("u1", "   ", "do it");
+        Assert.False(empty.ok);
+        Assert.Equal("empty", empty.reason);
+
+        var longCue = new string('a', 200);
+        var added = await service.AddAsync("u1", longCue, "open timer");
+        Assert.True(added.ok);
+
+        var plans = await service.GetActiveAsync("u1");
+        Assert.Single(plans);
+        Assert.Equal(InputGuard.TitleMax, plans[0].IfCue.Length);
+
+        for (int i = 0; i < InputGuard.MaxIfThenPlans - 1; i++)
+        {
+            var result = await service.AddAsync("u1", $"cue {i}", $"act {i}");
+            Assert.True(result.ok);
+        }
+
+        var over = await service.AddAsync("u1", "overflow", "nope");
+        Assert.False(over.ok);
+        Assert.Equal("limit", over.reason);
+        Assert.Equal(InputGuard.MaxIfThenPlans, await db.IfThenPlans.CountAsync(p => p.UserId == "u1"));
+    }
+
+    [Fact]
+    public async Task IfThen_DeleteOnlyOwnPlan()
+    {
+        await using var db = CreateDb();
+        var service = new IfThenService(db);
+        await service.AddAsync("u1", "phone", "timer");
+        await service.AddAsync("u2", "night", "sleep");
+        var other = await db.IfThenPlans.SingleAsync(p => p.UserId == "u2");
+
+        var deleted = await service.DeleteAsync("u1", other.Id);
+        Assert.False(deleted);
+        Assert.Equal(1, await db.IfThenPlans.CountAsync(p => p.UserId == "u2"));
+    }
+
+    [Fact]
+    public async Task Export_OnlyIncludesThatUser()
+    {
+        await using var db = CreateDb();
+        db.UserTasks.Add(new UserTask { UserId = "u1", Title = "mine", Date = DateTime.Today });
+        db.UserTasks.Add(new UserTask { UserId = "u2", Title = "secret-other-user", Date = DateTime.Today });
+        db.FocusSessions.Add(new FocusSession
+        {
+            UserId = "u1",
+            TaskTag = "essay",
+            DurationMinutes = 25,
+            StartTime = DateTime.UtcNow.AddMinutes(-25),
+            EndTime = DateTime.UtcNow,
+            IsPomodoro = true
+        });
+        db.FocusSessions.Add(new FocusSession
+        {
+            UserId = "u2",
+            TaskTag = "private",
+            DurationMinutes = 50,
+            StartTime = DateTime.UtcNow.AddMinutes(-50),
+            EndTime = DateTime.UtcNow
+        });
+        db.IfThenPlans.Add(new IfThenPlan { UserId = "u1", IfCue = "desk", ThenAction = "sit", CreatedAt = DateTime.UtcNow });
+        await db.SaveChangesAsync();
+
+        var json = await new DataExportService(db).ExportJsonAsync("u1");
+
+        Assert.Contains("mine", json);
+        Assert.Contains("essay", json);
+        Assert.Contains("desk", json);
+        Assert.DoesNotContain("secret-other-user", json);
+        Assert.DoesNotContain("private", json);
+        Assert.DoesNotContain("u2", json);
+    }
+
+    [Fact]
+    public void InputGuard_HexColorAndExportName()
+    {
+        Assert.True(InputGuard.IsSafeHexColor("#F5A524"));
+        Assert.False(InputGuard.IsSafeHexColor("red"));
+        Assert.False(InputGuard.IsSafeHexColor("#fff"));
+        Assert.False(InputGuard.IsSafeHexColor("#GG0000"));
+        Assert.False(InputGuard.IsSafeHexColor("javascript:alert(1)"));
+        Assert.Matches("^discipline-export-\\d{8}\\.json$", InputGuard.ExportFileName());
+    }
+
+    [Fact]
+    public async Task HabitService_RejectsBeyondCapAndUnsafeColor()
+    {
+        await using var db = CreateDb();
+        var habits = new HabitService(db, new Mock<IGamificationService>().Object);
+
+        var first = await habits.AddHabitAsync("u1", "Read", "📚", "not-a-color");
+        Assert.NotNull(first);
+        Assert.Equal("#F5A524", first!.Color);
+
+        for (int i = 0; i < InputGuard.MaxHabits - 1; i++)
+        {
+            var added = await habits.AddHabitAsync("u1", $"h{i}", "✅", "#38bdf8");
+            Assert.NotNull(added);
+        }
+
+        var overflow = await habits.AddHabitAsync("u1", "too many", "✅", "#38bdf8");
+        Assert.Null(overflow);
+    }
+}
