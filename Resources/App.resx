@@ -871,7 +871,7 @@
     <value>The file downloads to your device only. The server does not keep a copy, and it never includes anyone else’s data.</value>
   </data>
   <data name="TimerShortcuts" xml:space="preserve">
-    <value>Space starts or pauses · Esc leaves sanctuary</value>
+    <value>Space starts or pauses · 1/2/3 pick 15/25/50 min · Esc leaves sanctuary</value>
   </data>
   <data name="StretchNeck" xml:space="preserve">
     <value>Slowly drop each ear toward the shoulder and hold 20 seconds.</value>
@@ -911,5 +911,8 @@
   </data>
   <data name="NotNow" xml:space="preserve">
     <value>Not now</value>
+  </data>
+  <data name="OneMoreSession" xml:space="preserve">
+    <value>One more</value>
   </data>
 </root>

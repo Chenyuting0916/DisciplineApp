@@ -120,4 +120,24 @@ public class GuestJournalAndStretchTests
         Assert.Null(FocusTaskMatcher.FindOpen(tasks, "", null));
         Assert.Null(FocusTaskMatcher.FindOpen(null, "Write", null));
     }
+
+    [Fact]
+    public void FocusTaskMatcher_PrefillsFromOneThing()
+    {
+        var tasks = new List<UserTask>
+        {
+            new() { Id = 1, Title = "Complete testing", IsCompleted = false }
+        };
+
+        var match = FocusTaskMatcher.Prefill(tasks, "Complete testing");
+        Assert.Equal("Complete testing", match.FocusTask);
+        Assert.Equal("", match.CustomTitle);
+
+        var custom = FocusTaskMatcher.Prefill(tasks, "Write the essay");
+        Assert.Equal("custom", custom.FocusTask);
+        Assert.Equal("Write the essay", custom.CustomTitle);
+
+        var empty = FocusTaskMatcher.Prefill(tasks, "   ");
+        Assert.Equal("", empty.FocusTask);
+    }
 }

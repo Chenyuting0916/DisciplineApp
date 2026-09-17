@@ -16,4 +16,13 @@ public static class FocusTaskMatcher
 
         return tasks.FirstOrDefault(t => !t.IsCompleted && t.Title == title);
     }
+
+    public static (string FocusTask, string CustomTitle) Prefill(IEnumerable<UserTask>? tasks, string? oneThing)
+    {
+        var title = InputGuard.Clamp(oneThing, InputGuard.FocusTaskMax);
+        if (string.IsNullOrWhiteSpace(title)) return ("", "");
+
+        var match = FindOpen(tasks, title, null);
+        return match != null ? (match.Title, "") : ("custom", title);
+    }
 }

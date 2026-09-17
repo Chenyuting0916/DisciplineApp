@@ -871,7 +871,7 @@
     <value>ファイルはこの端末にだけ保存されます。サーバーにコピーは残らず、他人のデータも含みません。</value>
   </data>
   <data name="TimerShortcuts" xml:space="preserve">
-    <value>Space で開始/停止 · Esc で聖域を出る</value>
+    <value>Space で開始/停止 · 1/2/3 で 15/25/50 分 · Esc で聖域を出る</value>
   </data>
   <data name="StretchNeck" xml:space="preserve">
     <value>耳を肩に近づけ、左右それぞれ 20 秒。</value>
@@ -911,5 +911,8 @@
   </data>
   <data name="NotNow" xml:space="preserve">
     <value>あとで</value>
+  </data>
+  <data name="OneMoreSession" xml:space="preserve">
+    <value>もう一回</value>
   </data>
 </root>

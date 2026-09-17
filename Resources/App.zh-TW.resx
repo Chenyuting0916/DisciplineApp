@@ -871,7 +871,7 @@
     <value>檔案只會下載到你的裝置。伺服器不會另外存一份，也不含其他人的資料。</value>
   </data>
   <data name="TimerShortcuts" xml:space="preserve">
-    <value>空白鍵開始或暫停 · Esc 離開聖域</value>
+    <value>空白鍵開始或暫停 · 1/2/3 選 15/25/50 分 · Esc 離開聖域</value>
   </data>
   <data name="StretchNeck" xml:space="preserve">
     <value>慢慢把耳朵靠近肩膀，左右各停 20 秒。</value>
@@ -911,5 +911,8 @@
   </data>
   <data name="NotNow" xml:space="preserve">
     <value>先不要</value>
+  </data>
+  <data name="OneMoreSession" xml:space="preserve">
+    <value>再來一顆</value>
   </data>
 </root>
