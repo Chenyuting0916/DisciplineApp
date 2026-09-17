@@ -131,14 +131,20 @@
 
     @if (offerBreak)
     {
-        <div class="mt-4">
+        <div class="mt-4 stretch-card">
             <p class="text-muted mb-2">@Localizer["TakeABreak"]</p>
-            <div class="d-flex justify-content-center gap-2">
+            <p class="mb-3">🧘 @Localizer[StretchKey]</p>
+            <div class="d-flex justify-content-center gap-2 flex-wrap">
                 <button class="btn btn-outline-primary" @onclick="@(() => BeginBreak(false))">@Localizer["ShortBreak"] · 5m</button>
                 <button class="btn btn-outline-primary" @onclick="@(() => BeginBreak(true))">@Localizer["LongBreak"] · 15m</button>
                 <button class="btn btn-link text-muted" @onclick="() => offerBreak = false">@Localizer["ContinueFocusing"]</button>
             </div>
         </div>
+    }
+
+    @if (TimerService.IsBreakMode)
+    {
+        <p class="mt-3 mb-0">🧘 @Localizer[StretchKey]</p>
     }
     
     @if (activePlans.Any())
@@ -156,6 +162,7 @@
         <button class="btn btn-link text-muted text-decoration-none" @onclick="ShowManualEntryModal">
             <small>@Localizer["ForgotToTrack"]</small>
         </button>
+        <div class="small text-muted mt-2">@Localizer["TimerShortcuts"]</div>
     </div>
 </div>
 
@@ -261,6 +268,7 @@
     };
 
     private double VolumeGain => volumePercent / 100.0 * 0.6;
+    private string StretchKey => BreakStretchCatalog.KeyFor(TimerService.CompletedPomodoros);
 
     private double RingPercent => TimerService.IsPomodoroMode
         ? TimerService.Progress

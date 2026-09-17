@@ -861,4 +861,43 @@
   <data name="SkipBreathAlways" xml:space="preserve">
     <value>次回から表示しない</value>
   </data>
+  <data name="GuestHomeHint" xml:space="preserve">
+    <value>この端末で誓いとチェックインを残す。同期するにはログイン。</value>
+  </data>
+  <data name="WeekProgress" xml:space="preserve">
+    <value>今週 {0}/{1} 日</value>
+  </data>
+  <data name="ExportPrivacyNote" xml:space="preserve">
+    <value>ファイルはこの端末にだけ保存されます。サーバーにコピーは残らず、他人のデータも含みません。</value>
+  </data>
+  <data name="TimerShortcuts" xml:space="preserve">
+    <value>Space で開始/停止 · Esc で聖域を出る</value>
+  </data>
+  <data name="StretchNeck" xml:space="preserve">
+    <value>耳を肩に近づけ、左右それぞれ 20 秒。</value>
+  </data>
+  <data name="StretchShoulders" xml:space="preserve">
+    <value>手を組んで上に伸ばし、肩甲骨を下げる。</value>
+  </data>
+  <data name="StretchStand" xml:space="preserve">
+    <value>立ち上がって膝をゆるめ、足首を回す。</value>
+  </data>
+  <data name="StretchEyes" xml:space="preserve">
+    <value>6 メートル先を 20 秒見て、目を休める。</value>
+  </data>
+  <data name="StretchWalk" xml:space="preserve">
+    <value>画面から離れて一周し、水を飲んで戻る。</value>
+  </data>
+  <data name="OfflineBanner" xml:space="preserve">
+    <value>オフラインです。データはこの端末に残ります。</value>
+  </data>
+  <data name="GuestReviewHint" xml:space="preserve">
+    <value>この端末のゲスト週報です。集中分数とレベルはログイン後。</value>
+  </data>
+  <data name="ReviewGuestEmpty" xml:space="preserve">
+    <value>今週のゲスト記録はまだない。習慣か誓いから。</value>
+  </data>
+  <data name="ReviewGuestLetter" xml:space="preserve">
+    <value>今週この端末で習慣 {0} 回、タスク {1} 件、誓い {2} 日。</value>
+  </data>
 </root>

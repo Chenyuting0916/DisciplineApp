@@ -861,4 +861,43 @@
   <data name="SkipBreathAlways" xml:space="preserve">
     <value>Don’t show this again</value>
   </data>
+  <data name="GuestHomeHint" xml:space="preserve">
+    <value>Set today’s vow and check-in on this device. Sign in to sync them to an account.</value>
+  </data>
+  <data name="WeekProgress" xml:space="preserve">
+    <value>{0}/{1} days this week</value>
+  </data>
+  <data name="ExportPrivacyNote" xml:space="preserve">
+    <value>The file downloads to your device only. The server does not keep a copy, and it never includes anyone else’s data.</value>
+  </data>
+  <data name="TimerShortcuts" xml:space="preserve">
+    <value>Space starts or pauses · Esc leaves sanctuary</value>
+  </data>
+  <data name="StretchNeck" xml:space="preserve">
+    <value>Slowly drop each ear toward the shoulder and hold 20 seconds.</value>
+  </data>
+  <data name="StretchShoulders" xml:space="preserve">
+    <value>Clasp your hands and reach up while dropping the shoulder blades.</value>
+  </data>
+  <data name="StretchStand" xml:space="preserve">
+    <value>Stand up, soften the knees, and roll each ankle.</value>
+  </data>
+  <data name="StretchEyes" xml:space="preserve">
+    <value>Look 20 feet away for 20 seconds and let your eyes rest.</value>
+  </data>
+  <data name="StretchWalk" xml:space="preserve">
+    <value>Leave the screen, walk a loop, and drink water before you return.</value>
+  </data>
+  <data name="OfflineBanner" xml:space="preserve">
+    <value>You’re offline. Your data stays on this device.</value>
+  </data>
+  <data name="GuestReviewHint" xml:space="preserve">
+    <value>This is the guest week on this device. Sign in for focus minutes and levels.</value>
+  </data>
+  <data name="ReviewGuestEmpty" xml:space="preserve">
+    <value>No guest activity this week yet. Check a habit or write a vow first.</value>
+  </data>
+  <data name="ReviewGuestLetter" xml:space="preserve">
+    <value>This week on this device you checked habits {0} times, finished {1} tasks, and set a vow on {2} days.</value>
+  </data>
 </root>

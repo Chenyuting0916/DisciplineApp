@@ -4,6 +4,10 @@
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 @inject NavigationManager NavigationManager
 @inject IDataExportService DataExportService
+@inject GuestExportService GuestExportService
+@inject GuestHabitService GuestHabitService
+@inject GuestTaskService GuestTaskService
+@inject GuestJournalService GuestJournalService
 @inject IJSRuntime JSRuntime
 @inject ToastService ToastService
 
@@ -55,13 +59,39 @@
 
             <button class="btn btn-primary" @onclick="GoTimer">@Localizer["StartFocusSession"]</button>
             <button class="btn btn-outline-secondary ms-2" @onclick="ExportData">@Localizer["ExportData"]</button>
+            <p class="text-muted small mt-3 mb-0">@Localizer["ExportPrivacyNote"]</p>
         </div>
     </Authorized>
     <NotAuthorized>
-        <section class="hero-landing">
-            <h1>@Localizer["Review"]</h1>
-            <p class="lead">@Localizer["PleaseLoginHistory"]</p>
-        </section>
+        <div class="dashboard-container pt-4 pb-5">
+            <p class="hero-kicker mb-2">@Localizer["Review"]</p>
+            <h1 class="review-hero mb-3">@Localizer["ReviewHeadline"]</h1>
+            <p class="text-muted mb-4">@GuestLetter</p>
+
+            <div class="stat-grid mb-4">
+                <div class="stat-card">
+                    <div class="label">@Localizer["Habits"]</div>
+                    <div class="value">@guestReview.HabitChecks</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">@Localizer["TasksToday"]</div>
+                    <div class="value">@guestReview.TasksCompleted</div>
+                </div>
+                <div class="stat-card streak">
+                    <div class="label">@Localizer["DailyVow"]</div>
+                    <div class="value">@guestReview.SessionCount</div>
+                </div>
+                <div class="stat-card coins">
+                    <div class="label">@Localizer["Streak"]</div>
+                    <div class="value">🔥 @guestReview.CurrentStreak</div>
+                </div>
+            </div>
+
+            <p class="text-muted small mb-4">@Localizer["GuestReviewHint"]</p>
+            <button class="btn btn-primary" @onclick="GoTimer">@Localizer["StartFocusSession"]</button>
+            <button class="btn btn-outline-secondary ms-2" @onclick="ExportGuest">@Localizer["ExportData"]</button>
+            <p class="text-muted small mt-3 mb-0">@Localizer["ExportPrivacyNote"]</p>
+        </div>
     </NotAuthorized>
 </AuthorizeView>
 
@@ -71,20 +101,38 @@
 
 @code {
     private WeeklyReview review = new();
+    private WeeklyReview guestReview = new();
+    private bool isGuest;
 
     private string ReviewLetter =>
         review.FocusMinutes < 1
             ? Localizer["ReviewEmpty"]
             : string.Format(Localizer["ReviewLetter"], (int)review.FocusMinutes, review.SessionCount, review.CurrentStreak);
 
+    private string GuestLetter =>
+        guestReview.HabitChecks < 1 && guestReview.TasksCompleted < 1 && guestReview.SessionCount < 1
+            ? Localizer["ReviewGuestEmpty"]
+            : string.Format(Localizer["ReviewGuestLetter"], guestReview.HabitChecks, guestReview.TasksCompleted, guestReview.SessionCount);
+
     protected override async Task OnInitializedAsync()
     {
         var auth = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         var userId = auth.User.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+        isGuest = string.IsNullOrEmpty(userId);
         if (!string.IsNullOrEmpty(userId))
         {
             review = await GamificationService.GetWeeklyReviewAsync(userId);
         }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender || !isGuest) return;
+        var habits = await GuestHabitService.GetHabitsAsync();
+        var tasks = await GuestTaskService.GetAllAsync();
+        var days = await GuestJournalService.GetAllAsync();
+        guestReview = GuestJournalLogic.BuildReview(habits, tasks, days, DateTime.UtcNow);
+        StateHasChanged();
     }
 
     private void GoTimer() => NavigationManager.NavigateTo("/timer");
@@ -96,6 +144,13 @@
         if (string.IsNullOrEmpty(userId)) return;
 
         var json = await DataExportService.ExportJsonAsync(userId);
+        await JSRuntime.InvokeVoidAsync("downloadTextFile", InputGuard.ExportFileName(), json, "application/json");
+        ToastService.ShowSuccess(Localizer["ExportReady"]);
+    }
+
+    private async Task ExportGuest()
+    {
+        var json = await GuestExportService.ExportJsonAsync();
         await JSRuntime.InvokeVoidAsync("downloadTextFile", InputGuard.ExportFileName(), json, "application/json");
         ToastService.ShowSuccess(Localizer["ExportReady"]);
     }

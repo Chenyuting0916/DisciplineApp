@@ -1,7 +1,9 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Web
+@using DisciplineApp
 @namespace DisciplineApp.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> HostLocalizer
 
 <!DOCTYPE html>
 <html lang="en">
@@ -61,6 +63,7 @@
 }
 
     <component type="typeof(App)" render-mode="ServerPrerendered" param-AccessToken="accessToken" />
+    <div id="offline-banner" hidden>@HostLocalizer["OfflineBanner"]</div>
 
     <!-- <div id="blazor-error-ui">
         <environment include="Staging,Production">
@@ -129,6 +132,17 @@
                confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 } }));
              }, 250);
         };
+
+        (function () {
+            var banner = document.getElementById('offline-banner');
+            function syncOffline() {
+                if (!banner) return;
+                banner.hidden = navigator.onLine;
+            }
+            window.addEventListener('online', syncOffline);
+            window.addEventListener('offline', syncOffline);
+            syncOffline();
+        })();
     </script>
 </body>
 </html>

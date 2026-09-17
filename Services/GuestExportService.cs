@@ -10,12 +10,18 @@ public class GuestExportService
     private readonly GuestTaskService _tasks;
     private readonly GuestHabitService _habits;
     private readonly GuestIfThenService _plans;
+    private readonly GuestJournalService _journal;
 
-    public GuestExportService(GuestTaskService tasks, GuestHabitService habits, GuestIfThenService plans)
+    public GuestExportService(
+        GuestTaskService tasks,
+        GuestHabitService habits,
+        GuestIfThenService plans,
+        GuestJournalService journal)
     {
         _tasks = tasks;
         _habits = habits;
         _plans = plans;
+        _journal = journal;
     }
 
     public async Task<string> ExportJsonAsync()
@@ -23,6 +29,7 @@ public class GuestExportService
         var tasks = await _tasks.GetAllAsync();
         var habits = await _habits.GetAllIncludingArchivedAsync();
         var plans = await _plans.GetAllAsync();
+        var days = await _journal.GetAllAsync();
 
         var payload = new UserDataExport
         {
@@ -52,6 +59,18 @@ public class GuestExportService
                 ThenAction = p.ThenAction,
                 IsActive = p.IsActive,
                 CreatedAt = p.CreatedAt
+            }).ToList(),
+            Intentions = days.OrderByDescending(d => d.Date).Take(365).Select(d => new IntentionExportItem
+            {
+                Date = d.Date,
+                Vow = d.Vow,
+                OneThing = d.OneThing
+            }).ToList(),
+            Reflections = days.OrderByDescending(d => d.Date).Take(365).Select(d => new ReflectionExportItem
+            {
+                Date = d.Date,
+                Mood = d.Mood,
+                Note = d.Note
             }).ToList()
         };
 
