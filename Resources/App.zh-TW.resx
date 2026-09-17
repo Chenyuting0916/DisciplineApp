@@ -939,4 +939,25 @@
   <data name="HistoryEmpty" xml:space="preserve">
     <value>還沒有專注紀錄。先去開始一場。</value>
   </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>找不到這個頁面</value>
+  </data>
+  <data name="NotFoundBody" xml:space="preserve">
+    <value>這個網址沒有內容。可以回首頁，或直接開始專注。訪客紀錄仍只在這台裝置。</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>出了一點問題</value>
+  </data>
+  <data name="ErrorBody" xml:space="preserve">
+    <value>請再試一次，或回首頁、開始專注。訪客紀錄仍只在這台裝置。</value>
+  </data>
+  <data name="RequestId" xml:space="preserve">
+    <value>請求編號</value>
+  </data>
+  <data name="DevelopmentMode" xml:space="preserve">
+    <value>開發模式</value>
+  </data>
+  <data name="DevelopmentModeHint" xml:space="preserve">
+    <value>詳細錯誤只會在這台電腦以 Development 執行時顯示。公開網站不要開啟。</value>
+  </data>
 </root>
