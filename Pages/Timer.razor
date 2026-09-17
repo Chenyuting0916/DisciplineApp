@@ -530,7 +530,10 @@
             taskName = TimerService.IsBreakMode ? Localizer["Break"] : (Localizer["Focus Session"] ?? "Focus Session");
         }
         
-        TimerService.FocusTask = InputGuard.Clamp(taskName, InputGuard.FocusTaskMax);
+        var resolved = InputGuard.Clamp(taskName, InputGuard.FocusTaskMax);
+        var kept = FocusTaskMatcher.KeepAfterStart(todayTasks, TimerService.FocusTask, customFocusTask, resolved);
+        TimerService.FocusTask = kept.FocusTask;
+        customFocusTask = kept.CustomTitle;
         TimerService.Start();
         pendingTask = null;
         offerAnother = false;
@@ -545,7 +548,7 @@
 
         var trackData = System.Text.Json.JsonSerializer.Serialize(new { 
             Mode = TimerService.IsBreakMode ? "Break" : TimerService.IsPomodoroMode ? "Pomodoro" : "Stopwatch",
-            Task = TimerService.FocusTask 
+            Task = resolved
         });
         await AnalyticsService.TrackEventAsync("Timer_Start", "Timer", trackData);
     }

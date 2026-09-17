@@ -140,4 +140,24 @@ public class GuestJournalAndStretchTests
         var empty = FocusTaskMatcher.Prefill(tasks, "   ");
         Assert.Equal("", empty.FocusTask);
     }
+
+    [Fact]
+    public void FocusTaskMatcher_KeepsCustomAfterStartWhenNotListed()
+    {
+        var tasks = new List<UserTask>
+        {
+            new() { Id = 1, Title = "Inbox", IsCompleted = false }
+        };
+
+        var custom = FocusTaskMatcher.KeepAfterStart(tasks, "custom", "寫完今日報告", "寫完今日報告");
+        Assert.Equal("custom", custom.FocusTask);
+        Assert.Equal("寫完今日報告", custom.CustomTitle);
+
+        var listed = FocusTaskMatcher.KeepAfterStart(tasks, "Inbox", "", "Inbox");
+        Assert.Equal("Inbox", listed.FocusTask);
+
+        var none = FocusTaskMatcher.KeepAfterStart(Array.Empty<UserTask>(), "", "Solo", "Solo");
+        Assert.Equal("Solo", none.FocusTask);
+        Assert.Equal("Solo", none.CustomTitle);
+    }
 }

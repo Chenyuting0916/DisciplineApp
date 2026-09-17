@@ -25,4 +25,17 @@ public static class FocusTaskMatcher
         var match = FindOpen(tasks, title, null);
         return match != null ? (match.Title, "") : ("custom", title);
     }
+
+    public static (string FocusTask, string CustomTitle) KeepAfterStart(
+        IEnumerable<UserTask>? tasks, string? focusTask, string? customTitle, string resolved)
+    {
+        resolved = InputGuard.Clamp(resolved, InputGuard.FocusTaskMax);
+        var listed = tasks != null && tasks.Any();
+        if (string.Equals(focusTask, "custom", StringComparison.Ordinal) || !listed)
+        {
+            return listed ? ("custom", resolved) : (resolved, resolved);
+        }
+
+        return (resolved, customTitle ?? "");
+    }
 }
