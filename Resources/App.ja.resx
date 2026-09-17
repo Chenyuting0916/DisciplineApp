@@ -963,4 +963,31 @@
   <data name="HeatmapActivityCount" xml:space="preserve">
     <value>{0} 回</value>
   </data>
+  <data name="CalendarTitle" xml:space="preserve">
+    <value>カレンダー</value>
+  </data>
+  <data name="CalendarGuestHint" xml:space="preserve">
+    <value>Google カレンダーはログイン中の Google アカウントにあります。この端末のゲスト集中は送らず、取り込みもしません。</value>
+  </data>
+  <data name="UpcomingEvents" xml:space="preserve">
+    <value>今後の予定</value>
+  </data>
+  <data name="NoUpcomingEvents" xml:space="preserve">
+    <value>今後の予定はありません。</value>
+  </data>
+  <data name="GoogleTasks" xml:space="preserve">
+    <value>Google タスク</value>
+  </data>
+  <data name="NoGoogleTasks" xml:space="preserve">
+    <value>Google タスクはありません。</value>
+  </data>
+  <data name="AllDay" xml:space="preserve">
+    <value>終日</value>
+  </data>
+  <data name="DueLabel" xml:space="preserve">
+    <value>期限</value>
+  </data>
+  <data name="CalendarLoadFailed" xml:space="preserve">
+    <value>Google カレンダーを読み込めませんでした。端末の集中は変わっていません。</value>
+  </data>
 </root>
