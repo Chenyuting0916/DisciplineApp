@@ -13,4 +13,6 @@ public class WeeklyReview
     public int LongestStreak { get; set; }
     public int Level { get; set; }
     public int VowDays { get; set; }
+    public int MoodCheckIns { get; set; }
+    public int AverageMood { get; set; }
 }

@@ -16,11 +16,11 @@
             <!-- Day labels -->
             <div class="day-labels">
                 <div class="day-label"></div>
-                <div class="day-label">Mon</div>
+                <div class="day-label">@HeatmapCopy.DayLabel(DayOfWeek.Monday, CultureInfo.CurrentUICulture)</div>
                 <div class="day-label"></div>
-                <div class="day-label">Wed</div>
+                <div class="day-label">@HeatmapCopy.DayLabel(DayOfWeek.Wednesday, CultureInfo.CurrentUICulture)</div>
                 <div class="day-label"></div>
-                <div class="day-label">Fri</div>
+                <div class="day-label">@HeatmapCopy.DayLabel(DayOfWeek.Friday, CultureInfo.CurrentUICulture)</div>
                 <div class="day-label"></div>
             </div>
             
@@ -33,7 +33,7 @@
                         for (int i = 0; i < 53; i++)
                         {
                             var weekStart = StartDate.AddDays(i * 7);
-                            var monthName = weekStart.ToString("MMM");
+                            var monthName = HeatmapCopy.MonthLabel(weekStart, CultureInfo.CurrentUICulture);
                             
                             if (monthName != currentMonth && i % 4 == 0)
                             {
@@ -60,7 +60,7 @@
                                 {
                                     var count = ActivityData.ContainsKey(date) ? ActivityData[date] : 0;
                                     var level = GetLevel(count);
-                                    <div class="heatmap-day level-@level" data-tooltip="@date.ToString("yyyy-MM-dd"): @count activities"></div>
+                                    <div class="heatmap-day level-@level" data-tooltip="@HeatmapCopy.Tooltip(date, count, Localizer["HeatmapActivityCount"])"></div>
                                 }
                                 else
                                 {
@@ -74,13 +74,13 @@
         </div>
         
         <div class="heatmap-legend mt-3">
-            <span class="text-muted small me-2">Less</span>
+            <span class="text-muted small me-2">@Localizer["HeatmapLess"]</span>
             <div class="heatmap-day level-0"></div>
             <div class="heatmap-day level-1"></div>
             <div class="heatmap-day level-2"></div>
             <div class="heatmap-day level-3"></div>
             <div class="heatmap-day level-4"></div>
-            <span class="text-muted small ms-2">More</span>
+            <span class="text-muted small ms-2">@Localizer["HeatmapMore"]</span>
         </div>
         @if (!string.IsNullOrWhiteSpace(Hint))
         {

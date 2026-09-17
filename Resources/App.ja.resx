@@ -426,6 +426,9 @@
   <data name="StreakSaved" xml:space="preserve">
     <value>連続記録を保護しました。今日もう一つ完了すればつながります。</value>
   </data>
+  <data name="GuestStreakAtRiskHint" xml:space="preserve">
+    <value>今日ひとつやれば連続を残せます。集中か習慣。この端末に残ります。コインは使いません。</value>
+  </data>
   <data name="SetGoal" xml:space="preserve">
     <value>目標を設定</value>
   </data>
@@ -741,6 +744,9 @@
   <data name="ReviewVowDays" xml:space="preserve">
     <value>誓い {0} 日</value>
   </data>
+  <data name="ReviewMoodSummary" xml:space="preserve">
+    <value>気分チェックイン {0} 日 · {1}</value>
+  </data>
   <data name="ReviewLevel" xml:space="preserve">
     <value>レベル {0} · 最長連続 {1}</value>
   </data>
@@ -936,8 +942,26 @@
   <data name="GuestStartToday" xml:space="preserve">
     <value>今日から始める</value>
   </data>
+  <data name="ReviewNudgeTitle" xml:space="preserve">
+    <value>この回は記録しました。今週を見てみましょう。</value>
+  </data>
+  <data name="ReviewNudgeGoal" xml:space="preserve">
+    <value>今日の目標に届きました。今週の記録を見てください。</value>
+  </data>
+  <data name="GoToReview" xml:space="preserve">
+    <value>週報を見る</value>
+  </data>
   <data name="HistoryEmpty" xml:space="preserve">
     <value>まだ集中記録がありません。先に1回始めましょう。</value>
+  </data>
+  <data name="HeatmapLess" xml:space="preserve">
+    <value>少</value>
+  </data>
+  <data name="HeatmapMore" xml:space="preserve">
+    <value>多</value>
+  </data>
+  <data name="HeatmapActivityCount" xml:space="preserve">
+    <value>{0} 回</value>
   </data>
   <data name="ShortcutsTitle" xml:space="preserve">
     <value>キーボードショートカット</value>
