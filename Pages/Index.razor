@@ -236,12 +236,12 @@
     <NotAuthorized>
         <div class="dashboard-container pt-3 pb-4">
             <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
-                <div>
+                <div class="guest-home-intro">
                     <p class="hero-kicker mb-1">@Greeting</p>
                     <h1 class="mb-1">@Localizer["GuestStartToday"]</h1>
                     <p class="text-muted mb-0">@Localizer["GuestHomeHint"]</p>
                 </div>
-                <div class="d-flex align-items-center gap-2 flex-wrap">
+                <div class="d-flex align-items-center gap-2 flex-wrap flex-shrink-0">
                     <button class="btn btn-outline-primary" @onclick="ShowLoginModal">@Localizer["LandingCta"]</button>
                     <button class="btn btn-primary" @onclick="GoToTimer">
                         <i class="bi bi-play-fill"></i> @Localizer["StartFocusSession"]

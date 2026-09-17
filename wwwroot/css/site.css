@@ -260,6 +260,11 @@ a:hover {
     margin-bottom: 0;
 }
 
+.guest-home-intro {
+    max-width: 34rem;
+    min-width: 0;
+}
+
 .feature-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
