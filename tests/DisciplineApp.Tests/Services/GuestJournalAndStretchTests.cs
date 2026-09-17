@@ -1,4 +1,5 @@
 using DisciplineApp.Models;
+using DisciplineApp.Services;
 using Xunit;
 
 namespace DisciplineApp.Tests.Services;
@@ -84,5 +85,18 @@ public class GuestJournalAndStretchTests
         Assert.Equal("StretchShoulders", BreakStretchCatalog.KeyFor(1));
         Assert.Equal(BreakStretchCatalog.KeyFor(0), BreakStretchCatalog.KeyFor(BreakStretchCatalog.Keys.Length));
         Assert.Equal("StretchNeck", BreakStretchCatalog.KeyFor(-5));
+    }
+
+    [Fact]
+    public void TimerService_ClampsCustomMinutes()
+    {
+        using var timer = new TimerService();
+        timer.SetPomodoroMinutes(2);
+        Assert.Equal(InputGuard.PomodoroMinMinutes, timer.PomodoroMinutes);
+        timer.SetPomodoroMinutes(240);
+        Assert.Equal(InputGuard.PomodoroMaxMinutes, timer.PomodoroMinutes);
+        timer.SetPomodoroMinutes(40);
+        Assert.Equal(40, timer.PomodoroMinutes);
+        Assert.Equal(40, timer.DefaultPomodoroTime.TotalMinutes);
     }
 }

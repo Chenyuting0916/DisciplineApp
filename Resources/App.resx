@@ -900,4 +900,7 @@
   <data name="ReviewGuestLetter" xml:space="preserve">
     <value>This week on this device you checked habits {0} times, finished {1} tasks, and set a vow on {2} days.</value>
   </data>
+  <data name="CustomMinutes" xml:space="preserve">
+    <value>Custom</value>
+  </data>
 </root>

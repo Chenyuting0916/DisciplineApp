@@ -12,6 +12,9 @@
 @inject LocalStorageService LocalStorageService
 @inject IIfThenService IfThenService
 @inject GuestIfThenService GuestIfThenService
+@inject GuestTaskService GuestTaskService
+@inject GuestJournalService GuestJournalService
+@inject IIntentionService IntentionService
 @implements IDisposable
 
 <PageTitle>@Localizer["Timer"] — Discipline</PageTitle>
@@ -57,13 +60,22 @@
 
     @if (TimerService.IsPomodoroMode && !TimerService.IsBreakMode)
     {
-        <div class="d-flex justify-content-center gap-2 mb-4">
+        <div class="d-flex justify-content-center gap-2 mb-4 flex-wrap align-items-center">
             @foreach (var preset in new[] { 15, 25, 50 })
             {
                 <button class="preset-chip @(TimerService.PomodoroMinutes == preset ? "active" : "")"
-                        @onclick="@(() => TimerService.SetPomodoroMinutes(preset))"
+                        @onclick="@(() => SetMinutesAndStore(preset))"
                         disabled="@TimerService.IsRunning">@preset @Localizer["MinutesShort"]</button>
             }
+            <label class="small text-muted mb-0">@Localizer["CustomMinutes"]</label>
+            <input type="number"
+                   class="form-control form-control-sm text-center"
+                   style="width: 4.6rem;"
+                   min="@InputGuard.PomodoroMinMinutes"
+                   max="@InputGuard.PomodoroMaxMinutes"
+                   value="@customMinutes"
+                   disabled="@TimerService.IsRunning"
+                   @onchange="OnCustomMinutes" />
         </div>
     }
 
@@ -96,6 +108,19 @@
         </div>
         <div style="font-size: 3.2rem; font-weight: 800; font-family: Outfit, monospace; line-height: 1;">@TimeDisplay</div>
         <div class="small text-muted mt-1">@string.Format(Localizer["SessionsToday"], TimerService.CompletedPomodoros)</div>
+        @if (!string.IsNullOrWhiteSpace(todayOneThing) || !string.IsNullOrWhiteSpace(todayVow))
+        {
+            <div class="vow-strip mt-3">
+                @if (!string.IsNullOrWhiteSpace(todayOneThing))
+                {
+                    <div>🎯 @todayOneThing</div>
+                }
+                @if (!string.IsNullOrWhiteSpace(todayVow))
+                {
+                    <div class="small text-muted mt-1">@todayVow</div>
+                }
+            </div>
+        }
     </ProgressRing>
 
     <div class="controls d-flex flex-column align-items-center gap-3 mt-4">
@@ -258,6 +283,9 @@
     private CancellationTokenSource? breathCts;
     private List<IfThenPlan> activePlans = new();
     private string? timerUserId;
+    private int customMinutes = 25;
+    private string todayVow = "";
+    private string todayOneThing = "";
 
     private string BreathLabel => breathPhase switch
     {
@@ -300,6 +328,9 @@
         if (!string.IsNullOrEmpty(timerUserId))
         {
             activePlans = await IfThenService.GetActiveAsync(timerUserId);
+            var intention = await IntentionService.GetTodayAsync(timerUserId);
+            todayVow = intention?.Vow ?? "";
+            todayOneThing = intention?.OneThing ?? "";
         }
     }
 
@@ -318,6 +349,16 @@
         if (string.IsNullOrEmpty(timerUserId))
         {
             activePlans = await GuestIfThenService.GetActiveAsync();
+            todayTasks = await GuestTaskService.GetTasksForTodayAsync();
+            var journal = await GuestJournalService.GetTodayAsync();
+            todayVow = journal?.Vow ?? "";
+            todayOneThing = journal?.OneThing ?? "";
+        }
+
+        var storedMinutes = await LocalStorageService.GetItemAsync<int?>("discipline_pomodoro_minutes");
+        if (storedMinutes.HasValue)
+        {
+            SetMinutes(storedMinutes.Value);
         }
         StateHasChanged();
     }
@@ -336,6 +377,37 @@
         }
     }
 
+    private void SetMinutes(int minutes)
+    {
+        var clamped = InputGuard.ClampPomodoroMinutes(minutes);
+        customMinutes = clamped;
+        TimerService.SetPomodoroMinutes(clamped);
+    }
+
+    private async Task SetMinutesAndStore(int minutes)
+    {
+        SetMinutes(minutes);
+        await LocalStorageService.SetItemAsync("discipline_pomodoro_minutes", customMinutes);
+    }
+
+    private async Task OnCustomMinutes(ChangeEventArgs e)
+    {
+        if (!int.TryParse(e.Value?.ToString(), out var minutes)) return;
+        await SetMinutesAndStore(minutes);
+    }
+
+    private async Task SetLeaveGuard(bool enabled)
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("disciplineLeaveGuard", enabled);
+        }
+        catch
+        {
+            // JS may be unavailable during prerender/dispose.
+        }
+    }
+
     private void UpdateUI()
     {
         InvokeAsync(StateHasChanged);
@@ -351,11 +423,12 @@
         TimerService.StartBreak(isLong);
     }
 
-    private void BeginBreak(bool isLong)
+    private async Task BeginBreak(bool isLong)
     {
         offerBreak = false;
         TimerService.StartBreak(isLong);
         TimerService.Start();
+        await SetLeaveGuard(true);
     }
 
     private async Task RequestStart()
@@ -436,6 +509,7 @@
         
         TimerService.FocusTask = InputGuard.Clamp(taskName, InputGuard.FocusTaskMax);
         TimerService.Start();
+        await SetLeaveGuard(true);
         await PlaySound("startSound");
         if (ambient != "off")
         {
@@ -458,6 +532,7 @@
     private async Task StopTimer()
     {
         TimerService.Stop();
+        await SetLeaveGuard(false);
         
         double durationMinutes = TimerService.IsPomodoroMode ? 
             (TimerService.DefaultPomodoroTime - TimerService.TimeLeft).TotalMinutes : 
@@ -491,6 +566,7 @@
         await InvokeAsync(async () => 
         {
             await PlaySound("timerSound");
+            await SetLeaveGuard(false);
 
             if (TimerService.IsBreakMode)
             {
@@ -662,6 +738,7 @@
         breathCts?.Dispose();
         TimerService.OnTick -= UpdateUI;
         TimerService.OnTimerCompleted -= HandleTimerCompleted;
+        _ = SetLeaveGuard(false);
         _ = JSRuntime.InvokeVoidAsync("sanctuary.exit");
     }
 }

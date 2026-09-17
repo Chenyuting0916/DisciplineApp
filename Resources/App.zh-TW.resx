@@ -900,4 +900,7 @@
   <data name="ReviewGuestLetter" xml:space="preserve">
     <value>這週你在這台裝置打了 {0} 次習慣、完成 {1} 項任務、立了 {2} 天誓言。</value>
   </data>
+  <data name="CustomMinutes" xml:space="preserve">
+    <value>自訂</value>
+  </data>
 </root>

@@ -88,6 +88,12 @@
             }
         };
 
+        window.disciplineLeaveGuard = function (enabled) {
+            window.onbeforeunload = enabled
+                ? function (e) { e.preventDefault(); e.returnValue = ''; }
+                : null;
+        };
+
         window.downloadTextFile = (filename, content, mime) => {
             if (typeof filename !== 'string' || typeof content !== 'string') return;
             if (!/^[a-zA-Z0-9._-]+$/.test(filename)) return;

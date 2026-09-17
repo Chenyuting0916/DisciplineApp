@@ -573,3 +573,12 @@ body.sanctuary-mode .timer-shell {
     padding: 1rem 1.1rem;
 }
 
+.vow-strip {
+    max-width: 320px;
+    margin: 0 auto;
+    padding: 0.65rem 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 14px;
+    background: rgba(245, 165, 36, 0.08);
+}
+

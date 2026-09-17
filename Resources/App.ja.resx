@@ -900,4 +900,7 @@
   <data name="ReviewGuestLetter" xml:space="preserve">
     <value>今週この端末で習慣 {0} 回、タスク {1} 件、誓い {2} 日。</value>
   </data>
+  <data name="CustomMinutes" xml:space="preserve">
+    <value>カスタム</value>
+  </data>
 </root>
