@@ -930,4 +930,7 @@
   <data name="StartThisThing" xml:space="preserve">
     <value>これを始める</value>
   </data>
+  <data name="GuestStartToday" xml:space="preserve">
+    <value>今日から始める</value>
+  </data>
 </root>

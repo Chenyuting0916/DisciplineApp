@@ -930,4 +930,7 @@
   <data name="StartThisThing" xml:space="preserve">
     <value>Start this one</value>
   </data>
+  <data name="GuestStartToday" xml:space="preserve">
+    <value>Start today</value>
+  </data>
 </root>

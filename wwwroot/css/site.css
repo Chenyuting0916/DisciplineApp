@@ -245,6 +245,21 @@ a:hover {
     margin: 0 auto 2rem;
 }
 
+.hero-landing-quiet {
+    margin: 1.25rem auto 2rem;
+}
+
+.hero-landing-quiet h2 {
+    font-size: clamp(1.35rem, 3.2vw, 2rem);
+    line-height: 1.2;
+    margin: 0.4rem 0 0.7rem;
+}
+
+.hero-landing-quiet .lead {
+    font-size: 1rem;
+    margin-bottom: 0;
+}
+
 .feature-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);

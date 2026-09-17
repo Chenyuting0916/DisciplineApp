@@ -234,66 +234,27 @@
         </div>
     </Authorized>
     <NotAuthorized>
-        <section class="hero-landing">
-            <p class="hero-kicker">Discipline</p>
-            <h1>@Localizer["LandingTitle"]</h1>
-            <p class="lead">@Localizer["LandingSubtitle"]</p>
-            <div class="d-flex justify-content-center gap-2 flex-wrap">
-                <button class="btn btn-lg btn-primary px-4" @onclick="ShowLoginModal">@Localizer["LandingCta"]</button>
-                <a class="btn btn-lg btn-outline-primary px-4" href="timer">@Localizer["TryTimer"]</a>
-            </div>
-        </section>
-
-        <div class="feature-grid">
-            <div class="feature-card">
-                <div class="icon">🍅</div>
-                <h5>@Localizer["FeatureTimer"]</h5>
-                <p class="text-muted mb-0">@Localizer["FeatureTimerDesc"]</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon">🔥</div>
-                <h5>@Localizer["FeatureStreaks"]</h5>
-                <p class="text-muted mb-0">@Localizer["FeatureStreaksDesc"]</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon">✅</div>
-                <h5>@Localizer["FeatureHabits"]</h5>
-                <p class="text-muted mb-0">@Localizer["FeatureHabitsDesc"]</p>
-            </div>
-            <div class="feature-card">
-                <div class="icon">🎮</div>
-                <h5>@Localizer["FeatureXp"]</h5>
-                <p class="text-muted mb-0">@Localizer["FeatureXpDesc"]</p>
-            </div>
-        </div>
-
-        <div class="card mx-auto mb-5" style="max-width: 880px;">
-            <div class="card-body p-4">
-                <h4 class="mb-4">@Localizer["HowItWorks"]</h4>
-                <div class="row g-4">
-                    <div class="col-md-4">
-                        <div class="hero-kicker mb-2">01</div>
-                        <h5>@Localizer["Step1Title"]</h5>
-                        <p class="text-muted mb-0">@Localizer["Step1Desc"]</p>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="hero-kicker mb-2">02</div>
-                        <h5>@Localizer["Step2Title"]</h5>
-                        <p class="text-muted mb-0">@Localizer["Step2Desc"]</p>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="hero-kicker mb-2">03</div>
-                        <h5>@Localizer["Step3Title"]</h5>
-                        <p class="text-muted mb-0">@Localizer["Step3Desc"]</p>
-                    </div>
+        <div class="dashboard-container pt-3 pb-4">
+            <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+                <div>
+                    <p class="hero-kicker mb-1">@Greeting</p>
+                    <h1 class="mb-1">@Localizer["GuestStartToday"]</h1>
+                    <p class="text-muted mb-0">@Localizer["GuestHomeHint"]</p>
+                </div>
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                    <button class="btn btn-outline-primary" @onclick="ShowLoginModal">@Localizer["LandingCta"]</button>
+                    <button class="btn btn-primary" @onclick="GoToTimer">
+                        <i class="bi bi-play-fill"></i> @Localizer["StartFocusSession"]
+                    </button>
                 </div>
             </div>
-        </div>
 
-        @if (guestReady)
-        {
-            <div class="dashboard-container pt-2 pb-5">
-                <p class="text-muted small mb-3">@Localizer["GuestHomeHint"]</p>
+            @if (!guestReady)
+            {
+                <p class="text-muted mb-0">@Localizer["LoadingTasks"]</p>
+            }
+            else
+            {
                 <div class="stat-grid mb-4">
                     <div class="stat-card goal">
                         <div class="label">@Localizer["DailyGoal"]</div>
@@ -321,9 +282,6 @@
                         <div class="small text-muted mt-1">@Localizer["GuestStreakHint"]</div>
                     </div>
                 </div>
-                <button class="btn btn-primary mb-4" @onclick="GoToTimer">
-                    <i class="bi bi-play-fill"></i> @Localizer["StartFocusSession"]
-                </button>
                 <div class="row mb-4">
                     <div class="col-md-6 mb-4 mb-md-0">
                         <div class="card h-100">
@@ -433,8 +391,60 @@
                 <div class="mt-4">
                     <Heatmap GuestActivity="@guestActivity" Hint="@Localizer["GuestHeatmapHint"]" />
                 </div>
+            }
+        </div>
+
+        <section class="hero-landing hero-landing-quiet">
+            <p class="hero-kicker">Discipline</p>
+            <h2>@Localizer["LandingTitle"]</h2>
+            <p class="lead">@Localizer["LandingSubtitle"]</p>
+        </section>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="icon">🍅</div>
+                <h5>@Localizer["FeatureTimer"]</h5>
+                <p class="text-muted mb-0">@Localizer["FeatureTimerDesc"]</p>
             </div>
-        }
+            <div class="feature-card">
+                <div class="icon">🔥</div>
+                <h5>@Localizer["FeatureStreaks"]</h5>
+                <p class="text-muted mb-0">@Localizer["FeatureStreaksDesc"]</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">✅</div>
+                <h5>@Localizer["FeatureHabits"]</h5>
+                <p class="text-muted mb-0">@Localizer["FeatureHabitsDesc"]</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🎮</div>
+                <h5>@Localizer["FeatureXp"]</h5>
+                <p class="text-muted mb-0">@Localizer["FeatureXpDesc"]</p>
+            </div>
+        </div>
+
+        <div class="card mx-auto mb-5" style="max-width: 880px;">
+            <div class="card-body p-4">
+                <h4 class="mb-4">@Localizer["HowItWorks"]</h4>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="hero-kicker mb-2">01</div>
+                        <h5>@Localizer["Step1Title"]</h5>
+                        <p class="text-muted mb-0">@Localizer["Step1Desc"]</p>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="hero-kicker mb-2">02</div>
+                        <h5>@Localizer["Step2Title"]</h5>
+                        <p class="text-muted mb-0">@Localizer["Step2Desc"]</p>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="hero-kicker mb-2">03</div>
+                        <h5>@Localizer["Step3Title"]</h5>
+                        <p class="text-muted mb-0">@Localizer["Step3Desc"]</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </NotAuthorized>
 </AuthorizeView>
 
