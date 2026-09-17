@@ -53,6 +53,10 @@
                         {
                             <li class="mb-2">🎯 @string.Format(Localizer["ReviewTopFocus"], review.TopFocus)</li>
                         }
+                        @if (review.MoodCheckIns > 0)
+                        {
+                            <li class="mb-2">@string.Format(Localizer["ReviewMoodSummary"], review.MoodCheckIns, MoodMath.Emoji(review.AverageMood))</li>
+                        }
                         <li>🏅 @string.Format(Localizer["ReviewLevel"], review.Level, review.LongestStreak)</li>
                     </ul>
                 </div>
@@ -101,6 +105,10 @@
                         @if (!string.IsNullOrWhiteSpace(guestReview.TopFocus))
                         {
                             <li class="mb-2">🎯 @string.Format(Localizer["ReviewTopFocus"], guestReview.TopFocus)</li>
+                        }
+                        @if (guestReview.MoodCheckIns > 0)
+                        {
+                            <li class="mb-2">@string.Format(Localizer["ReviewMoodSummary"], guestReview.MoodCheckIns, MoodMath.Emoji(guestReview.AverageMood))</li>
                         }
                     </ul>
                 </div>
