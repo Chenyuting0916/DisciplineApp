@@ -903,4 +903,13 @@
   <data name="CustomMinutes" xml:space="preserve">
     <value>Custom</value>
   </data>
+  <data name="CompleteLinkedTask" xml:space="preserve">
+    <value>You focused on “{0}”. Mark it done?</value>
+  </data>
+  <data name="MarkTaskDone" xml:space="preserve">
+    <value>Mark done</value>
+  </data>
+  <data name="NotNow" xml:space="preserve">
+    <value>Not now</value>
+  </data>
 </root>

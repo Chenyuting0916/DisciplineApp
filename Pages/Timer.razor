@@ -154,6 +154,17 @@
         }
     </div>
 
+    @if (pendingTask != null)
+    {
+        <div class="stretch-card mt-4">
+            <p class="mb-3">@string.Format(Localizer["CompleteLinkedTask"], pendingTask.Title)</p>
+            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <button class="btn btn-primary" @onclick="CompletePendingTask">@Localizer["MarkTaskDone"]</button>
+                <button class="btn btn-link text-muted" @onclick="() => pendingTask = null">@Localizer["NotNow"]</button>
+            </div>
+        </div>
+    }
+
     @if (offerBreak)
     {
         <div class="mt-4 stretch-card">
@@ -286,6 +297,7 @@
     private int customMinutes = 25;
     private string todayVow = "";
     private string todayOneThing = "";
+    private UserTask? pendingTask;
 
     private string BreathLabel => breathPhase switch
     {
@@ -509,6 +521,7 @@
         
         TimerService.FocusTask = InputGuard.Clamp(taskName, InputGuard.FocusTaskMax);
         TimerService.Start();
+        pendingTask = null;
         await SetLeaveGuard(true);
         await PlaySound("startSound");
         if (ambient != "off")
@@ -541,6 +554,7 @@
         if (durationMinutes >= 0.1 && !TimerService.IsBreakMode) 
         {
             await RecordSession(durationMinutes);
+            OfferTaskCompletion();
         }
         
         var trackData = System.Text.Json.JsonSerializer.Serialize(new { 
@@ -576,6 +590,7 @@
             }
 
             await RecordSession(TimerService.DefaultPomodoroTime.TotalMinutes);
+            OfferTaskCompletion();
             
             var trackData = System.Text.Json.JsonSerializer.Serialize(new { 
                 Duration = TimerService.DefaultPomodoroTime.TotalMinutes,
@@ -730,6 +745,39 @@
         {
             await ExitSanctuary();
         }
+    }
+
+    private void OfferTaskCompletion()
+    {
+        pendingTask = FocusTaskMatcher.FindOpen(todayTasks, TimerService.FocusTask, customFocusTask);
+    }
+
+    private async Task CompletePendingTask()
+    {
+        if (pendingTask == null) return;
+        var task = pendingTask;
+        pendingTask = null;
+
+        if (!string.IsNullOrEmpty(timerUserId))
+        {
+            var result = await TaskService.ToggleTaskCompletionAsync(task.Id, timerUserId);
+            if (result.success && result.xpAwarded > 0)
+            {
+                ToastService.ShowSuccess(string.Format(Localizer["XPEarnedRemaining"], result.xpAwarded, result.remainingDaily));
+            }
+            else if (result.success)
+            {
+                ToastService.ShowSuccess(Localizer["MarkTaskDone"]);
+            }
+            await LoadTasks();
+            return;
+        }
+
+        if (await GuestTaskService.ToggleTaskAsync(task.Id))
+        {
+            ToastService.ShowInfo(Localizer["TaskCompletedGuest"]);
+        }
+        todayTasks = await GuestTaskService.GetTasksForTodayAsync();
     }
 
     public void Dispose()

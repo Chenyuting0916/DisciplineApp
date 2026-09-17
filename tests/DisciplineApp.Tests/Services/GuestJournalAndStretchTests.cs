@@ -99,4 +99,25 @@ public class GuestJournalAndStretchTests
         Assert.Equal(40, timer.PomodoroMinutes);
         Assert.Equal(40, timer.DefaultPomodoroTime.TotalMinutes);
     }
+
+    [Fact]
+    public void FocusTaskMatcher_FindsOpenTaskOnly()
+    {
+        var tasks = new List<UserTask>
+        {
+            new() { Id = 1, Title = "Write", IsCompleted = false },
+            new() { Id = 2, Title = "Write", IsCompleted = true },
+            new() { Id = 3, Title = "Read", IsCompleted = false }
+        };
+
+        var found = FocusTaskMatcher.FindOpen(tasks, "Write", null);
+        Assert.NotNull(found);
+        Assert.Equal(1, found!.Id);
+
+        Assert.Null(FocusTaskMatcher.FindOpen(tasks, "custom", "Missing"));
+        var custom = FocusTaskMatcher.FindOpen(tasks, "custom", "Read");
+        Assert.Equal(3, custom!.Id);
+        Assert.Null(FocusTaskMatcher.FindOpen(tasks, "", null));
+        Assert.Null(FocusTaskMatcher.FindOpen(null, "Write", null));
+    }
 }

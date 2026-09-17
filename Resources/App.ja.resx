@@ -903,4 +903,13 @@
   <data name="CustomMinutes" xml:space="preserve">
     <value>カスタム</value>
   </data>
+  <data name="CompleteLinkedTask" xml:space="preserve">
+    <value>今回集中したのは「{0}」。完了にする？</value>
+  </data>
+  <data name="MarkTaskDone" xml:space="preserve">
+    <value>完了にする</value>
+  </data>
+  <data name="NotNow" xml:space="preserve">
+    <value>あとで</value>
+  </data>
 </root>
