@@ -943,7 +943,7 @@
     <value>Clear this device</value>
   </data>
   <data name="ClearLocalDataConfirm" xml:space="preserve">
-    <value>This deletes guest focus, tasks, habits, vows, and if-then plans on this device. It cannot be undone. The server has no copy. Continue?</value>
+    <value>This resets guest focus, tasks, habits, vows, and if-then plans on this device to a first-visit state. It cannot be undone. The server has no copy. Continue?</value>
   </data>
   <data name="ClearLocalDataDone" xml:space="preserve">
     <value>Guest records on this device were cleared.</value>
