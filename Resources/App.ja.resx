@@ -933,4 +933,7 @@
   <data name="GuestStartToday" xml:space="preserve">
     <value>今日から始める</value>
   </data>
+  <data name="HistoryEmpty" xml:space="preserve">
+    <value>まだ集中記録がありません。先に1回始めましょう。</value>
+  </data>
 </root>

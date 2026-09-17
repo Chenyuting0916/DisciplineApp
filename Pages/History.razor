@@ -62,7 +62,14 @@
                         <h5 class="mb-0 text-white">@Localizer["FocusActivity"]</h5>
                     </div>
                     <div class="card-body">
-                        <canvas id="activityChart"></canvas>
+                        @if (activityData.Any())
+                        {
+                            <canvas id="activityChart"></canvas>
+                        }
+                        else
+                        {
+                            <p class="text-muted text-center mb-0">@Localizer["HistoryEmpty"]</p>
+                        }
                     </div>
                 </div>
             </div>
@@ -74,45 +81,58 @@
                     <div class="card-header border-secondary">
                         <h5 class="mb-0 text-white">@Localizer["RecentSessions"]</h5>
                     </div>
-                    <div class="card-body p-0">
-                        <div class="table-responsive">
-                            <table class="table table-dark table-hover mb-0">
-                                <thead>
-                                    <tr>
-                                        <th>@Localizer["Date"]</th>
-                                        <th>@Localizer["Task"]</th>
-                                        <th>@Localizer["Duration"]</th>
-                                        <th>@Localizer["Type"]</th>
-                                        <th>@Localizer["Actions"]</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var session in recentSessions)
-                                    {
+                    <div class="card-body @(recentSessions.Any() ? "p-0" : "")">
+                        @if (!recentSessions.Any())
+                        {
+                            <p class="text-muted mb-3">@Localizer["HistoryEmpty"]</p>
+                            <a href="timer" class="btn btn-primary">
+                                <i class="bi bi-play-circle-fill me-2"></i>@Localizer["StartFocusSession"]
+                            </a>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-dark table-hover mb-0">
+                                    <thead>
                                         <tr>
-                                            <td>@session.EndTime.ToLocalTime().ToString("g")</td>
-                                            <td>@session.TaskTag</td>
-                                            <td>@((int)session.DurationMinutes) min</td>
-                                            <td>
-                                                @if (session.IsPomodoro)
-                                                {
-                                                    <span class="badge bg-danger">@Localizer["Pomodoro"]</span>
-                                                }
-                                                else
-                                                {
-                                                    <span class="badge bg-secondary">@Localizer["Stopwatch"]</span>
-                                                }
-                                            </td>
-                                            <td>
-                                                <button class="btn btn-sm btn-outline-danger" @onclick="@(() => DeleteSession(session))">
-                                                    <i class="bi bi-trash"></i> @Localizer["Delete"]
-                                                </button>
-                                            </td>
+                                            <th>@Localizer["Date"]</th>
+                                            <th>@Localizer["Task"]</th>
+                                            <th>@Localizer["Duration"]</th>
+                                            <th>@Localizer["Type"]</th>
+                                            <th>@Localizer["Actions"]</th>
                                         </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var session in recentSessions)
+                                        {
+                                            <tr>
+                                                <td>@session.EndTime.ToLocalTime().ToString("g")</td>
+                                                <td>@SessionTag(session.TaskTag)</td>
+                                                <td>@FormatMinutes(session.DurationMinutes) @Localizer["MinutesShort"]</td>
+                                                <td>
+                                                    @if (session.IsPomodoro)
+                                                    {
+                                                        <span class="badge bg-danger">@Localizer["Pomodoro"]</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="badge bg-secondary">@Localizer["Stopwatch"]</span>
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @if (session.Id > 0)
+                                                    {
+                                                        <button class="btn btn-sm btn-outline-danger" @onclick="@(() => DeleteSession(session))">
+                                                            <i class="bi bi-trash"></i> @Localizer["Delete"]
+                                                        </button>
+                                                    }
+                                                </td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
                     </div>
                 </div>
             </div>
@@ -180,7 +200,7 @@
                 {
                     new
                     {
-                        label = "Focus Minutes",
+                        label = Localizer["FocusActivity"].ToString(),
                         data = data,
                         backgroundColor = "rgba(54, 162, 235, 0.5)",
                         borderColor = "rgba(54, 162, 235, 1)",
@@ -236,7 +256,7 @@
     
     private async Task DeleteSession(FocusSession session)
     {
-        string msg = string.Format(Localizer["AreYouSureDeleteSession"], session.TaskTag, (int)session.DurationMinutes);
+        string msg = string.Format(Localizer["AreYouSureDeleteSession"], SessionTag(session.TaskTag), FormatMinutes(session.DurationMinutes));
         bool confirmed = await JSRuntime.InvokeAsync<bool>("confirm", msg);
         if (!confirmed) return;
 
@@ -296,4 +316,13 @@
         recentSessions = await GuestFocusService.GetRecentAsync(20);
         activityData = await GuestFocusService.GetDailyActivityAsync(14);
     }
+
+    private string SessionTag(string? tag)
+    {
+        var value = GuestFocusLogic.DisplayTag(tag);
+        return string.IsNullOrEmpty(value) ? Localizer["Uncategorized"] : value;
+    }
+
+    private static string FormatMinutes(double minutes)
+        => minutes < 1 ? minutes.ToString("0.0") : ((int)Math.Round(minutes)).ToString();
 }

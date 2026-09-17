@@ -164,5 +164,9 @@ public class GuestFocusTests
         Assert.Equal(2, breakdown.Count);
         Assert.Equal(40, GuestFocusLogic.WeekBreakdown(sessions, weekStart.AddDays(-7))["寫報告"]);
         Assert.Equal(30, GuestFocusLogic.WeekBreakdown(sessions, weekStart.AddDays(7))["寫報告"]);
+        Assert.Equal("寫報告", GuestFocusLogic.DisplayTag("  寫報告  "));
+        Assert.Equal("", GuestFocusLogic.DisplayTag("custom"));
+        Assert.Equal("", GuestFocusLogic.DisplayTag("Uncategorized"));
+        Assert.Equal("", GuestFocusLogic.DisplayTag("   "));
     }
 }

@@ -933,4 +933,7 @@
   <data name="GuestStartToday" xml:space="preserve">
     <value>Start today</value>
   </data>
+  <data name="HistoryEmpty" xml:space="preserve">
+    <value>No focus sessions yet. Start one.</value>
+  </data>
 </root>

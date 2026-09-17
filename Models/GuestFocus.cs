@@ -110,6 +110,18 @@ public static class GuestFocusLogic
             .ToDictionary(g => g.Key, g => g.Sum(s => s.DurationMinutes));
     }
 
+    public static string DisplayTag(string? tag)
+    {
+        var value = tag?.Trim() ?? "";
+        if (string.IsNullOrWhiteSpace(value)
+            || string.Equals(value, "custom", StringComparison.OrdinalIgnoreCase)
+            || string.Equals(value, "Uncategorized", StringComparison.OrdinalIgnoreCase))
+        {
+            return string.Empty;
+        }
+        return value;
+    }
+
     public static Dictionary<string, double> DailyActivity(IEnumerable<GuestFocusSession> sessions, DateTime utcNow, int days)
     {
         var startDate = utcNow.Date.AddDays(-(Math.Max(days, 1) - 1));
