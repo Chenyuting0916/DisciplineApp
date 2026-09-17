@@ -16,6 +16,7 @@ public class GuestJournalAndStretchTests
         Assert.Equal(InputGuard.VowMax, saved.Vow.Length);
         Assert.Equal(InputGuard.TitleMax, saved.OneThing.Length);
         Assert.Equal(5, saved.Mood);
+        Assert.True(saved.HasMood);
         Assert.Equal(InputGuard.NoteMax, saved.Note!.Length);
         Assert.Single(days);
 
@@ -26,6 +27,11 @@ public class GuestJournalAndStretchTests
 
         Assert.Equal(GuestJournalLogic.MaxDays, days.Count);
         Assert.DoesNotContain(days, d => d.Date.Date == now.Date);
+
+        var vowOnly = new List<GuestDayJournal>();
+        var vow = GuestJournalLogic.Upsert(vowOnly, now, "stay", "write", null, null);
+        Assert.False(vow.HasMood);
+        Assert.Equal(0, vow.Mood);
     }
 
     [Fact]
@@ -51,7 +57,9 @@ public class GuestJournalAndStretchTests
         var days = new List<GuestDayJournal>
         {
             new() { Date = weekStart.AddDays(1), Vow = "stay", OneThing = "write" },
-            new() { Date = weekStart.AddDays(-10), Vow = "old" }
+            new() { Date = weekStart.AddDays(2), HasMood = true, Mood = 5 },
+            new() { Date = weekStart.AddDays(3), HasMood = true, Mood = 3 },
+            new() { Date = weekStart.AddDays(-10), Vow = "old", HasMood = true, Mood = 1 }
         };
 
         var review = GuestJournalLogic.BuildReview(new[] { habit }, tasks, days, weekStart.AddDays(4));
@@ -59,6 +67,9 @@ public class GuestJournalAndStretchTests
         Assert.Equal(1, review.TasksCompleted);
         Assert.Equal(0, review.SessionCount);
         Assert.Equal(1, review.VowDays);
+        Assert.Equal(2, review.MoodCheckIns);
+        Assert.Equal(4, review.AverageMood);
+        Assert.Equal("🙂", MoodMath.Emoji(4));
     }
 
     [Fact]
@@ -160,5 +171,20 @@ public class GuestJournalAndStretchTests
         var none = FocusTaskMatcher.KeepAfterStart(Array.Empty<UserTask>(), "", "Solo", "Solo");
         Assert.Equal("Solo", none.FocusTask);
         Assert.Equal("Solo", none.CustomTitle);
+    }
+
+    [Fact]
+    public void FocusTaskMatcher_StartsOpenTaskAndSkipsDoneOnes()
+    {
+        Assert.Equal("寫報告", FocusTaskMatcher.StartFromTask(new UserTask { Title = "  寫報告  " }));
+        Assert.Equal("", FocusTaskMatcher.StartFromTask(null));
+        Assert.Equal("", FocusTaskMatcher.StartFromTask(new UserTask { Title = "   " }));
+        Assert.Equal(InputGuard.FocusTaskMax, FocusTaskMatcher.StartFromTask(new UserTask { Title = new string('a', 200) }).Length);
+
+        Assert.True(FocusTaskMatcher.CanStartFocus(new UserTask { Title = "Write", IsCompleted = false }));
+        Assert.False(FocusTaskMatcher.CanStartFocus(new UserTask { Title = "Done", IsCompleted = true }));
+        Assert.True(FocusTaskMatcher.CanStartFocus(new UserTask { Title = "Daily", IsCompleted = true, IsRoutine = true }));
+        Assert.Equal("", FocusTaskMatcher.StartFromTask(new UserTask { Title = "Done", IsCompleted = true }));
+        Assert.Equal("Daily", FocusTaskMatcher.StartFromTask(new UserTask { Title = "Daily", IsCompleted = true, IsRoutine = true }));
     }
 }

@@ -16,6 +16,7 @@
 @inject GuestJournalService GuestJournalService
 @inject GuestFocusService GuestFocusService
 @inject IIntentionService IntentionService
+@inject NavigationManager NavigationManager
 @implements IDisposable
 
 <PageTitle>@(TimerService.IsRunning || TimerService.IsPaused ? $"{TimeDisplay} · {Localizer["Timer"]}" : $"{Localizer["Timer"]} — Discipline")</PageTitle>
@@ -193,6 +194,17 @@
         </div>
     }
 
+    @if (offerReview && !TimerService.IsRunning && !TimerService.IsPaused)
+    {
+        <div class="stretch-card mt-4">
+            <p class="mb-3">@(reviewNudgeGoal ? Localizer["ReviewNudgeGoal"] : Localizer["ReviewNudgeTitle"])</p>
+            <div class="d-flex justify-content-center gap-2 flex-wrap">
+                <button type="button" class="btn btn-outline-primary" @onclick="GoReview">@Localizer["GoToReview"]</button>
+                <button type="button" class="btn btn-link text-muted" @onclick="() => offerReview = false">@Localizer["NotNow"]</button>
+            </div>
+        </div>
+    }
+
     @if (TimerService.IsBreakMode)
     {
         <p class="mt-3 mb-0">🧘 @Localizer[StretchKey]</p>
@@ -314,6 +326,8 @@
     private string todayOneThing = "";
     private UserTask? pendingTask;
     private bool offerAnother;
+    private bool offerReview;
+    private bool reviewNudgeGoal;
     private double todayFocusMinutes;
     private int goalMinutes = GuestFocusLogic.DefaultGoal;
     private int todayPomodoros;
@@ -565,6 +579,8 @@
         pendingTask = null;
         offerAnother = false;
         offerBreak = false;
+        offerReview = false;
+        reviewNudgeGoal = false;
         await SetLeaveGuard(true);
         await PlaySound("startSound");
         if (ambient != "off")
@@ -594,11 +610,12 @@
             (TimerService.DefaultPomodoroTime - TimerService.TimeLeft).TotalMinutes : 
             TimerService.TimeElapsed.TotalMinutes;
 
-        if (durationMinutes >= 0.1 && !TimerService.IsBreakMode) 
+        if (GuestFocusLogic.ShouldOfferReview(durationMinutes, TimerService.IsBreakMode))
         {
             await RecordSession(durationMinutes);
             OfferTaskCompletion();
             offerAnother = true;
+            OfferReview(durationMinutes);
         }
         
         var trackData = System.Text.Json.JsonSerializer.Serialize(new { 
@@ -633,11 +650,13 @@
                 return;
             }
 
-            await RecordSession(TimerService.DefaultPomodoroTime.TotalMinutes);
+            var minutes = TimerService.DefaultPomodoroTime.TotalMinutes;
+            await RecordSession(minutes);
             OfferTaskCompletion();
+            OfferReview(minutes);
             
             var trackData = System.Text.Json.JsonSerializer.Serialize(new { 
-                Duration = TimerService.DefaultPomodoroTime.TotalMinutes,
+                Duration = minutes,
                 Completed = true,
                 Mode = "Pomodoro"
             });
@@ -662,6 +681,7 @@
                 string taskName = TimerService.FocusTask == "custom" ? customFocusTask : TimerService.FocusTask;
                 if (string.IsNullOrEmpty(taskName)) taskName = customFocusTask;
                 
+                var before = todayFocusMinutes;
                 var result = await GamificationService.RecordFocusSessionAsync(userId, minutes, taskName, TimerService.IsPomodoroMode);
                 
                 if (result.success)
@@ -686,6 +706,10 @@
                     }
                     ToastService.ShowSuccess(msg);
                     await RefreshDailyProgress();
+                    if (GuestFocusLogic.JustReachedGoal(before, todayFocusMinutes, goalMinutes))
+                    {
+                        reviewNudgeGoal = true;
+                    }
                 }
             }
         }
@@ -724,6 +748,7 @@
         ToastService.ShowSuccess(Localizer["SessionRecorded"]);
         if (GuestFocusLogic.JustReachedGoal(before, before + saved.DurationMinutes, goal))
         {
+            reviewNudgeGoal = true;
             ToastService.ShowSuccess(Localizer["GoalReached"]);
         }
         await RefreshDailyProgress();
@@ -878,10 +903,23 @@
         }
     }
 
+    private void OfferReview(double minutes)
+    {
+        offerReview = GuestFocusLogic.ShouldOfferReview(minutes, false);
+    }
+
+    private void GoReview()
+    {
+        offerReview = false;
+        NavigationManager.NavigateTo("/review");
+    }
+
     private async Task StartAnother()
     {
         offerBreak = false;
         offerAnother = false;
+        offerReview = false;
+        reviewNudgeGoal = false;
         pendingTask = null;
         if (TimerService.IsBreakMode)
         {
