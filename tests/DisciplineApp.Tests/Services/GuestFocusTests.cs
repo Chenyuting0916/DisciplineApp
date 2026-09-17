@@ -1,3 +1,4 @@
+using System.Globalization;
 using DisciplineApp.Models;
 using Xunit;
 
@@ -137,6 +138,17 @@ public class GuestFocusTests
         Assert.Equal(2, atRisk.Streak);
         Assert.Equal(StreakStatus.Broken, HabitMath.ActivityStreakStatus(new[] { today.AddDays(-3) }, today).Status);
         Assert.Equal(0, HabitMath.ActivityStreakStatus(new[] { today.AddDays(-3) }, today).Streak);
+    }
+
+    [Fact]
+    public void HeatmapCopy_UsesCultureForDaysAndKeepsTooltipSafe()
+    {
+        var zh = CultureInfo.GetCultureInfo("zh-TW");
+        var en = CultureInfo.GetCultureInfo("en");
+        Assert.Contains("一", HeatmapCopy.DayLabel(DayOfWeek.Monday, zh));
+        Assert.Equal("Mon", HeatmapCopy.DayLabel(DayOfWeek.Monday, en));
+        Assert.Equal("2026-09-17: 3 activities", HeatmapCopy.Tooltip(new DateTime(2026, 9, 17), 3, "{0} activities"));
+        Assert.Equal("2026-09-17: 0 次行動", HeatmapCopy.Tooltip(new DateTime(2026, 9, 17), -4, "{0} 次行動"));
     }
 
     [Fact]

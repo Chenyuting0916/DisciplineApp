@@ -954,4 +954,13 @@
   <data name="HistoryEmpty" xml:space="preserve">
     <value>まだ集中記録がありません。先に1回始めましょう。</value>
   </data>
+  <data name="HeatmapLess" xml:space="preserve">
+    <value>少</value>
+  </data>
+  <data name="HeatmapMore" xml:space="preserve">
+    <value>多</value>
+  </data>
+  <data name="HeatmapActivityCount" xml:space="preserve">
+    <value>{0} 回</value>
+  </data>
 </root>

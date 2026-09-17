@@ -954,4 +954,13 @@
   <data name="HistoryEmpty" xml:space="preserve">
     <value>No focus sessions yet. Start one.</value>
   </data>
+  <data name="HeatmapLess" xml:space="preserve">
+    <value>Less</value>
+  </data>
+  <data name="HeatmapMore" xml:space="preserve">
+    <value>More</value>
+  </data>
+  <data name="HeatmapActivityCount" xml:space="preserve">
+    <value>{0} activities</value>
+  </data>
 </root>
