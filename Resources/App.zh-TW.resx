@@ -963,4 +963,16 @@
   <data name="HeatmapActivityCount" xml:space="preserve">
     <value>{0} 次行動</value>
   </data>
+  <data name="PwaDescription" xml:space="preserve">
+    <value>專注、連續天數，和每天小小的承諾。</value>
+  </data>
+  <data name="LevelUp" xml:space="preserve">
+    <value>升級了</value>
+  </data>
+  <data name="YouAreNowLevel" xml:space="preserve">
+    <value>你現在是 {0} 級。</value>
+  </data>
+  <data name="Awesome" xml:space="preserve">
+    <value>太好了</value>
+  </data>
 </root>
