@@ -939,4 +939,7 @@
   <data name="HistoryEmpty" xml:space="preserve">
     <value>還沒有專注紀錄。先去開始一場。</value>
   </data>
+  <data name="GuestShopHint" xml:space="preserve">
+    <value>金幣存在登入帳號裡，不是真錢。訪客的專注與習慣只在這台裝置，不會進商店。</value>
+  </data>
 </root>
