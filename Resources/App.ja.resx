@@ -963,4 +963,13 @@
   <data name="HeatmapActivityCount" xml:space="preserve">
     <value>{0} 回</value>
   </data>
+  <data name="ClearLocalData" xml:space="preserve">
+    <value>この端末の記録を消す</value>
+  </data>
+  <data name="ClearLocalDataConfirm" xml:space="preserve">
+    <value>この端末のゲスト記録を初回の状態に戻します（集中・タスク・習慣・宣言・If-Then）。元に戻せません。サーバーに控えはありません。続けますか？</value>
+  </data>
+  <data name="ClearLocalDataDone" xml:space="preserve">
+    <value>この端末のゲスト記録を消しました。</value>
+  </data>
 </root>
