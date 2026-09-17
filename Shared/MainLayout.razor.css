@@ -1,6 +1,6 @@
 .skip-link {
     position: fixed;
-    left: 0.75rem;
+    left: -10000px;
     top: 0.75rem;
     z-index: 10000;
     padding: 0.5rem 0.9rem;
@@ -8,21 +8,12 @@
     background: var(--accent-color);
     color: #1a1205;
     font-weight: 700;
-    clip: rect(0 0 0 0);
-    clip-path: inset(50%);
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
     white-space: nowrap;
 }
 
 .skip-link:focus,
 .skip-link:focus-visible {
-    clip: auto;
-    clip-path: none;
-    width: auto;
-    height: auto;
-    overflow: visible;
+    left: 0.75rem;
     outline: 2px solid var(--text-primary);
     color: #1a1205;
 }

@@ -12,7 +12,7 @@
 
 <PageTitle>DisciplineApp</PageTitle>
 
-<a class="skip-link" href="#@HeaderCopy.MainContentId">@Localizer["SkipToContent"]</a>
+<a class="skip-link" href="#@HeaderCopy.MainContentId" @onclick="FocusMainContent">@Localizer["SkipToContent"]</a>
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -122,6 +122,18 @@
 
     private void ShowLoginModal() => showLoginModal = true;
     private void HideLoginModal() => showLoginModal = false;
+
+    private async Task FocusMainContent()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("sanctuary.focus", HeaderCopy.MainContentId);
+        }
+        catch
+        {
+            // JS may not be ready on first prerender.
+        }
+    }
 
     protected override void OnInitialized()
     {
