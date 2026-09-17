@@ -60,7 +60,7 @@ public class GuestTaskService
         {
             Id = allTasks.Any() ? allTasks.Max(t => t.Id) + 1 : 1,
             UserId = "guest",
-            Title = title,
+            Title = InputGuard.Clamp(title, InputGuard.TitleMax),
             Date = DateTime.Today,
             IsRoutine = isRoutine,
             CategoryId = categoryId,
@@ -97,6 +97,11 @@ public class GuestTaskService
             allTasks.Remove(task);
             await _localStorage.SetItemAsync(STORAGE_KEY, allTasks);
         }
+    }
+
+    public async Task<List<UserTask>> GetAllAsync()
+    {
+        return await _localStorage.GetItemAsync<List<UserTask>>(STORAGE_KEY) ?? new List<UserTask>();
     }
 
     private List<UserTask> CreateDefaultTasks(List<Category>? categories)

@@ -58,10 +58,16 @@ builder.Services.AddScoped<DisciplineApp.Services.ToastService>();
 builder.Services.AddScoped<DisciplineApp.Services.TimerService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddScoped<GuestTaskService>();
+builder.Services.AddScoped<GuestHabitService>();
+builder.Services.AddScoped<GuestIfThenService>();
+builder.Services.AddScoped<GuestJournalService>();
+builder.Services.AddScoped<GuestExportService>();
 builder.Services.AddScoped<IHabitService, HabitService>();
 builder.Services.AddScoped<IReflectionService, ReflectionService>();
 builder.Services.AddScoped<IShopService, ShopService>();
 builder.Services.AddScoped<IIntentionService, IntentionService>();
+builder.Services.AddScoped<IIfThenService, IfThenService>();
+builder.Services.AddScoped<IDataExportService, DataExportService>();
 builder.Services.AddScoped<QuoteService>();
 
 builder.Services.AddAuthentication()

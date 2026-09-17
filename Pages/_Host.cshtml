@@ -1,7 +1,9 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components.Web
+@using DisciplineApp
 @namespace DisciplineApp.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> HostLocalizer
 
 <!DOCTYPE html>
 <html lang="en">
@@ -61,6 +63,7 @@
 }
 
     <component type="typeof(App)" render-mode="ServerPrerendered" param-AccessToken="accessToken" />
+    <div id="offline-banner" hidden>@HostLocalizer["OfflineBanner"]</div>
 
     <!-- <div id="blazor-error-ui">
         <environment include="Staging,Production">
@@ -83,6 +86,20 @@
             if (audio) {
                 audio.play();
             }
+        };
+
+        window.downloadTextFile = (filename, content, mime) => {
+            if (typeof filename !== 'string' || typeof content !== 'string') return;
+            if (!/^[a-zA-Z0-9._-]+$/.test(filename)) return;
+            var blob = new Blob([content], { type: mime || 'application/json' });
+            var url = URL.createObjectURL(blob);
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+            URL.revokeObjectURL(url);
         };
 
         window.renderChart = (canvasId, config) => {
@@ -111,11 +128,21 @@
                }
 
                var particleCount = 50 * (timeLeft / duration);
-               // since particles fall down, start a bit higher than random
                confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.1, 0.3), y: Math.random() - 0.2 } }));
                confetti(Object.assign({}, defaults, { particleCount, origin: { x: random(0.7, 0.9), y: Math.random() - 0.2 } }));
              }, 250);
         };
+
+        (function () {
+            var banner = document.getElementById('offline-banner');
+            function syncOffline() {
+                if (!banner) return;
+                banner.hidden = navigator.onLine;
+            }
+            window.addEventListener('online', syncOffline);
+            window.addEventListener('offline', syncOffline);
+            syncOffline();
+        })();
     </script>
 </body>
 </html>

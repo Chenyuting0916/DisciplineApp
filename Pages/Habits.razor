@@ -1,5 +1,7 @@
 @page "/habits"
 @inject IHabitService HabitService
+@inject GuestHabitService GuestHabitService
+@inject GuestExportService GuestExportService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ToastService ToastService
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
@@ -7,90 +9,95 @@
 
 <PageTitle>@Localizer["Habits"] — Discipline</PageTitle>
 
-<AuthorizeView>
-    <Authorized>
-        <div class="dashboard-container pt-3 pb-5">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <p class="hero-kicker mb-1">@Localizer["Habits"]</p>
-                    <h1 class="mb-0">@Localizer["HabitsTitle"]</h1>
-                </div>
-                <button class="btn btn-primary" @onclick="ShowAddModal">
-                    <span class="oi oi-plus"></span> @Localizer["AddHabit"]
-                </button>
-            </div>
-
-            <div class="stat-card mb-4">
-                <div class="label">@Localizer["HabitsToday"]</div>
-                <div class="value">@completedToday / @habits.Count</div>
-                <div class="progress mt-2" style="height: 8px; background: var(--bg-tertiary);">
-                    <div class="progress-bar" style="width: @(HabitPercent)%; background: var(--accent-color);"></div>
-                </div>
-            </div>
-
-            @if (!habits.Any())
+<div class="dashboard-container pt-3 pb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <p class="hero-kicker mb-1">@Localizer["Habits"]</p>
+            <h1 class="mb-0">@Localizer["HabitsTitle"]</h1>
+            @if (isGuest)
             {
-                <div class="card p-4 text-center">
-                    <p class="text-muted mb-3">@Localizer["NoHabits"]</p>
-                    <div class="d-flex flex-wrap justify-content-center gap-2">
-                        @foreach (var template in templates)
-                        {
-                            <button class="preset-chip" @onclick="() => QuickAdd(template)">@template.Icon @template.Title</button>
-                        }
+                <p class="text-muted small mb-0 mt-2">@Localizer["GuestHabitsHint"]</p>
+            }
+        </div>
+        <div class="d-flex gap-2">
+            @if (isGuest)
+            {
+                <button class="btn btn-outline-secondary" @onclick="ExportGuest">@Localizer["ExportData"]</button>
+            }
+            <button class="btn btn-primary" @onclick="ShowAddModal">
+                <span class="oi oi-plus"></span> @Localizer["AddHabit"]
+            </button>
+        </div>
+    </div>
+
+    <div class="stat-card mb-4">
+        <div class="label">@Localizer["HabitsToday"]</div>
+        <div class="value">@completedToday / @habits.Count</div>
+        <div class="progress mt-2" style="height: 8px; background: var(--bg-tertiary);">
+            <div class="progress-bar" style="width: @(HabitPercent)%; background: var(--accent-color);"></div>
+        </div>
+    </div>
+
+    @if (!habits.Any())
+    {
+        <div class="card p-4 text-center mb-4">
+            <p class="text-muted mb-3">@Localizer["NoHabits"]</p>
+            <div class="d-flex flex-wrap justify-content-center gap-2">
+                @foreach (var template in templates)
+                {
+                    <button class="preset-chip" @onclick="() => QuickAdd(template)">@template.Icon @template.Title</button>
+                }
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="d-flex flex-column gap-3 mb-4">
+            @foreach (var habit in habits)
+            {
+                var doneToday = IsDoneToday(habit);
+                var streak = GetStreak(habit);
+                <div class="habit-card" style="--habit-color: @habit.Color">
+                    <div class="d-flex align-items-center gap-3">
+                        <button class="habit-check @(doneToday ? "done" : "")" @onclick="() => Toggle(habit)">
+                            @(doneToday ? "✓" : habit.Icon)
+                        </button>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <strong>@habit.Icon @habit.Title</strong>
+                                    <div class="small text-muted">🔥 @streak · @string.Format(Localizer["WeekProgress"], ChecksThisWeek(habit), habit.TargetDaysPerWeek)</div>
+                                </div>
+                                <button class="btn btn-sm btn-outline-danger" @onclick="() => Archive(habit)">@Localizer["ArchiveHabit"]</button>
+                            </div>
+                            <div class="habit-week mt-3">
+                                @for (int i = 0; i < 7; i++)
+                                {
+                                    var day = weekStart.AddDays(i);
+                                    var done = habit.Logs.Any(l => l.Date.Date == day);
+                                    <div class="habit-day @(done ? "done" : "")" title="@day.ToString("MM/dd")"></div>
+                                }
+                            </div>
+                        </div>
                     </div>
                 </div>
             }
-            else
-            {
-                <div class="d-flex flex-column gap-3">
-                    @foreach (var habit in habits)
-                    {
-                        var doneToday = IsDoneToday(habit);
-                        var streak = GetStreak(habit);
-                        <div class="habit-card" style="--habit-color: @habit.Color">
-                            <div class="d-flex align-items-center gap-3">
-                                <button class="habit-check @(doneToday ? "done" : "")" @onclick="() => Toggle(habit)">
-                                    @(doneToday ? "✓" : habit.Icon)
-                                </button>
-                                <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div>
-                                            <strong>@habit.Icon @habit.Title</strong>
-                                            <div class="small text-muted">🔥 @streak · @string.Format(Localizer["TargetDays"], habit.TargetDaysPerWeek)</div>
-                                        </div>
-                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => Archive(habit)">@Localizer["ArchiveHabit"]</button>
-                                    </div>
-                                    <div class="habit-week mt-3">
-                                        @for (int i = 0; i < 7; i++)
-                                        {
-                                            var day = weekStart.AddDays(i);
-                                            var done = habit.Logs.Any(l => l.Date.Date == day);
-                                            <div class="habit-day @(done ? "done" : "")" title="@day.ToString("MM/dd")"></div>
-                                        }
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    }
-                </div>
-            }
         </div>
-    </Authorized>
-    <NotAuthorized>
-        <section class="hero-landing">
-            <p class="hero-kicker">@Localizer["Habits"]</p>
-            <h1>@Localizer["HabitsTitle"]</h1>
-            <p class="lead">@Localizer["PleaseLoginHabits"]</p>
-            <button class="btn btn-lg btn-primary px-4" @onclick="ShowLoginModal">@Localizer["LandingCta"]</button>
-        </section>
-        <div class="d-flex flex-wrap justify-content-center gap-2 mb-5">
-            @foreach (var template in templates)
-            {
-                <span class="preset-chip">@template.Icon @template.Title</span>
-            }
-        </div>
-    </NotAuthorized>
-</AuthorizeView>
+    }
+
+    @if (ready)
+    {
+        <IfThenPanel IsGuest="isGuest" UserId="@userId" />
+    }
+
+    @if (isGuest)
+    {
+        <p class="text-center mt-3">
+            <button class="btn btn-link" @onclick="ShowLoginModal">@Localizer["LandingCta"]</button>
+        </p>
+        <p class="text-muted small text-center">@Localizer["ExportPrivacyNote"]</p>
+    }
+</div>
 
 @if (showLoginModal)
 {
@@ -124,7 +131,7 @@
                 <div class="modal-body">
                     <div class="mb-3">
                         <label class="form-label">@Localizer["HabitTitle"]</label>
-                        <input class="form-control" @bind="newTitle" />
+                        <input class="form-control" maxlength="80" @bind="newTitle" />
                     </div>
                     <div class="mb-3">
                         <label class="form-label">@Localizer["HabitIcon"]</label>
@@ -160,6 +167,8 @@
 @code {
     private List<Habit> habits = new();
     private string? userId;
+    private bool isGuest = true;
+    private bool ready;
     private bool showAdd;
     private bool showLoginModal;
     private void ShowLoginModal() => showLoginModal = true;
@@ -193,9 +202,21 @@
 
         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
         userId = authState.User.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
-        if (!string.IsNullOrEmpty(userId))
+        isGuest = string.IsNullOrEmpty(userId);
+        if (!isGuest)
         {
-            habits = await HabitService.GetHabitsAsync(userId);
+            habits = await HabitService.GetHabitsAsync(userId!);
+            ready = true;
+        }
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && isGuest)
+        {
+            habits = await GuestHabitService.GetHabitsAsync();
+            ready = true;
+            StateHasChanged();
         }
     }
 
@@ -203,19 +224,10 @@
 
     private int GetStreak(Habit habit)
     {
-        var dates = habit.Logs.Select(l => l.Date.Date).Distinct().OrderByDescending(d => d).ToList();
-        if (dates.Count == 0) return 0;
-        var cursor = DateTime.UtcNow.Date;
-        if (dates[0] < cursor.AddDays(-1)) return 0;
-        if (dates[0] == cursor.AddDays(-1)) cursor = dates[0];
-        int streak = 0;
-        foreach (var date in dates)
-        {
-            if (date == cursor) { streak++; cursor = cursor.AddDays(-1); }
-            else if (date < cursor) break;
-        }
-        return streak;
+        return HabitMath.LongestOpenStreak(habit.Logs.Select(l => l.Date), DateTime.UtcNow);
     }
+
+    private int ChecksThisWeek(Habit habit) => HabitMath.ChecksThisWeek(habit, weekStart);
 
     private void ShowAddModal()
     {
@@ -226,35 +238,74 @@
         showAdd = true;
     }
 
+    private async Task ReloadHabits()
+    {
+        habits = isGuest
+            ? await GuestHabitService.GetHabitsAsync()
+            : await HabitService.GetHabitsAsync(userId!);
+    }
+
     private async Task QuickAdd(HabitTemplate template)
     {
-        if (string.IsNullOrEmpty(userId)) return;
-        await HabitService.AddHabitAsync(userId, template.Title, template.Icon, template.Color);
-        habits = await HabitService.GetHabitsAsync(userId);
+        var added = isGuest
+            ? await GuestHabitService.AddHabitAsync(template.Title, template.Icon, template.Color)
+            : await HabitService.AddHabitAsync(userId!, template.Title, template.Icon, template.Color);
+        if (added == null)
+        {
+            ToastService.ShowError(Localizer["HabitLimit"]);
+            return;
+        }
+        await ReloadHabits();
         ToastService.ShowSuccess(Localizer["HabitCreated"]);
     }
 
     private async Task AddHabit()
     {
-        if (string.IsNullOrWhiteSpace(newTitle) || string.IsNullOrEmpty(userId)) return;
-        await HabitService.AddHabitAsync(userId, newTitle, newIcon, newColor, newTarget);
-        habits = await HabitService.GetHabitsAsync(userId);
+        if (string.IsNullOrWhiteSpace(newTitle)) return;
+        var added = isGuest
+            ? await GuestHabitService.AddHabitAsync(newTitle, newIcon, newColor, newTarget)
+            : await HabitService.AddHabitAsync(userId!, newTitle, newIcon, newColor, newTarget);
+        if (added == null)
+        {
+            ToastService.ShowError(Localizer["HabitLimit"]);
+            return;
+        }
+        await ReloadHabits();
         showAdd = false;
         ToastService.ShowSuccess(Localizer["HabitCreated"]);
     }
 
     private async Task Toggle(Habit habit)
     {
-        if (string.IsNullOrEmpty(userId)) return;
-        await HabitService.ToggleHabitTodayAsync(userId, habit.Id);
-        habits = await HabitService.GetHabitsAsync(userId);
+        if (isGuest)
+        {
+            await GuestHabitService.ToggleTodayAsync(habit.Id);
+        }
+        else
+        {
+            await HabitService.ToggleHabitTodayAsync(userId!, habit.Id);
+        }
+        await ReloadHabits();
     }
 
     private async Task Archive(Habit habit)
     {
         if (!await JSRuntime.InvokeAsync<bool>("confirm", Localizer["ConfirmArchiveHabit"].Value)) return;
-        if (string.IsNullOrEmpty(userId)) return;
-        await HabitService.ArchiveHabitAsync(userId, habit.Id);
-        habits = await HabitService.GetHabitsAsync(userId);
+        if (isGuest)
+        {
+            await GuestHabitService.ArchiveAsync(habit.Id);
+        }
+        else
+        {
+            await HabitService.ArchiveHabitAsync(userId!, habit.Id);
+        }
+        await ReloadHabits();
+    }
+
+    private async Task ExportGuest()
+    {
+        var json = await GuestExportService.ExportJsonAsync();
+        await JSRuntime.InvokeVoidAsync("downloadTextFile", InputGuard.ExportFileName(), json, "application/json");
+        ToastService.ShowSuccess(Localizer["ExportReady"]);
     }
 }

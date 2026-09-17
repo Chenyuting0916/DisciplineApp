@@ -783,4 +783,121 @@
   <data name="VowSet" xml:space="preserve">
     <value>誓言已鎖定。</value>
   </data>
+  <data name="GuestHabitsHint" xml:space="preserve">
+    <value>訪客習慣存在這台裝置，登入後才能同步到帳號。</value>
+  </data>
+  <data name="HabitLimit" xml:space="preserve">
+    <value>習慣數量已達上限。</value>
+  </data>
+  <data name="IfThenTitle" xml:space="preserve">
+    <value>如果…那就…</value>
+  </data>
+  <data name="IfThenHint" xml:space="preserve">
+    <value>先把觸發情境寫清楚，再綁上你要自動做的動作。這比靠意志力更穩。</value>
+  </data>
+  <data name="IfPlaceholder" xml:space="preserve">
+    <value>如果我拿起手機…</value>
+  </data>
+  <data name="ThenPlaceholder" xml:space="preserve">
+    <value>那就打開計時器</value>
+  </data>
+  <data name="IfLabel" xml:space="preserve">
+    <value>如果</value>
+  </data>
+  <data name="ThenLabel" xml:space="preserve">
+    <value>那就</value>
+  </data>
+  <data name="NoIfThen" xml:space="preserve">
+    <value>還沒有意圖。先加一條最容易卡住的情境。</value>
+  </data>
+  <data name="IfThenSaved" xml:space="preserve">
+    <value>意圖已記下。</value>
+  </data>
+  <data name="IfThenEmpty" xml:space="preserve">
+    <value>如果與那就都要填。</value>
+  </data>
+  <data name="IfThenLimit" xml:space="preserve">
+    <value>意圖數量已達上限。</value>
+  </data>
+  <data name="IfThenTpl1If" xml:space="preserve">
+    <value>我拿起手機</value>
+  </data>
+  <data name="IfThenTpl1Then" xml:space="preserve">
+    <value>打開番茄鐘</value>
+  </data>
+  <data name="IfThenTpl2If" xml:space="preserve">
+    <value>完成一顆番茄</value>
+  </data>
+  <data name="IfThenTpl2Then" xml:space="preserve">
+    <value>站起來喝水</value>
+  </data>
+  <data name="IfThenTpl3If" xml:space="preserve">
+    <value>晚上十點</value>
+  </data>
+  <data name="IfThenTpl3Then" xml:space="preserve">
+    <value>把手機放到另一個房間</value>
+  </data>
+  <data name="ExportData" xml:space="preserve">
+    <value>匯出資料</value>
+  </data>
+  <data name="ExportReady" xml:space="preserve">
+    <value>已下載你的資料副本。</value>
+  </data>
+  <data name="BreathHint" xml:space="preserve">
+    <value>先呼吸一輪，再開始。空白鍵之後也能跳過。</value>
+  </data>
+  <data name="BreathInhale" xml:space="preserve">
+    <value>吸氣</value>
+  </data>
+  <data name="BreathHold" xml:space="preserve">
+    <value>停留</value>
+  </data>
+  <data name="BreathExhale" xml:space="preserve">
+    <value>吐氣</value>
+  </data>
+  <data name="SkipBreath" xml:space="preserve">
+    <value>跳過，直接開始</value>
+  </data>
+  <data name="SkipBreathAlways" xml:space="preserve">
+    <value>以後不要這段</value>
+  </data>
+  <data name="GuestHomeHint" xml:space="preserve">
+    <value>先在這台裝置立誓與打卡。登入後才能同步到帳號。</value>
+  </data>
+  <data name="WeekProgress" xml:space="preserve">
+    <value>本週 {0}/{1} 天</value>
+  </data>
+  <data name="ExportPrivacyNote" xml:space="preserve">
+    <value>檔案只會下載到你的裝置。伺服器不會另外存一份，也不含其他人的資料。</value>
+  </data>
+  <data name="TimerShortcuts" xml:space="preserve">
+    <value>空白鍵開始或暫停 · Esc 離開聖域</value>
+  </data>
+  <data name="StretchNeck" xml:space="preserve">
+    <value>慢慢把耳朵靠近肩膀，左右各停 20 秒。</value>
+  </data>
+  <data name="StretchShoulders" xml:space="preserve">
+    <value>雙手交握往上伸，肩胛骨往下沉。</value>
+  </data>
+  <data name="StretchStand" xml:space="preserve">
+    <value>站起來，膝蓋微彎，轉轉腳踝。</value>
+  </data>
+  <data name="StretchEyes" xml:space="preserve">
+    <value>看 20 呎外的東西 20 秒，讓眼睛休息。</value>
+  </data>
+  <data name="StretchWalk" xml:space="preserve">
+    <value>離開螢幕走一圈，喝一口水再回來。</value>
+  </data>
+  <data name="OfflineBanner" xml:space="preserve">
+    <value>目前離線。資料仍留在這台裝置。</value>
+  </data>
+  <data name="GuestReviewHint" xml:space="preserve">
+    <value>這是這台裝置上的訪客週報。登入後才有專注分鐘與等級。</value>
+  </data>
+  <data name="ReviewGuestEmpty" xml:space="preserve">
+    <value>這週還沒有訪客紀錄。先去打一個習慣或立一句誓言。</value>
+  </data>
+  <data name="ReviewGuestLetter" xml:space="preserve">
+    <value>這週你在這台裝置打了 {0} 次習慣、完成 {1} 項任務、立了 {2} 天誓言。</value>
+  </data>
 </root>
