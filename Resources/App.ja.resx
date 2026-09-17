@@ -963,4 +963,7 @@
   <data name="HeatmapActivityCount" xml:space="preserve">
     <value>{0} 回</value>
   </data>
+  <data name="GuestChallengeHint" xml:space="preserve">
+    <value>ゲストで受けると7日分のタスクはこの端末だけに残り、共有チャレンジには書き込みません。先にログインしても受けられます。</value>
+  </data>
 </root>
