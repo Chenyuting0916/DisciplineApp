@@ -871,7 +871,7 @@
     <value>ファイルはこの端末にだけ保存されます。サーバーにコピーは残らず、他人のデータも含みません。</value>
   </data>
   <data name="TimerShortcuts" xml:space="preserve">
-    <value>Space で開始/停止 · 1/2/3 で 15/25/50 分 · Esc で聖域を出る</value>
+    <value>Space で開始/停止 · 1/2/3 で 15/25/50 分 · S で呼吸をスキップ · Esc で聖域を出る</value>
   </data>
   <data name="StretchNeck" xml:space="preserve">
     <value>耳を肩に近づけ、左右それぞれ 20 秒。</value>
@@ -923,5 +923,11 @@
   </data>
   <data name="GuestHeatmapHint" xml:space="preserve">
     <value>色はこの端末の集中・タスク・習慣から。送信しない。</value>
+  </data>
+  <data name="GuestStreakHint" xml:space="preserve">
+    <value>集中・タスク・習慣がある連続日数</value>
+  </data>
+  <data name="StartThisThing" xml:space="preserve">
+    <value>これを始める</value>
   </data>
 </root>

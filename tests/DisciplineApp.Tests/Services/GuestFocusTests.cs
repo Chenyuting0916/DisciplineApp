@@ -117,5 +117,8 @@ public class GuestFocusTests
         Assert.Equal(3, map[day.Date]);
         Assert.False(map.ContainsKey(new DateTime(2025, 6, 1)));
         Assert.Empty(GuestFocusLogic.BuildHeatmap(null, null, null, start));
+        Assert.Equal(1, GuestFocusLogic.ActivityStreak(map.Keys, day.AddHours(12)));
+        Assert.Equal(0, GuestFocusLogic.ActivityStreak(Array.Empty<DateTime>(), day));
+        Assert.Equal(2, GuestFocusLogic.ActivityStreak(new[] { day, day.AddDays(-1) }, day));
     }
 }

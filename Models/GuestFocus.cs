@@ -140,6 +140,9 @@ public static class GuestFocusLogic
         return activity;
     }
 
+    public static int ActivityStreak(IEnumerable<DateTime> days, DateTime utcNow)
+        => HabitMath.LongestOpenStreak(days, utcNow);
+
     public static FocusSession ToFocusSession(GuestFocusSession session)
         => new()
         {

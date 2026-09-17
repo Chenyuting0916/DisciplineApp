@@ -871,7 +871,7 @@
     <value>檔案只會下載到你的裝置。伺服器不會另外存一份，也不含其他人的資料。</value>
   </data>
   <data name="TimerShortcuts" xml:space="preserve">
-    <value>空白鍵開始或暫停 · 1/2/3 選 15/25/50 分 · Esc 離開聖域</value>
+    <value>空白鍵開始或暫停 · 1/2/3 選 15/25/50 分 · S 跳過呼吸 · Esc 離開聖域</value>
   </data>
   <data name="StretchNeck" xml:space="preserve">
     <value>慢慢把耳朵靠近肩膀，左右各停 20 秒。</value>
@@ -923,5 +923,11 @@
   </data>
   <data name="GuestHeatmapHint" xml:space="preserve">
     <value>顏色來自這台裝置的專注、任務與習慣，不會上傳。</value>
+  </data>
+  <data name="GuestStreakHint" xml:space="preserve">
+    <value>有專注、任務或習慣的連續天數</value>
+  </data>
+  <data name="StartThisThing" xml:space="preserve">
+    <value>開始這一件</value>
   </data>
 </root>

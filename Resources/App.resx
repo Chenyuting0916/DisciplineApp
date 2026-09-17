@@ -871,7 +871,7 @@
     <value>The file downloads to your device only. The server does not keep a copy, and it never includes anyone else’s data.</value>
   </data>
   <data name="TimerShortcuts" xml:space="preserve">
-    <value>Space starts or pauses · 1/2/3 pick 15/25/50 min · Esc leaves sanctuary</value>
+    <value>Space starts or pauses · 1/2/3 pick 15/25/50 min · S skips breath · Esc leaves sanctuary</value>
   </data>
   <data name="StretchNeck" xml:space="preserve">
     <value>Slowly drop each ear toward the shoulder and hold 20 seconds.</value>
@@ -923,5 +923,11 @@
   </data>
   <data name="GuestHeatmapHint" xml:space="preserve">
     <value>Color comes from focus, tasks, and habits on this device. Nothing is uploaded.</value>
+  </data>
+  <data name="GuestStreakHint" xml:space="preserve">
+    <value>Consecutive days with focus, a task, or a habit</value>
+  </data>
+  <data name="StartThisThing" xml:space="preserve">
+    <value>Start this one</value>
   </data>
 </root>

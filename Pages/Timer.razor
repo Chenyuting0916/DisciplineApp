@@ -783,6 +783,11 @@
 
     private async Task HandleKey(KeyboardEventArgs e)
     {
+        if (showBreath && (e.Key == "s" || e.Key == "S" || e.Code == "Space"))
+        {
+            await SkipBreath();
+            return;
+        }
         if (e.Code == "Space")
         {
             if (TimerService.IsRunning) PauseTimer();
