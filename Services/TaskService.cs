@@ -108,6 +108,7 @@ public class TaskService : ITaskService
                 
                 task.XpAwarded = true; 
                 await _context.SaveChangesAsync();
+                await _gamificationService.RecordActivityAsync(userId);
                 return (result.success, result.xpAwarded, result.remainingDaily, !result.success && result.remainingDaily <= 0, result.levelUp);
             }
             else

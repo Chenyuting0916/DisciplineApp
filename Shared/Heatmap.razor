@@ -1,13 +1,14 @@
 @using System.Globalization
 @inject IGamificationService GamificationService
 @inject AuthenticationStateProvider AuthenticationStateProvider
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 
 <div class="heatmap-container">
-    <h4 class="mb-3">Activity Heatmap</h4>
+    <h4 class="mb-3">@Localizer["ActivityHeatmap"]</h4>
     
     @if (isLoading)
     {
-        <p>Loading activity...</p>
+        <p>@Localizer["Loading"]</p>
     }
     else
     {

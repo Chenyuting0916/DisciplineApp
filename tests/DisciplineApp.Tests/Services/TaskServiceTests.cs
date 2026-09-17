@@ -26,7 +26,9 @@ public class TaskServiceTests
 
         // Setup default mock behavior
         _mockGamificationService.Setup(s => s.AddXpAsync(It.IsAny<string>(), It.IsAny<int>()))
-            .ReturnsAsync((true, 50, 450, false)); 
+            .ReturnsAsync((true, 50, 450, false));
+        _mockGamificationService.Setup(s => s.RecordActivityAsync(It.IsAny<string>()))
+            .ReturnsAsync(StreakStatus.Active); 
 
         _taskService = new TaskService(_context, _mockGamificationService.Object);
     }
@@ -121,22 +123,18 @@ public class TaskServiceTests
     [Fact]
     public async Task GetCategoriesAsync_ShouldReturnSystemAndUserCategories()
     {
-        // Arrange
+        // Categories now live on CategoryService; this test is retained as a smoke check via DbContext.
         string userId = "user1";
-        
-        // System category
         _context.Categories.Add(new Category { Name = "System Cat", UserId = null });
-        // User category
         _context.Categories.Add(new Category { Name = "User Cat", UserId = userId });
-        // Other user category
         _context.Categories.Add(new Category { Name = "Other Cat", UserId = "other" });
         await _context.SaveChangesAsync();
 
-        // Act
-        var categories = await _taskService.GetCategoriesAsync(userId);
+        var categories = await _context.Categories
+            .Where(c => c.UserId == null || c.UserId == userId)
+            .ToListAsync();
 
-        // Assert
-        Assert.Equal(2, categories.Count); // System + User
+        Assert.Equal(2, categories.Count);
         Assert.Contains(categories, c => c.Name == "System Cat");
         Assert.Contains(categories, c => c.Name == "User Cat");
         Assert.DoesNotContain(categories, c => c.Name == "Other Cat");

@@ -20,6 +20,9 @@
 
             <input type="radio" class="btn-check" name="sort" id="sort-focus" autocomplete="off" checked="@(sortBy == "focus")" @onchange="@(() => SortBy("focus"))">
             <label class="btn btn-outline-warning" for="sort-focus">@Localizer["FocusTime"]</label>
+
+            <input type="radio" class="btn-check" name="sort" id="sort-streak" autocomplete="off" checked="@(sortBy == "streak")" @onchange="@(() => SortBy("streak"))">
+            <label class="btn btn-outline-warning" for="sort-streak">@Localizer["Streak"]</label>
         </div>
     </div>
 
@@ -40,7 +43,8 @@
                                 <th class="text-center @(sortBy == "xp" ? "text-warning" : "")">@Localizer["Level"]</th>
                                 <th class="text-end @(sortBy == "xp" ? "text-warning" : "")">@Localizer["TotalXP"]</th>
                                 <th class="text-end @(sortBy == "coins" ? "text-warning" : "")">@Localizer["Coins"]</th>
-                                <th class="text-end pe-4 @(sortBy == "focus" ? "text-warning" : "")">@Localizer["FocusTime"]</th>
+                                <th class="text-end @(sortBy == "focus" ? "text-warning" : "")">@Localizer["FocusTime"]</th>
+                                <th class="text-end pe-4 @(sortBy == "streak" ? "text-warning" : "")">@Localizer["Streak"]</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -99,8 +103,11 @@
                                     <td class="text-end align-middle text-warning @(sortBy == "coins" ? "fw-bold" : "")">
                                         💰 @user.GoldCoins
                                     </td>
-                                    <td class="text-end align-middle pe-4 @(sortBy == "focus" ? "fw-bold" : "")">
+                                    <td class="text-end align-middle @(sortBy == "focus" ? "fw-bold" : "")">
                                         @((int)user.TotalFocusMinutes)m
+                                    </td>
+                                    <td class="text-end align-middle pe-4 @(sortBy == "streak" ? "fw-bold" : "")">
+                                        🔥 @user.CurrentStreak
                                     </td>
                                 </tr>
                             }

@@ -1,0 +1,229 @@
+@page "/habits"
+@inject IHabitService HabitService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@inject ToastService ToastService
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
+@inject IJSRuntime JSRuntime
+
+<PageTitle>@Localizer["Habits"] — Discipline</PageTitle>
+
+<AuthorizeView>
+    <Authorized>
+        <div class="dashboard-container pt-3 pb-5">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                    <p class="hero-kicker mb-1">@Localizer["Habits"]</p>
+                    <h1 class="mb-0">@Localizer["HabitsTitle"]</h1>
+                </div>
+                <button class="btn btn-primary" @onclick="ShowAddModal">
+                    <span class="oi oi-plus"></span> @Localizer["AddHabit"]
+                </button>
+            </div>
+
+            <div class="stat-card mb-4">
+                <div class="label">@Localizer["HabitsToday"]</div>
+                <div class="value">@completedToday / @habits.Count</div>
+                <div class="progress mt-2" style="height: 8px; background: var(--bg-tertiary);">
+                    <div class="progress-bar" style="width: @(HabitPercent)%; background: var(--accent-color);"></div>
+                </div>
+            </div>
+
+            @if (!habits.Any())
+            {
+                <div class="card p-4 text-center">
+                    <p class="text-muted mb-3">@Localizer["NoHabits"]</p>
+                    <div class="d-flex flex-wrap justify-content-center gap-2">
+                        @foreach (var template in templates)
+                        {
+                            <button class="preset-chip" @onclick="() => QuickAdd(template)">@template.Icon @template.Title</button>
+                        }
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="d-flex flex-column gap-3">
+                    @foreach (var habit in habits)
+                    {
+                        var doneToday = IsDoneToday(habit);
+                        var streak = GetStreak(habit);
+                        <div class="habit-card" style="--habit-color: @habit.Color">
+                            <div class="d-flex align-items-center gap-3">
+                                <button class="habit-check @(doneToday ? "done" : "")" @onclick="() => Toggle(habit)">
+                                    @(doneToday ? "✓" : habit.Icon)
+                                </button>
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div>
+                                            <strong>@habit.Icon @habit.Title</strong>
+                                            <div class="small text-muted">🔥 @streak · @string.Format(Localizer["TargetDays"], habit.TargetDaysPerWeek)</div>
+                                        </div>
+                                        <button class="btn btn-sm btn-outline-danger" @onclick="() => Archive(habit)">@Localizer["ArchiveHabit"]</button>
+                                    </div>
+                                    <div class="habit-week mt-3">
+                                        @for (int i = 0; i < 7; i++)
+                                        {
+                                            var day = weekStart.AddDays(i);
+                                            var done = habit.Logs.Any(l => l.Date.Date == day);
+                                            <div class="habit-day @(done ? "done" : "")" title="@day.ToString("MM/dd")"></div>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <div class="hero-landing">
+            <h1>@Localizer["Habits"]</h1>
+            <p class="lead">@Localizer["PleaseLoginHabits"]</p>
+        </div>
+    </NotAuthorized>
+</AuthorizeView>
+
+@if (showAdd)
+{
+    <div class="modal fade show d-block" tabindex="-1" style="background-color: rgba(0,0,0,0.5);">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-secondary">
+                    <h5 class="modal-title">@Localizer["AddHabit"]</h5>
+                    <button type="button" class="btn-close btn-close-white" @onclick="() => showAdd = false"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["HabitTitle"]</label>
+                        <input class="form-control" @bind="newTitle" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["HabitIcon"]</label>
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach (var icon in icons)
+                            {
+                                <button class="mood-btn @(newIcon == icon ? "active" : "")" @onclick="() => newIcon = icon">@icon</button>
+                            }
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["CategoryColor"]</label>
+                        <input type="color" class="form-control form-control-color" @bind="newColor" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">@Localizer["TargetDays"]</label>
+                        <input type="number" min="1" max="7" class="form-control" @bind="newTarget" />
+                    </div>
+                </div>
+                <div class="modal-footer border-secondary">
+                    <button class="btn btn-secondary" @onclick="() => showAdd = false">@Localizer["Cancel"]</button>
+                    <button class="btn btn-primary" @onclick="AddHabit">@Localizer["Save"]</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<style>
+    .dashboard-container { max-width: 760px; margin: 0 auto; }
+</style>
+
+@code {
+    private List<Habit> habits = new();
+    private string? userId;
+    private bool showAdd;
+    private string newTitle = "";
+    private string newIcon = "✅";
+    private string newColor = "#F5A524";
+    private int newTarget = 7;
+    private DateTime weekStart;
+
+    private string[] icons = { "✅", "💧", "🏃", "📚", "🧘", "😴", "✍️", "🥗", "🧹", "📵" };
+
+    private record HabitTemplate(string Title, string Icon, string Color);
+    private List<HabitTemplate> templates = new();
+
+    private int completedToday => habits.Count(IsDoneToday);
+    private int HabitPercent => habits.Count == 0 ? 0 : (int)((double)completedToday / habits.Count * 100);
+
+    protected override async Task OnInitializedAsync()
+    {
+        weekStart = DateTime.UtcNow.Date.AddDays(-((int)DateTime.UtcNow.DayOfWeek));
+        templates = new()
+        {
+            new(Localizer["HabitWater"], "💧", "#38bdf8"),
+            new(Localizer["HabitExercise"], "🏃", "#f97316"),
+            new(Localizer["HabitRead"], "📚", "#a78bfa"),
+            new(Localizer["HabitMeditate"], "🧘", "#34d399"),
+            new(Localizer["HabitSleep"], "😴", "#818cf8"),
+            new(Localizer["HabitJournal"], "✍️", "#f5a524"),
+        };
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        userId = authState.User.FindFirst(u => u.Type.Contains("nameidentifier"))?.Value;
+        if (!string.IsNullOrEmpty(userId))
+        {
+            habits = await HabitService.GetHabitsAsync(userId);
+        }
+    }
+
+    private bool IsDoneToday(Habit habit) => habit.Logs.Any(l => l.Date.Date == DateTime.UtcNow.Date);
+
+    private int GetStreak(Habit habit)
+    {
+        var dates = habit.Logs.Select(l => l.Date.Date).Distinct().OrderByDescending(d => d).ToList();
+        if (dates.Count == 0) return 0;
+        var cursor = DateTime.UtcNow.Date;
+        if (dates[0] < cursor.AddDays(-1)) return 0;
+        if (dates[0] == cursor.AddDays(-1)) cursor = dates[0];
+        int streak = 0;
+        foreach (var date in dates)
+        {
+            if (date == cursor) { streak++; cursor = cursor.AddDays(-1); }
+            else if (date < cursor) break;
+        }
+        return streak;
+    }
+
+    private void ShowAddModal()
+    {
+        newTitle = "";
+        newIcon = "✅";
+        newColor = "#F5A524";
+        newTarget = 7;
+        showAdd = true;
+    }
+
+    private async Task QuickAdd(HabitTemplate template)
+    {
+        if (string.IsNullOrEmpty(userId)) return;
+        await HabitService.AddHabitAsync(userId, template.Title, template.Icon, template.Color);
+        habits = await HabitService.GetHabitsAsync(userId);
+        ToastService.ShowSuccess(Localizer["HabitCreated"]);
+    }
+
+    private async Task AddHabit()
+    {
+        if (string.IsNullOrWhiteSpace(newTitle) || string.IsNullOrEmpty(userId)) return;
+        await HabitService.AddHabitAsync(userId, newTitle, newIcon, newColor, newTarget);
+        habits = await HabitService.GetHabitsAsync(userId);
+        showAdd = false;
+        ToastService.ShowSuccess(Localizer["HabitCreated"]);
+    }
+
+    private async Task Toggle(Habit habit)
+    {
+        if (string.IsNullOrEmpty(userId)) return;
+        await HabitService.ToggleHabitTodayAsync(userId, habit.Id);
+        habits = await HabitService.GetHabitsAsync(userId);
+    }
+
+    private async Task Archive(Habit habit)
+    {
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", Localizer["ConfirmArchiveHabit"].Value)) return;
+        if (string.IsNullOrEmpty(userId)) return;
+        await HabitService.ArchiveHabitAsync(userId, habit.Id);
+        habits = await HabitService.GetHabitsAsync(userId);
+    }
+}

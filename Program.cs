@@ -58,6 +58,9 @@ builder.Services.AddScoped<DisciplineApp.Services.ToastService>();
 builder.Services.AddScoped<DisciplineApp.Services.TimerService>();
 builder.Services.AddScoped<IAnalyticsService, AnalyticsService>();
 builder.Services.AddScoped<GuestTaskService>();
+builder.Services.AddScoped<IHabitService, HabitService>();
+builder.Services.AddScoped<IReflectionService, ReflectionService>();
+builder.Services.AddScoped<QuoteService>();
 
 builder.Services.AddAuthentication()
     .AddGoogle(options =>
@@ -151,6 +154,8 @@ var localizationOptions = new RequestLocalizationOptions()
 app.UseRequestLocalization(localizationOptions);
 
 app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers(); // Required for CultureController
 
 app.MapBlazorHub();

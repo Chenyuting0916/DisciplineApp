@@ -396,4 +396,250 @@
   <data name="EnterCategoryName" xml:space="preserve">
     <value>カテゴリ名を入力...</value>
   </data>
+  <data name="Habits" xml:space="preserve">
+    <value>習慣</value>
+  </data>
+  <data name="HabitsTitle" xml:space="preserve">
+    <value>毎日の小さな約束が、なりたい自分をつくる</value>
+  </data>
+  <data name="Streak" xml:space="preserve">
+    <value>連続記録</value>
+  </data>
+  <data name="DailyGoal" xml:space="preserve">
+    <value>今日の目標</value>
+  </data>
+  <data name="LongestStreak" xml:space="preserve">
+    <value>最長</value>
+  </data>
+  <data name="ProtectStreak" xml:space="preserve">
+    <value>連続を守る</value>
+  </data>
+  <data name="StreakAtRisk" xml:space="preserve">
+    <value>連続記録が危険です。昨日何も完了していません。</value>
+  </data>
+  <data name="FreezeCost" xml:space="preserve">
+    <value>{0} コインで昨日を凍結し、記録を続けます。</value>
+  </data>
+  <data name="NotEnoughCoins" xml:space="preserve">
+    <value>コインが足りず、連続記録を守れません。</value>
+  </data>
+  <data name="StreakSaved" xml:space="preserve">
+    <value>連続記録を保護しました。今日もう一つ完了すればつながります。</value>
+  </data>
+  <data name="SetGoal" xml:space="preserve">
+    <value>目標を設定</value>
+  </data>
+  <data name="GoalUpdated" xml:space="preserve">
+    <value>毎日の集中目標を更新しました。</value>
+  </data>
+  <data name="DailyGoalHint" xml:space="preserve">
+    <value>毎日何分集中したいですか？</value>
+  </data>
+  <data name="TodaysFocus" xml:space="preserve">
+    <value>分（今日）</value>
+  </data>
+  <data name="HabitsToday" xml:space="preserve">
+    <value>今日の習慣</value>
+  </data>
+  <data name="HowAreYouFeeling" xml:space="preserve">
+    <value>10秒のチェックインで、自律が見えるようになります。</value>
+  </data>
+  <data name="SavedReflection" xml:space="preserve">
+    <value>記録しました</value>
+  </data>
+  <data name="ReflectionPlaceholder" xml:space="preserve">
+    <value>今日を一言で…</value>
+  </data>
+  <data name="DailyCheckIn" xml:space="preserve">
+    <value>今日の気分</value>
+  </data>
+  <data name="CompletedOf" xml:space="preserve">
+    <value>件完了</value>
+  </data>
+  <data name="AddHabit" xml:space="preserve">
+    <value>習慣を追加</value>
+  </data>
+  <data name="HabitTitle" xml:space="preserve">
+    <value>習慣名</value>
+  </data>
+  <data name="HabitIcon" xml:space="preserve">
+    <value>アイコン</value>
+  </data>
+  <data name="TargetDays" xml:space="preserve">
+    <value>週 {0} 日</value>
+  </data>
+  <data name="ArchiveHabit" xml:space="preserve">
+    <value>アーカイブ</value>
+  </data>
+  <data name="NoHabits" xml:space="preserve">
+    <value>まだ習慣がありません。小さな約束から始めましょう。</value>
+  </data>
+  <data name="PleaseLoginHabits" xml:space="preserve">
+    <value>ログインすると習慣・連続記録・気分チェックが使えます。</value>
+  </data>
+  <data name="HabitCreated" xml:space="preserve">
+    <value>習慣を追加しました。</value>
+  </data>
+  <data name="ConfirmArchiveHabit" xml:space="preserve">
+    <value>この習慣をアーカイブしますか？</value>
+  </data>
+  <data name="HabitWater" xml:space="preserve">
+    <value>水を飲む</value>
+  </data>
+  <data name="HabitExercise" xml:space="preserve">
+    <value>体を動かす</value>
+  </data>
+  <data name="HabitRead" xml:space="preserve">
+    <value>10ページ読む</value>
+  </data>
+  <data name="HabitMeditate" xml:space="preserve">
+    <value>5分座る</value>
+  </data>
+  <data name="HabitSleep" xml:space="preserve">
+    <value>決まった時間に寝る</value>
+  </data>
+  <data name="HabitJournal" xml:space="preserve">
+    <value>一行書く</value>
+  </data>
+  <data name="ShortBreak" xml:space="preserve">
+    <value>短い休憩</value>
+  </data>
+  <data name="LongBreak" xml:space="preserve">
+    <value>長い休憩</value>
+  </data>
+  <data name="Focus" xml:space="preserve">
+    <value>集中</value>
+  </data>
+  <data name="Break" xml:space="preserve">
+    <value>休憩</value>
+  </data>
+  <data name="MinutesShort" xml:space="preserve">
+    <value>分</value>
+  </data>
+  <data name="SessionsToday" xml:space="preserve">
+    <value>ポモドーロ {0} 回完了</value>
+  </data>
+  <data name="TakeABreak" xml:space="preserve">
+    <value>よくできました。回復してから次へ。</value>
+  </data>
+  <data name="ContinueFocusing" xml:space="preserve">
+    <value>集中を続ける</value>
+  </data>
+  <data name="BreakComplete" xml:space="preserve">
+    <value>休憩終了。仕事に戻りましょう。</value>
+  </data>
+  <data name="LandingTitle" xml:space="preserve">
+    <value>まずは今日、姿を見せる。</value>
+  </data>
+  <data name="LandingSubtitle" xml:space="preserve">
+    <value>集中し、連続記録を守り、小さな毎日を信じられる自分に変える場所。</value>
+  </data>
+  <data name="LandingCta" xml:space="preserve">
+    <value>Google で始める</value>
+  </data>
+  <data name="TryTimer" xml:space="preserve">
+    <value>タイマーを試す</value>
+  </data>
+  <data name="FeatureTimer" xml:space="preserve">
+    <value>深い集中</value>
+  </data>
+  <data name="FeatureTimerDesc" xml:space="preserve">
+    <value>ポモドーロ、ストップウォッチ、休憩。すぐ始めて、自分に正直でいられるように。</value>
+  </data>
+  <data name="FeatureStreaks" xml:space="preserve">
+    <value>効く連続記録</value>
+  </data>
+  <data name="FeatureStreaksDesc" xml:space="preserve">
+    <value>一日休むと痛い。どうしても無理な日はコインで守れます。</value>
+  </data>
+  <data name="FeatureHabits" xml:space="preserve">
+    <value>小さな習慣</value>
+  </data>
+  <data name="FeatureHabitsDesc" xml:space="preserve">
+    <value>同じ約束に毎日チェックを入れて、それが自分になるまで続ける。</value>
+  </data>
+  <data name="FeatureXp" xml:space="preserve">
+    <value>ゲーム化する</value>
+  </data>
+  <data name="FeatureXpDesc" xml:space="preserve">
+    <value>XP、コイン、レベル、リーダーボード。点数を見たい自分のために。</value>
+  </data>
+  <data name="HowItWorks" xml:space="preserve">
+    <value>ここで自律はどう育つか</value>
+  </data>
+  <data name="Step1Title" xml:space="preserve">
+    <value>一つ選ぶ</value>
+  </data>
+  <data name="Step1Desc" xml:space="preserve">
+    <value>人生を作り直さなくていい。次の25分を選ぶだけ。</value>
+  </data>
+  <data name="Step2Title" xml:space="preserve">
+    <value>連続を守る</value>
+  </data>
+  <data name="Step2Desc" xml:space="preserve">
+    <value>毎日現れる。習慣、タスク、集中セッション、どれでもカウント。</value>
+  </data>
+  <data name="Step3Title" xml:space="preserve">
+    <value>週を振り返る</value>
+  </data>
+  <data name="Step3Desc" xml:space="preserve">
+    <value>ヒートマップと履歴が真実を教える。それから調整する。</value>
+  </data>
+  <data name="GreetingMorning" xml:space="preserve">
+    <value>おはようございます</value>
+  </data>
+  <data name="GreetingAfternoon" xml:space="preserve">
+    <value>こんにちは</value>
+  </data>
+  <data name="GreetingEvening" xml:space="preserve">
+    <value>こんばんは</value>
+  </data>
+  <data name="MoodTerrible" xml:space="preserve">
+    <value>つらい</value>
+  </data>
+  <data name="MoodBad" xml:space="preserve">
+    <value>低い</value>
+  </data>
+  <data name="MoodOk" xml:space="preserve">
+    <value>普通</value>
+  </data>
+  <data name="MoodGood" xml:space="preserve">
+    <value>良い</value>
+  </data>
+  <data name="MoodGreat" xml:space="preserve">
+    <value>最高</value>
+  </data>
+  <data name="ActivityHeatmap" xml:space="preserve">
+    <value>アクティビティヒートマップ</value>
+  </data>
+  <data name="Quote1" xml:space="preserve">
+    <value>規律とは、今欲しいものより、本当に欲しいものを選ぶこと。</value>
+  </data>
+  <data name="Quote2" xml:space="preserve">
+    <value>人は目標の高さまで上昇しない。システムの高さまで落ちる。</value>
+  </data>
+  <data name="Quote3" xml:space="preserve">
+    <value>今日先延ばした仕事は、明日信頼できない自分になる。</value>
+  </data>
+  <data name="Quote4" xml:space="preserve">
+    <value>準備ができる前に始めよう。準備はしばしば先延ばしだ。</value>
+  </data>
+  <data name="Quote5" xml:space="preserve">
+    <value>退屈でも繰り返す25分は、派手な計画に勝つ。</value>
+  </data>
+  <data name="Quote6" xml:space="preserve">
+    <value>やめたい自分と交渉するな。</value>
+  </data>
+  <data name="Quote7" xml:space="preserve">
+    <value>継続は、未来の自分への優しさだ。</value>
+  </data>
+  <data name="Quote8" xml:space="preserve">
+    <value>大事なことには時間枠を。願うだけでは足りない。</value>
+  </data>
+  <data name="Quote9" xml:space="preserve">
+    <value>小さく現れ、長く残れば、複利になる。</value>
+  </data>
+  <data name="Quote10" xml:space="preserve">
+    <value>今日が求めているのは、次の正直な集中ブロックだけ。</value>
+  </data>
 </root>

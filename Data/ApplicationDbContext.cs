@@ -17,6 +17,9 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Category> Categories { get; set; }
     public DbSet<AnalyticsEvent> AnalyticsEvents { get; set; }
     public DbSet<Challenge> Challenges { get; set; }
+    public DbSet<Habit> Habits { get; set; }
+    public DbSet<HabitLog> HabitLogs { get; set; }
+    public DbSet<DailyReflection> DailyReflections { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -28,5 +31,19 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser>
             new Category { Id = 3, Name = "Health", ColorCode = "#EF4444" }, // Red
             new Category { Id = 4, Name = "Learning", ColorCode = "#F59E0B" } // Amber
         );
+
+        builder.Entity<HabitLog>()
+            .HasIndex(l => new { l.HabitId, l.Date })
+            .IsUnique();
+
+        builder.Entity<DailyReflection>()
+            .HasIndex(r => new { r.UserId, r.Date })
+            .IsUnique();
+
+        builder.Entity<Habit>()
+            .HasMany(h => h.Logs)
+            .WithOne(l => l.Habit)
+            .HasForeignKey(l => l.HabitId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

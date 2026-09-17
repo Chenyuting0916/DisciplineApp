@@ -396,4 +396,250 @@
   <data name="EnterCategoryName" xml:space="preserve">
     <value>Enter category name...</value>
   </data>
+  <data name="Habits" xml:space="preserve">
+    <value>Habits</value>
+  </data>
+  <data name="HabitsTitle" xml:space="preserve">
+    <value>Build the person you want to be</value>
+  </data>
+  <data name="Streak" xml:space="preserve">
+    <value>Streak</value>
+  </data>
+  <data name="DailyGoal" xml:space="preserve">
+    <value>Daily Goal</value>
+  </data>
+  <data name="LongestStreak" xml:space="preserve">
+    <value>Best</value>
+  </data>
+  <data name="ProtectStreak" xml:space="preserve">
+    <value>Protect streak</value>
+  </data>
+  <data name="StreakAtRisk" xml:space="preserve">
+    <value>Your streak is at risk — you missed yesterday.</value>
+  </data>
+  <data name="FreezeCost" xml:space="preserve">
+    <value>Spend {0} coins to freeze yesterday and keep going.</value>
+  </data>
+  <data name="NotEnoughCoins" xml:space="preserve">
+    <value>Not enough coins to freeze this streak.</value>
+  </data>
+  <data name="StreakSaved" xml:space="preserve">
+    <value>Streak protected. Finish something today to keep it alive.</value>
+  </data>
+  <data name="SetGoal" xml:space="preserve">
+    <value>Set goal</value>
+  </data>
+  <data name="GoalUpdated" xml:space="preserve">
+    <value>Daily focus goal updated.</value>
+  </data>
+  <data name="DailyGoalHint" xml:space="preserve">
+    <value>How many focused minutes do you want each day?</value>
+  </data>
+  <data name="TodaysFocus" xml:space="preserve">
+    <value>minutes today</value>
+  </data>
+  <data name="HabitsToday" xml:space="preserve">
+    <value>Habits today</value>
+  </data>
+  <data name="HowAreYouFeeling" xml:space="preserve">
+    <value>A 10-second check-in makes discipline visible.</value>
+  </data>
+  <data name="SavedReflection" xml:space="preserve">
+    <value>Check-in saved</value>
+  </data>
+  <data name="ReflectionPlaceholder" xml:space="preserve">
+    <value>One sentence about today…</value>
+  </data>
+  <data name="DailyCheckIn" xml:space="preserve">
+    <value>Daily check-in</value>
+  </data>
+  <data name="CompletedOf" xml:space="preserve">
+    <value>tasks completed</value>
+  </data>
+  <data name="AddHabit" xml:space="preserve">
+    <value>Add habit</value>
+  </data>
+  <data name="HabitTitle" xml:space="preserve">
+    <value>Habit name</value>
+  </data>
+  <data name="HabitIcon" xml:space="preserve">
+    <value>Icon</value>
+  </data>
+  <data name="TargetDays" xml:space="preserve">
+    <value>{0} days / week</value>
+  </data>
+  <data name="ArchiveHabit" xml:space="preserve">
+    <value>Archive</value>
+  </data>
+  <data name="NoHabits" xml:space="preserve">
+    <value>No habits yet. Start with one tiny promise.</value>
+  </data>
+  <data name="PleaseLoginHabits" xml:space="preserve">
+    <value>Log in to track habits, streaks, and daily check-ins.</value>
+  </data>
+  <data name="HabitCreated" xml:space="preserve">
+    <value>Habit added.</value>
+  </data>
+  <data name="ConfirmArchiveHabit" xml:space="preserve">
+    <value>Archive this habit?</value>
+  </data>
+  <data name="HabitWater" xml:space="preserve">
+    <value>Drink water</value>
+  </data>
+  <data name="HabitExercise" xml:space="preserve">
+    <value>Move your body</value>
+  </data>
+  <data name="HabitRead" xml:space="preserve">
+    <value>Read 10 pages</value>
+  </data>
+  <data name="HabitMeditate" xml:space="preserve">
+    <value>Sit still 5 minutes</value>
+  </data>
+  <data name="HabitSleep" xml:space="preserve">
+    <value>Sleep on time</value>
+  </data>
+  <data name="HabitJournal" xml:space="preserve">
+    <value>Write one line</value>
+  </data>
+  <data name="ShortBreak" xml:space="preserve">
+    <value>Short break</value>
+  </data>
+  <data name="LongBreak" xml:space="preserve">
+    <value>Long break</value>
+  </data>
+  <data name="Focus" xml:space="preserve">
+    <value>Focus</value>
+  </data>
+  <data name="Break" xml:space="preserve">
+    <value>Break</value>
+  </data>
+  <data name="MinutesShort" xml:space="preserve">
+    <value>min</value>
+  </data>
+  <data name="SessionsToday" xml:space="preserve">
+    <value>{0} pomodoros completed</value>
+  </data>
+  <data name="TakeABreak" xml:space="preserve">
+    <value>Nice work. Recover so you can go again.</value>
+  </data>
+  <data name="ContinueFocusing" xml:space="preserve">
+    <value>Keep going</value>
+  </data>
+  <data name="BreakComplete" xml:space="preserve">
+    <value>Break over — back to work.</value>
+  </data>
+  <data name="LandingTitle" xml:space="preserve">
+    <value>Show up today. The rest follows.</value>
+  </data>
+  <data name="LandingSubtitle" xml:space="preserve">
+    <value>A calm place to focus, keep streaks, and turn tiny daily actions into a person you trust.</value>
+  </data>
+  <data name="LandingCta" xml:space="preserve">
+    <value>Start with Google</value>
+  </data>
+  <data name="TryTimer" xml:space="preserve">
+    <value>Try the timer</value>
+  </data>
+  <data name="FeatureTimer" xml:space="preserve">
+    <value>Deep focus</value>
+  </data>
+  <data name="FeatureTimerDesc" xml:space="preserve">
+    <value>Pomodoro, stopwatch, and breaks — designed to start fast and stay honest.</value>
+  </data>
+  <data name="FeatureStreaks" xml:space="preserve">
+    <value>Streaks that bite</value>
+  </data>
+  <data name="FeatureStreaksDesc" xml:space="preserve">
+    <value>Miss a day and it hurts. Protect it with coins when life happens.</value>
+  </data>
+  <data name="FeatureHabits" xml:space="preserve">
+    <value>Tiny habits</value>
+  </data>
+  <data name="FeatureHabitsDesc" xml:space="preserve">
+    <value>Check off the same promises every day until they become identity.</value>
+  </data>
+  <data name="FeatureXp" xml:space="preserve">
+    <value>Make it a game</value>
+  </data>
+  <data name="FeatureXpDesc" xml:space="preserve">
+    <value>XP, coins, levels, and a leaderboard for the part of you that likes scoreboards.</value>
+  </data>
+  <data name="HowItWorks" xml:space="preserve">
+    <value>How discipline is built here</value>
+  </data>
+  <data name="Step1Title" xml:space="preserve">
+    <value>Pick one task</value>
+  </data>
+  <data name="Step1Desc" xml:space="preserve">
+    <value>Don’t plan a new life. Choose the next 25 minutes.</value>
+  </data>
+  <data name="Step2Title" xml:space="preserve">
+    <value>Protect the streak</value>
+  </data>
+  <data name="Step2Desc" xml:space="preserve">
+    <value>Show up daily. Habits, tasks, or a single focus session all count.</value>
+  </data>
+  <data name="Step3Title" xml:space="preserve">
+    <value>Review the week</value>
+  </data>
+  <data name="Step3Desc" xml:space="preserve">
+    <value>The heatmap and history tell you the truth — then you adjust.</value>
+  </data>
+  <data name="GreetingMorning" xml:space="preserve">
+    <value>Good morning</value>
+  </data>
+  <data name="GreetingAfternoon" xml:space="preserve">
+    <value>Good afternoon</value>
+  </data>
+  <data name="GreetingEvening" xml:space="preserve">
+    <value>Good evening</value>
+  </data>
+  <data name="MoodTerrible" xml:space="preserve">
+    <value>Rough</value>
+  </data>
+  <data name="MoodBad" xml:space="preserve">
+    <value>Low</value>
+  </data>
+  <data name="MoodOk" xml:space="preserve">
+    <value>Okay</value>
+  </data>
+  <data name="MoodGood" xml:space="preserve">
+    <value>Good</value>
+  </data>
+  <data name="MoodGreat" xml:space="preserve">
+    <value>Great</value>
+  </data>
+  <data name="ActivityHeatmap" xml:space="preserve">
+    <value>Activity heatmap</value>
+  </data>
+  <data name="Quote1" xml:space="preserve">
+    <value>Discipline is choosing what you want most over what you want now.</value>
+  </data>
+  <data name="Quote2" xml:space="preserve">
+    <value>You do not rise to the level of your goals. You fall to the level of your systems.</value>
+  </data>
+  <data name="Quote3" xml:space="preserve">
+    <value>The work you skip today becomes the person you don’t trust tomorrow.</value>
+  </data>
+  <data name="Quote4" xml:space="preserve">
+    <value>Start before you feel ready. Readiness is often just a delay.</value>
+  </data>
+  <data name="Quote5" xml:space="preserve">
+    <value>A boring, repeated 25 minutes will beat a dramatic plan.</value>
+  </data>
+  <data name="Quote6" xml:space="preserve">
+    <value>Don’t negotiate with the version of you that wants to quit.</value>
+  </data>
+  <data name="Quote7" xml:space="preserve">
+    <value>Consistency is a kindness you do for your future self.</value>
+  </data>
+  <data name="Quote8" xml:space="preserve">
+    <value>If it’s important, it gets a time slot — not a wish.</value>
+  </data>
+  <data name="Quote9" xml:space="preserve">
+    <value>Show up small. Stay long enough for it to compound.</value>
+  </data>
+  <data name="Quote10" xml:space="preserve">
+    <value>Today only asks for the next honest block of focus.</value>
+  </data>
 </root>

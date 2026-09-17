@@ -396,4 +396,250 @@
   <data name="EnterCategoryName" xml:space="preserve">
     <value>輸入類別名稱...</value>
   </data>
+  <data name="Habits" xml:space="preserve">
+    <value>習慣</value>
+  </data>
+  <data name="HabitsTitle" xml:space="preserve">
+    <value>用每天的小承諾，變成你想成為的人</value>
+  </data>
+  <data name="Streak" xml:space="preserve">
+    <value>連續打卡</value>
+  </data>
+  <data name="DailyGoal" xml:space="preserve">
+    <value>每日目標</value>
+  </data>
+  <data name="LongestStreak" xml:space="preserve">
+    <value>最長紀錄</value>
+  </data>
+  <data name="ProtectStreak" xml:space="preserve">
+    <value>保護連續紀錄</value>
+  </data>
+  <data name="StreakAtRisk" xml:space="preserve">
+    <value>連續紀錄告急 — 你昨天沒有完成任何行動。</value>
+  </data>
+  <data name="FreezeCost" xml:space="preserve">
+    <value>花費 {0} 金幣凍結昨天，讓紀錄繼續。</value>
+  </data>
+  <data name="NotEnoughCoins" xml:space="preserve">
+    <value>金幣不足，無法凍結連續紀錄。</value>
+  </data>
+  <data name="StreakSaved" xml:space="preserve">
+    <value>已保護連續紀錄。今天再完成一件事，就能接上。</value>
+  </data>
+  <data name="SetGoal" xml:space="preserve">
+    <value>設定目標</value>
+  </data>
+  <data name="GoalUpdated" xml:space="preserve">
+    <value>每日專注目標已更新。</value>
+  </data>
+  <data name="DailyGoalHint" xml:space="preserve">
+    <value>你希望每天專注幾分鐘？</value>
+  </data>
+  <data name="TodaysFocus" xml:space="preserve">
+    <value>分鐘（今天）</value>
+  </data>
+  <data name="HabitsToday" xml:space="preserve">
+    <value>今日習慣</value>
+  </data>
+  <data name="HowAreYouFeeling" xml:space="preserve">
+    <value>十秒鐘的心情記錄，讓自律看得見。</value>
+  </data>
+  <data name="SavedReflection" xml:space="preserve">
+    <value>已記錄心情</value>
+  </data>
+  <data name="ReflectionPlaceholder" xml:space="preserve">
+    <value>用一句話寫下今天…</value>
+  </data>
+  <data name="DailyCheckIn" xml:space="preserve">
+    <value>每日心情</value>
+  </data>
+  <data name="CompletedOf" xml:space="preserve">
+    <value>項任務完成</value>
+  </data>
+  <data name="AddHabit" xml:space="preserve">
+    <value>新增習慣</value>
+  </data>
+  <data name="HabitTitle" xml:space="preserve">
+    <value>習慣名稱</value>
+  </data>
+  <data name="HabitIcon" xml:space="preserve">
+    <value>圖示</value>
+  </data>
+  <data name="TargetDays" xml:space="preserve">
+    <value>每週 {0} 天</value>
+  </data>
+  <data name="ArchiveHabit" xml:space="preserve">
+    <value>封存</value>
+  </data>
+  <data name="NoHabits" xml:space="preserve">
+    <value>還沒有習慣。先許下一個很小的承諾。</value>
+  </data>
+  <data name="PleaseLoginHabits" xml:space="preserve">
+    <value>登入後就能追蹤習慣、連續打卡與每日心情。</value>
+  </data>
+  <data name="HabitCreated" xml:space="preserve">
+    <value>習慣已新增。</value>
+  </data>
+  <data name="ConfirmArchiveHabit" xml:space="preserve">
+    <value>要封存這個習慣嗎？</value>
+  </data>
+  <data name="HabitWater" xml:space="preserve">
+    <value>喝水</value>
+  </data>
+  <data name="HabitExercise" xml:space="preserve">
+    <value>動一動</value>
+  </data>
+  <data name="HabitRead" xml:space="preserve">
+    <value>讀 10 頁</value>
+  </data>
+  <data name="HabitMeditate" xml:space="preserve">
+    <value>靜坐 5 分鐘</value>
+  </data>
+  <data name="HabitSleep" xml:space="preserve">
+    <value>準時睡覺</value>
+  </data>
+  <data name="HabitJournal" xml:space="preserve">
+    <value>寫下一句話</value>
+  </data>
+  <data name="ShortBreak" xml:space="preserve">
+    <value>短休息</value>
+  </data>
+  <data name="LongBreak" xml:space="preserve">
+    <value>長休息</value>
+  </data>
+  <data name="Focus" xml:space="preserve">
+    <value>專注</value>
+  </data>
+  <data name="Break" xml:space="preserve">
+    <value>休息</value>
+  </data>
+  <data name="MinutesShort" xml:space="preserve">
+    <value>分</value>
+  </data>
+  <data name="SessionsToday" xml:space="preserve">
+    <value>已完成 {0} 個番茄鐘</value>
+  </data>
+  <data name="TakeABreak" xml:space="preserve">
+    <value>做得好。休息一下，才有下一輪。</value>
+  </data>
+  <data name="ContinueFocusing" xml:space="preserve">
+    <value>繼續專注</value>
+  </data>
+  <data name="BreakComplete" xml:space="preserve">
+    <value>休息結束，回到工作。</value>
+  </data>
+  <data name="LandingTitle" xml:space="preserve">
+    <value>今天先出現。其餘的會跟上。</value>
+  </data>
+  <data name="LandingSubtitle" xml:space="preserve">
+    <value>一個讓你專注、守住連續打卡，把每天的小行動變成可信賴自己的地方。</value>
+  </data>
+  <data name="LandingCta" xml:space="preserve">
+    <value>用 Google 開始</value>
+  </data>
+  <data name="TryTimer" xml:space="preserve">
+    <value>先試試計時器</value>
+  </data>
+  <data name="FeatureTimer" xml:space="preserve">
+    <value>深度專注</value>
+  </data>
+  <data name="FeatureTimerDesc" xml:space="preserve">
+    <value>番茄鐘、碼錶與休息 — 讓你快速開始，也對自己誠實。</value>
+  </data>
+  <data name="FeatureStreaks" xml:space="preserve">
+    <value>會咬人的連續紀錄</value>
+  </data>
+  <data name="FeatureStreaksDesc" xml:space="preserve">
+    <value>漏一天會痛。真的出事時，可以用金幣保護它。</value>
+  </data>
+  <data name="FeatureHabits" xml:space="preserve">
+    <value>微小習慣</value>
+  </data>
+  <data name="FeatureHabitsDesc" xml:space="preserve">
+    <value>每天勾選同一件承諾，直到它變成你的身份。</value>
+  </data>
+  <data name="FeatureXp" xml:space="preserve">
+    <value>把自律變成遊戲</value>
+  </data>
+  <data name="FeatureXpDesc" xml:space="preserve">
+    <value>經驗值、金幣、等級與排行榜，給喜歡記分的那一面。</value>
+  </data>
+  <data name="HowItWorks" xml:space="preserve">
+    <value>這裡怎麼培養自律</value>
+  </data>
+  <data name="Step1Title" xml:space="preserve">
+    <value>選一件事</value>
+  </data>
+  <data name="Step1Desc" xml:space="preserve">
+    <value>不必規劃全新人生。先選接下來的 25 分鐘。</value>
+  </data>
+  <data name="Step2Title" xml:space="preserve">
+    <value>守住連續紀錄</value>
+  </data>
+  <data name="Step2Desc" xml:space="preserve">
+    <value>每天出現。習慣、任務或一次專注都算。</value>
+  </data>
+  <data name="Step3Title" xml:space="preserve">
+    <value>回顧這一週</value>
+  </data>
+  <data name="Step3Desc" xml:space="preserve">
+    <value>熱力圖與歷史會告訴你真相，然後你再調整。</value>
+  </data>
+  <data name="GreetingMorning" xml:space="preserve">
+    <value>早安</value>
+  </data>
+  <data name="GreetingAfternoon" xml:space="preserve">
+    <value>午安</value>
+  </data>
+  <data name="GreetingEvening" xml:space="preserve">
+    <value>晚安</value>
+  </data>
+  <data name="MoodTerrible" xml:space="preserve">
+    <value>很糟</value>
+  </data>
+  <data name="MoodBad" xml:space="preserve">
+    <value>低落</value>
+  </data>
+  <data name="MoodOk" xml:space="preserve">
+    <value>還好</value>
+  </data>
+  <data name="MoodGood" xml:space="preserve">
+    <value>不錯</value>
+  </data>
+  <data name="MoodGreat" xml:space="preserve">
+    <value>很好</value>
+  </data>
+  <data name="ActivityHeatmap" xml:space="preserve">
+    <value>活動熱力圖</value>
+  </data>
+  <data name="Quote1" xml:space="preserve">
+    <value>自律，是選擇你最想要的，而不是此刻最想要的。</value>
+  </data>
+  <data name="Quote2" xml:space="preserve">
+    <value>你不會上升到目標的高度，你會掉落到系統的高度。</value>
+  </data>
+  <data name="Quote3" xml:space="preserve">
+    <value>今天略過的工作，會變成明天你不信任的自己。</value>
+  </data>
+  <data name="Quote4" xml:space="preserve">
+    <value>還沒準備好也先開始。準備好常常只是拖延。</value>
+  </data>
+  <data name="Quote5" xml:space="preserve">
+    <value>無聊但重複的 25 分鐘，會打敗華麗的計畫。</value>
+  </data>
+  <data name="Quote6" xml:space="preserve">
+    <value>不要跟想放棄的那個自己談判。</value>
+  </data>
+  <data name="Quote7" xml:space="preserve">
+    <value>持續，是你送給未來自己的善意。</value>
+  </data>
+  <data name="Quote8" xml:space="preserve">
+    <value>重要的事要有時段，而不是願望。</value>
+  </data>
+  <data name="Quote9" xml:space="preserve">
+    <value>小小地出現，待得夠久，它就會複利。</value>
+  </data>
+  <data name="Quote10" xml:space="preserve">
+    <value>今天只問你：下一個誠實的專注時段。</value>
+  </data>
 </root>

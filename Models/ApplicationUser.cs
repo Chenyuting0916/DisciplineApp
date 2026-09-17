@@ -16,4 +16,10 @@ public class ApplicationUser : IdentityUser
     // New Gamification Properties
     public int GoldCoins { get; set; }
     public double TotalFocusMinutes { get; set; }
+
+    // Streak & daily goal
+    public int CurrentStreak { get; set; }
+    public int LongestStreak { get; set; }
+    public DateTime? LastActiveDate { get; set; }
+    public int DailyFocusGoalMinutes { get; set; } = 60;
 }

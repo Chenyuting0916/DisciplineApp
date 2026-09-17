@@ -148,6 +148,7 @@ public class GamificationService : IGamificationService
         await _context.SaveChangesAsync();
 
         bool levelUp = user.Level > initialLevel;
+        await RecordActivityAsync(userId);
 
         return (true, actualXpAwarded, coinsToAward, levelUp);
     }
@@ -163,6 +164,9 @@ public class GamificationService : IGamificationService
                 break;
             case "focus":
                 query = query.OrderByDescending(u => u.TotalFocusMinutes);
+                break;
+            case "streak":
+                query = query.OrderByDescending(u => u.CurrentStreak).ThenByDescending(u => u.LongestStreak);
                 break;
             case "xp":
             default:
@@ -305,6 +309,98 @@ public class GamificationService : IGamificationService
 
         _context.FocusSessions.Remove(session);
         await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<StreakStatus> RecordActivityAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return StreakStatus.None;
+
+        var today = DateTime.UtcNow.Date;
+        var last = user.LastActiveDate?.Date;
+
+        if (last == today)
+        {
+            return StreakStatus.Active;
+        }
+
+        if (last == today.AddDays(-1))
+        {
+            user.CurrentStreak = Math.Max(1, user.CurrentStreak + 1);
+        }
+        else
+        {
+            user.CurrentStreak = 1;
+        }
+
+        user.LastActiveDate = today;
+        if (user.CurrentStreak > user.LongestStreak)
+        {
+            user.LongestStreak = user.CurrentStreak;
+        }
+
+        await _userManager.UpdateAsync(user);
+        return StreakStatus.Active;
+    }
+
+    public async Task<StreakStatus> GetStreakStatusAsync(string userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return StreakStatus.None;
+
+        var today = DateTime.UtcNow.Date;
+        var last = user.LastActiveDate?.Date;
+
+        if (user.CurrentStreak <= 0 || last == null)
+        {
+            return StreakStatus.None;
+        }
+
+        if (last == today) return StreakStatus.Active;
+        if (last == today.AddDays(-1)) return StreakStatus.Pending;
+        if (last == today.AddDays(-2)) return StreakStatus.AtRisk;
+
+        if (user.CurrentStreak > 0)
+        {
+            user.CurrentStreak = 0;
+            await _userManager.UpdateAsync(user);
+        }
+
+        return StreakStatus.Broken;
+    }
+
+    public async Task<(bool success, int remainingCoins)> FreezeStreakAsync(string userId, int cost = 30)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return (false, 0);
+
+        var status = await GetStreakStatusAsync(userId);
+        if (status != StreakStatus.AtRisk) return (false, user.GoldCoins);
+        if (user.GoldCoins < cost) return (false, user.GoldCoins);
+
+        user.GoldCoins -= cost;
+        user.LastActiveDate = DateTime.UtcNow.Date.AddDays(-1);
+        await _userManager.UpdateAsync(user);
+        return (true, user.GoldCoins);
+    }
+
+    public async Task<double> GetTodayFocusMinutesAsync(string userId)
+    {
+        var start = DateTime.UtcNow.Date;
+        var end = start.AddDays(1);
+        return await _context.FocusSessions
+            .Where(s => s.UserId == userId && s.EndTime >= start && s.EndTime < end)
+            .SumAsync(s => s.DurationMinutes);
+    }
+
+    public async Task<bool> UpdateDailyFocusGoalAsync(string userId, int minutes)
+    {
+        var user = await _userManager.FindByIdAsync(userId);
+        if (user == null) return false;
+
+        user.DailyFocusGoalMinutes = Math.Clamp(minutes, 10, 720);
+        await _userManager.UpdateAsync(user);
         return true;
     }
 }
