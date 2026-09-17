@@ -98,6 +98,11 @@
             if (!ALLOWED_THEMES.has(theme)) theme = 'ember';
             document.documentElement.setAttribute('data-theme', theme);
         },
+        focus: function (id) {
+            if (typeof id !== 'string' || !/^[A-Za-z][A-Za-z0-9_-]*$/.test(id)) return;
+            var el = document.getElementById(id);
+            if (el) el.focus();
+        },
         current: function () { return current; }
     };
 })();

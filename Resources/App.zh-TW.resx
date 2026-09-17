@@ -963,4 +963,10 @@
   <data name="HeatmapActivityCount" xml:space="preserve">
     <value>{0} 次行動</value>
   </data>
+  <data name="Guest" xml:space="preserve">
+    <value>訪客</value>
+  </data>
+  <data name="SkipToContent" xml:space="preserve">
+    <value>跳到主要內容</value>
+  </data>
 </root>

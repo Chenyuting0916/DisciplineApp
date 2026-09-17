@@ -12,6 +12,7 @@
 
 <PageTitle>DisciplineApp</PageTitle>
 
+<a class="skip-link" href="#@HeaderCopy.MainContentId" @onclick="FocusMainContent">@Localizer["SkipToContent"]</a>
 <div class="page">
     <div class="sidebar">
         <NavMenu />
@@ -23,14 +24,14 @@
             <AuthorizeView>
                 <Authorized>
                     <div class="user-stats d-flex align-items-center gap-3">
-                            <span class="fw-bold">@(currentUser?.DisplayName ?? context.User.Identity?.Name ?? "User")</span>
+                            <span class="fw-bold">@HeaderCopy.DisplayName(currentUser?.DisplayName, context.User.Identity?.Name, Localizer["User"])</span>
                             @if (!string.IsNullOrEmpty(TitleLabel))
                             {
                                 <span class="title-chip">@TitleLabel</span>
                             }
                         @if (currentUser != null)
                         {
-                            <span class="badge bg-info text-dark">Lvl @currentUser.Level</span>
+                            <span class="badge bg-info text-dark">@HeaderCopy.LevelBadge(Localizer["Level"], currentUser.Level)</span>
                             <div class="progress xp-progress" style="width: 100px; height: 10px;" title="XP: @currentUser.CurrentXP / @(currentUser.Level * 100)">
                                 <div class="progress-bar bg-success" role="progressbar" style="width: @(GetXpPercentage())%" aria-valuenow="@currentUser.CurrentXP" aria-valuemin="0" aria-valuemax="@(currentUser.Level * 100)"></div>
                             </div>
@@ -40,13 +41,13 @@
                     <a href="Account/LogOut" class="ms-3 btn btn-sm btn-outline-danger">@Localizer["Logout"]</a>
                 </Authorized>
                 <NotAuthorized>
-                    <span class="fw-bold me-3">Guest</span>
+                    <span class="fw-bold me-3">@Localizer["Guest"]</span>
                     <button class="btn btn-sm btn-primary" @onclick="ShowLoginModal">@Localizer["Login"]</button>
                 </NotAuthorized>
             </AuthorizeView>
         </div>
 
-        <article class="content px-4">
+        <article id="@HeaderCopy.MainContentId" class="content px-4" tabindex="-1">
             @Body
         </article>
     </main>
@@ -121,6 +122,18 @@
 
     private void ShowLoginModal() => showLoginModal = true;
     private void HideLoginModal() => showLoginModal = false;
+
+    private async Task FocusMainContent()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("sanctuary.focus", HeaderCopy.MainContentId);
+        }
+        catch
+        {
+            // JS may not be ready on first prerender.
+        }
+    }
 
     protected override void OnInitialized()
     {
