@@ -108,7 +108,16 @@
             @(TimerService.IsBreakMode ? Localizer["Break"] : Localizer["Focus"])
         </div>
         <div style="font-size: 3.2rem; font-weight: 800; font-family: Outfit, monospace; line-height: 1;">@TimeDisplay</div>
-        <div class="small text-muted mt-1">@string.Format(Localizer["SessionsToday"], TimerService.CompletedPomodoros)</div>
+        <div class="small text-muted mt-1">@string.Format(Localizer["SessionsToday"], todayPomodoros)</div>
+        <div class="timer-goal-strip mt-2">
+            <div class="d-flex justify-content-between small">
+                <span>@Localizer["DailyGoal"]</span>
+                <span>@(DisplayedTodayMinutes < 10 ? DisplayedTodayMinutes.ToString("0.0") : ((int)DisplayedTodayMinutes).ToString())/@goalMinutes</span>
+            </div>
+            <div class="progress mt-1" style="height: 4px; background: var(--bg-tertiary);">
+                <div class="progress-bar" role="progressbar" style="width: @(GoalPercent)%; background: var(--accent-2);"></div>
+            </div>
+        </div>
         @if (!string.IsNullOrWhiteSpace(todayOneThing) || !string.IsNullOrWhiteSpace(todayVow))
         {
             <div class="vow-strip mt-3">
@@ -308,6 +317,24 @@
     private string todayOneThing = "";
     private UserTask? pendingTask;
     private bool offerAnother;
+    private double todayFocusMinutes;
+    private int goalMinutes = GuestFocusLogic.DefaultGoal;
+    private int todayPomodoros;
+
+    private double LiveSessionMinutes
+    {
+        get
+        {
+            if (TimerService.IsBreakMode) return 0;
+            if (!TimerService.IsRunning && !TimerService.IsPaused) return 0;
+            if (TimerService.IsPomodoroMode)
+                return Math.Max(0, (TimerService.DefaultPomodoroTime - TimerService.TimeLeft).TotalMinutes);
+            return Math.Max(0, TimerService.TimeElapsed.TotalMinutes);
+        }
+    }
+
+    private double DisplayedTodayMinutes => todayFocusMinutes + LiveSessionMinutes;
+    private int GoalPercent => GuestFocusLogic.PercentTowardGoal(DisplayedTodayMinutes, goalMinutes);
 
     private string BreathLabel => breathPhase switch
     {
@@ -354,6 +381,7 @@
             todayVow = intention?.Vow ?? "";
             todayOneThing = intention?.OneThing ?? "";
             ApplyPrefill();
+            await RefreshDailyProgress();
         }
     }
 
@@ -377,6 +405,7 @@
             todayVow = journal?.Vow ?? "";
             todayOneThing = journal?.OneThing ?? "";
             ApplyPrefill();
+            await RefreshDailyProgress();
         }
 
         var storedMinutes = await LocalStorageService.GetItemAsync<int?>("discipline_pomodoro_minutes");
@@ -659,6 +688,7 @@
                         msg += string.Format(Localizer["PlusCoins"], coinsEarned);
                     }
                     ToastService.ShowSuccess(msg);
+                    await RefreshDailyProgress();
                 }
             }
         }
@@ -668,6 +698,24 @@
             if (string.IsNullOrEmpty(taskName)) taskName = customFocusTask;
             await RecordGuestSession(minutes, taskName, TimerService.IsPomodoroMode);
         }
+    }
+
+    private async Task RefreshDailyProgress()
+    {
+        if (!string.IsNullOrEmpty(timerUserId))
+        {
+            todayFocusMinutes = await GamificationService.GetTodayFocusMinutesAsync(timerUserId);
+            todayPomodoros = await GamificationService.GetTodayPomodoroCountAsync(timerUserId);
+            var stats = await GamificationService.GetUserStatsAsync(timerUserId);
+            goalMinutes = stats?.DailyFocusGoalMinutes > 0
+                ? GuestFocusLogic.ClampGoal(stats.DailyFocusGoalMinutes)
+                : GuestFocusLogic.DefaultGoal;
+            return;
+        }
+
+        todayFocusMinutes = await GuestFocusService.GetTodayMinutesAsync();
+        todayPomodoros = await GuestFocusService.GetTodayPomodoroCountAsync();
+        goalMinutes = await GuestFocusService.GetGoalAsync();
     }
 
     private async Task<bool> RecordGuestSession(double minutes, string? taskName, bool isPomodoro, DateTime? endedAt = null)
@@ -681,6 +729,7 @@
         {
             ToastService.ShowSuccess(Localizer["GoalReached"]);
         }
+        await RefreshDailyProgress();
         return true;
     }
     
@@ -739,6 +788,7 @@
                      string msg = string.Format(Localizer["ManualEntrySaved"], result.xpAwarded);
                      ToastService.ShowSuccess(msg);
                      showManualEntry = false;
+                     await RefreshDailyProgress();
                  }
              }
         }

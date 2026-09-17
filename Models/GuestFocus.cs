@@ -74,6 +74,15 @@ public static class GuestFocusLogic
     public static double TodayMinutes(IEnumerable<GuestFocusSession> sessions, DateTime utcNow)
         => sessions.Where(s => NormalizeUtc(s.EndTime).Date == utcNow.Date).Sum(s => s.DurationMinutes);
 
+    public static int TodayPomodoroCount(IEnumerable<GuestFocusSession> sessions, DateTime utcNow)
+        => sessions.Count(s => s.IsPomodoro && NormalizeUtc(s.EndTime).Date == utcNow.Date);
+
+    public static int PercentTowardGoal(double minutes, int goalMinutes)
+    {
+        var goal = ClampGoal(goalMinutes);
+        return (int)Math.Clamp(minutes / goal * 100, 0, 100);
+    }
+
     public static double WeekMinutes(IEnumerable<GuestFocusSession> sessions, DateTime utcNow, int weeksAgo = 0)
     {
         var weekStart = HabitMath.WeekStart(utcNow).AddDays(-7 * weeksAgo);

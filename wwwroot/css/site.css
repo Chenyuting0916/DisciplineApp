@@ -602,3 +602,9 @@ body.sanctuary-mode .timer-shell {
     background: rgba(245, 165, 36, 0.08);
 }
 
+.timer-goal-strip {
+    max-width: 180px;
+    margin: 0 auto;
+    text-align: left;
+}
+

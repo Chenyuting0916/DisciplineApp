@@ -19,6 +19,7 @@ public interface IGamificationService
     Task<StreakStatus> GetStreakStatusAsync(string userId);
     Task<(bool success, int remainingCoins)> FreezeStreakAsync(string userId, int cost = 30);
     Task<double> GetTodayFocusMinutesAsync(string userId);
+    Task<int> GetTodayPomodoroCountAsync(string userId);
     Task<bool> UpdateDailyFocusGoalAsync(string userId, int minutes);
     Task<WeeklyReview> GetWeeklyReviewAsync(string userId);
 }

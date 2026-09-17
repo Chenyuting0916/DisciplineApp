@@ -121,4 +121,26 @@ public class GuestFocusTests
         Assert.Equal(0, GuestFocusLogic.ActivityStreak(Array.Empty<DateTime>(), day));
         Assert.Equal(2, GuestFocusLogic.ActivityStreak(new[] { day, day.AddDays(-1) }, day));
     }
+
+    [Fact]
+    public void TodayPomodoroCount_IgnoresStopwatchAndOtherDays()
+    {
+        var day = new DateTime(2026, 9, 17, 8, 0, 0, DateTimeKind.Utc);
+        var sessions = new List<GuestFocusSession>
+        {
+            new() { IsPomodoro = true, DurationMinutes = 25, EndTime = day },
+            new() { IsPomodoro = true, DurationMinutes = 25, EndTime = day.AddHours(2) },
+            new() { IsPomodoro = false, DurationMinutes = 40, EndTime = day.AddHours(3) },
+            new() { IsPomodoro = true, DurationMinutes = 25, EndTime = day.AddDays(-1) },
+            new() { IsPomodoro = true, DurationMinutes = 25, EndTime = day.AddDays(1) }
+        };
+
+        Assert.Equal(2, GuestFocusLogic.TodayPomodoroCount(sessions, day));
+        Assert.Equal(90, GuestFocusLogic.TodayMinutes(sessions, day));
+        Assert.Equal(0, GuestFocusLogic.TodayPomodoroCount(Array.Empty<GuestFocusSession>(), day));
+        Assert.Equal(100, GuestFocusLogic.PercentTowardGoal(10, 10));
+        Assert.Equal(50, GuestFocusLogic.PercentTowardGoal(5, 10));
+        Assert.Equal(0, GuestFocusLogic.PercentTowardGoal(0, 60));
+        Assert.Equal(100, GuestFocusLogic.PercentTowardGoal(80, 60));
+    }
 }

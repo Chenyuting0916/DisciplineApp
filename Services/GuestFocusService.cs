@@ -47,6 +47,12 @@ public class GuestFocusService
         return GuestFocusLogic.TodayMinutes(store.Sessions, DateTime.UtcNow);
     }
 
+    public async Task<int> GetTodayPomodoroCountAsync()
+    {
+        var store = await LoadAsync();
+        return GuestFocusLogic.TodayPomodoroCount(store.Sessions, DateTime.UtcNow);
+    }
+
     public async Task<List<FocusSession>> GetRecentAsync(int take = 20)
     {
         var store = await LoadAsync();
