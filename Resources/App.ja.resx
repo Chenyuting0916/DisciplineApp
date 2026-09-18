@@ -978,4 +978,10 @@
   <data name="GuestShopHint" xml:space="preserve">
     <value>コインはログインしたアカウントにあります。現金は使いません。ゲストの集中と習慣はこの端末だけに残り、ショップには入りません。</value>
   </data>
+  <data name="GuestLeaderboardHint" xml:space="preserve">
+    <value>ランキングはログイン中のアカウントです。ゲストの集中はこの端末だけに残り、ここには出ません。</value>
+  </data>
+  <data name="LeaderboardEmpty" xml:space="preserve">
+    <value>まだランキングがありません。ログインして集中を始めると反映されます。</value>
+  </data>
 </root>
