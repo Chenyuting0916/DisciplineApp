@@ -963,4 +963,7 @@
   <data name="HeatmapActivityCount" xml:space="preserve">
     <value>{0} 次行動</value>
   </data>
+  <data name="StartThisThen" xml:space="preserve">
+    <value>開始這一步</value>
+  </data>
 </root>

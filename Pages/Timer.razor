@@ -391,6 +391,7 @@
             var intention = await IntentionService.GetTodayAsync(timerUserId);
             todayVow = intention?.Vow ?? "";
             todayOneThing = intention?.OneThing ?? "";
+            AdoptIncomingFocus();
             ApplyPrefill();
             await RefreshDailyProgress();
         }
@@ -415,6 +416,7 @@
             var journal = await GuestJournalService.GetTodayAsync();
             todayVow = journal?.Vow ?? "";
             todayOneThing = journal?.OneThing ?? "";
+            AdoptIncomingFocus();
             ApplyPrefill();
             await RefreshDailyProgress();
         }
@@ -874,6 +876,21 @@
             if (e.Key == "1") await SetMinutesAndStore(15);
             else if (e.Key == "2") await SetMinutesAndStore(25);
             else if (e.Key == "3") await SetMinutesAndStore(50);
+        }
+    }
+
+    private void AdoptIncomingFocus()
+    {
+        if (TimerService.IsRunning || TimerService.IsPaused) return;
+        if (string.IsNullOrWhiteSpace(TimerService.FocusTask) || TimerService.FocusTask == "custom") return;
+
+        var adopted = IfThenStart.ForTimer(todayTasks, TimerService.FocusTask);
+        if (string.IsNullOrWhiteSpace(adopted.FocusTask)) return;
+
+        TimerService.FocusTask = adopted.FocusTask;
+        if (!string.IsNullOrWhiteSpace(adopted.CustomTitle))
+        {
+            customFocusTask = adopted.CustomTitle;
         }
     }
 
