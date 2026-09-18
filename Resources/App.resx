@@ -1053,4 +1053,22 @@
   <data name="Awesome" xml:space="preserve">
     <value>Nice</value>
   </data>
+  <data name="ShortcutsTitle" xml:space="preserve">
+    <value>Keyboard shortcuts</value>
+  </data>
+  <data name="ShortcutsHint" xml:space="preserve">
+    <value>These keys work on the focus timer. Guest records stay on this device.</value>
+  </data>
+  <data name="ShortcutSpace" xml:space="preserve">
+    <value>Start or pause</value>
+  </data>
+  <data name="ShortcutMinutes" xml:space="preserve">
+    <value>Set 15 / 25 / 50 minutes when idle</value>
+  </data>
+  <data name="ShortcutSkipBreath" xml:space="preserve">
+    <value>Skip the breath screen</value>
+  </data>
+  <data name="ShortcutLeaveSanctuary" xml:space="preserve">
+    <value>Leave sanctuary</value>
+  </data>
 </root>

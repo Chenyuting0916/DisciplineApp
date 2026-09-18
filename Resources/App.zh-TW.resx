@@ -1053,4 +1053,22 @@
   <data name="Awesome" xml:space="preserve">
     <value>太好了</value>
   </data>
+  <data name="ShortcutsTitle" xml:space="preserve">
+    <value>鍵盤快捷鍵</value>
+  </data>
+  <data name="ShortcutsHint" xml:space="preserve">
+    <value>這些按鍵用在專注計時器。訪客紀錄仍只在這台裝置。</value>
+  </data>
+  <data name="ShortcutSpace" xml:space="preserve">
+    <value>開始或暫停</value>
+  </data>
+  <data name="ShortcutMinutes" xml:space="preserve">
+    <value>還沒開始時，切到 15／25／50 分</value>
+  </data>
+  <data name="ShortcutSkipBreath" xml:space="preserve">
+    <value>跳過呼吸畫面</value>
+  </data>
+  <data name="ShortcutLeaveSanctuary" xml:space="preserve">
+    <value>離開聖域</value>
+  </data>
 </root>
