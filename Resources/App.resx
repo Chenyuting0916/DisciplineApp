@@ -975,4 +975,7 @@
   <data name="ClearLocalDataDone" xml:space="preserve">
     <value>Guest records on this device were cleared.</value>
   </data>
+  <data name="GuestShopHint" xml:space="preserve">
+    <value>Coins live on a signed-in account. There is no real money. Guest focus and habits stay on this device and do not enter the shop.</value>
+  </data>
 </root>

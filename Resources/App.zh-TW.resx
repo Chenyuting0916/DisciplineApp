@@ -975,4 +975,7 @@
   <data name="ClearLocalDataDone" xml:space="preserve">
     <value>這台裝置上的訪客紀錄已清除。</value>
   </data>
+  <data name="GuestShopHint" xml:space="preserve">
+    <value>金幣存在登入帳號裡，不是真錢。訪客的專注與習慣只在這台裝置，不會進商店。</value>
+  </data>
 </root>

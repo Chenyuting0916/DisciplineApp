@@ -106,10 +106,21 @@
         </div>
     </Authorized>
     <NotAuthorized>
-        <section class="hero-landing">
-            <h1>@Localizer["Shop"]</h1>
+        <div class="dashboard-container pt-3 pb-5">
+            <p class="hero-kicker mb-1">@Localizer["Shop"]</p>
+            <h1 class="mb-3">@Localizer["ShopTitle"]</h1>
             <p class="lead">@Localizer["PleaseLoginShop"]</p>
-        </section>
+            <p class="text-muted mb-4">@Localizer["GuestShopHint"]</p>
+            <div class="d-flex flex-wrap gap-2">
+                <a href="Account/LoginWithGoogle" class="btn btn-light d-flex align-items-center gap-2">
+                    <img src="https://www.google.com/favicon.ico" alt="" width="20" height="20">
+                    @Localizer["ContinueWithGoogle"]
+                </a>
+                <a href="timer" class="btn btn-primary">
+                    <i class="bi bi-play-circle-fill me-2"></i>@Localizer["StartFocusSession"]
+                </a>
+            </div>
+        </div>
     </NotAuthorized>
 </AuthorizeView>
 
