@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Localization;
+using DisciplineApp.Models;
 
 namespace DisciplineApp.Pages;
 
@@ -12,15 +14,22 @@ public class ErrorModel : PageModel
 
     public bool ShowRequestId => !string.IsNullOrEmpty(RequestId);
 
-    private readonly ILogger<ErrorModel> _logger;
+    public bool ShowDevelopmentHelp { get; private set; }
 
-    public ErrorModel(ILogger<ErrorModel> logger)
+    public IStringLocalizer<App> Localizer { get; }
+
+    private readonly IWebHostEnvironment _environment;
+
+    public ErrorModel(ILogger<ErrorModel> logger, IStringLocalizer<App> localizer, IWebHostEnvironment environment)
     {
-        _logger = logger;
+        Localizer = localizer;
+        _environment = environment;
+        _ = logger;
     }
 
     public void OnGet()
     {
         RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
+        ShowDevelopmentHelp = ErrorCopy.ShowDevelopmentHelp(_environment.EnvironmentName);
     }
 }

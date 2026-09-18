@@ -1020,4 +1020,25 @@
   <data name="SkipToContent" xml:space="preserve">
     <value>Skip to content</value>
   </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>Page not found</value>
+  </data>
+  <data name="NotFoundBody" xml:space="preserve">
+    <value>This address is empty. Go home or start a focus session. Guest records stay on this device.</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>Something went wrong</value>
+  </data>
+  <data name="ErrorBody" xml:space="preserve">
+    <value>Try again, go home, or start focusing. Your guest records stay on this device.</value>
+  </data>
+  <data name="RequestId" xml:space="preserve">
+    <value>Request ID</value>
+  </data>
+  <data name="DevelopmentMode" xml:space="preserve">
+    <value>Development mode</value>
+  </data>
+  <data name="DevelopmentModeHint" xml:space="preserve">
+    <value>Detailed errors are only shown while this app is running as Development on your machine. Do not enable that on a public site.</value>
+  </data>
 </root>

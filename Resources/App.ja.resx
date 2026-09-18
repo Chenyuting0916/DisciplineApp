@@ -1020,4 +1020,25 @@
   <data name="SkipToContent" xml:space="preserve">
     <value>本文へスキップ</value>
   </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>ページが見つかりません</value>
+  </data>
+  <data name="NotFoundBody" xml:space="preserve">
+    <value>このアドレスには何もありません。ホームに戻るか、集中を始めましょう。ゲスト記録はこの端末だけに残ります。</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>問題が起きました</value>
+  </data>
+  <data name="ErrorBody" xml:space="preserve">
+    <value>もう一度試すか、ホームに戻るか、集中を始めてください。ゲスト記録はこの端末だけに残ります。</value>
+  </data>
+  <data name="RequestId" xml:space="preserve">
+    <value>リクエストID</value>
+  </data>
+  <data name="DevelopmentMode" xml:space="preserve">
+    <value>開発モード</value>
+  </data>
+  <data name="DevelopmentModeHint" xml:space="preserve">
+    <value>詳細なエラーはこの端末を Development で動かしているときだけ出ます。公開サイトでは有効にしないでください。</value>
+  </data>
 </root>
