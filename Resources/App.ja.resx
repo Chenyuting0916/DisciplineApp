@@ -1014,4 +1014,10 @@
   <data name="GuestChallengeHint" xml:space="preserve">
     <value>ゲストで受けると7日分のタスクはこの端末だけに残り、共有チャレンジには書き込みません。先にログインしても受けられます。</value>
   </data>
+  <data name="Guest" xml:space="preserve">
+    <value>ゲスト</value>
+  </data>
+  <data name="SkipToContent" xml:space="preserve">
+    <value>本文へスキップ</value>
+  </data>
 </root>

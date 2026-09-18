@@ -1014,4 +1014,10 @@
   <data name="GuestChallengeHint" xml:space="preserve">
     <value>As a guest, the seven tasks stay on this device. They are not written onto the shared challenge. You can also sign in first.</value>
   </data>
+  <data name="Guest" xml:space="preserve">
+    <value>Guest</value>
+  </data>
+  <data name="SkipToContent" xml:space="preserve">
+    <value>Skip to content</value>
+  </data>
 </root>

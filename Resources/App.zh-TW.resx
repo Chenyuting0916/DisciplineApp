@@ -1014,4 +1014,10 @@
   <data name="GuestChallengeHint" xml:space="preserve">
     <value>訪客接受後，七天任務只會留在這台裝置，不會寫進對方的挑戰紀錄。也可先登入再接受。</value>
   </data>
+  <data name="Guest" xml:space="preserve">
+    <value>訪客</value>
+  </data>
+  <data name="SkipToContent" xml:space="preserve">
+    <value>跳到主要內容</value>
+  </data>
 </root>
