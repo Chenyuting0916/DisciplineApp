@@ -4,6 +4,7 @@ using DisciplineApp.Services;
 using DisciplineApp.Services.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Moq;
+using System.Globalization;
 using Xunit;
 
 namespace DisciplineApp.Tests.Services;
@@ -160,5 +161,25 @@ public class IfThenAndExportTests
 
         var overflow = await habits.AddHabitAsync("u1", "too many", "✅", "#38bdf8");
         Assert.Null(overflow);
+    }
+
+    [Fact]
+    public void CalendarCopy_FormatsAndRejectsBadDue()
+    {
+        var en = CultureInfo.GetCultureInfo("en-US");
+        var timed = CalendarCopy.EventWhen(new DateTimeOffset(2026, 9, 17, 15, 30, 0, TimeSpan.Zero), null, en, "All day");
+        Assert.Contains("9/17/2026", timed);
+
+        var allDay = CalendarCopy.EventWhen(null, "2026-09-17", en, "All day");
+        Assert.Contains("9/17/2026", allDay);
+        Assert.Contains("All day", allDay);
+
+        Assert.Equal("", CalendarCopy.EventWhen(null, "not-a-date", en, "All day"));
+        Assert.Equal("", CalendarCopy.TaskDue("javascript:alert(1)", en, "Due:"));
+        Assert.Equal("", CalendarCopy.TaskDue("   ", en, "Due:"));
+
+        var due = CalendarCopy.TaskDue("2026-09-18", en, "Due:");
+        Assert.Contains("Due:", due);
+        Assert.Contains("9/18/2026", due);
     }
 }
