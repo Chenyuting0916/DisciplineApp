@@ -966,4 +966,109 @@
   <data name="StartThisThen" xml:space="preserve">
     <value>開始這一步</value>
   </data>
+  <data name="ClearLocalData" xml:space="preserve">
+    <value>清除本機資料</value>
+  </data>
+  <data name="ClearLocalDataConfirm" xml:space="preserve">
+    <value>這會把這台裝置上的訪客紀錄清成剛進來的狀態（專注、任務、習慣、誓言、如果—那麼）。無法復原。伺服器沒有備份。要繼續嗎？</value>
+  </data>
+  <data name="ClearLocalDataDone" xml:space="preserve">
+    <value>這台裝置上的訪客紀錄已清除。</value>
+  </data>
+  <data name="GuestShopHint" xml:space="preserve">
+    <value>金幣存在登入帳號裡，不是真錢。訪客的專注與習慣只在這台裝置，不會進商店。</value>
+  </data>
+  <data name="GuestLeaderboardHint" xml:space="preserve">
+    <value>這裡是登入帳號的排行。訪客專注只在這台裝置，不會出現在榜上。</value>
+  </data>
+  <data name="LeaderboardEmpty" xml:space="preserve">
+    <value>還沒有排行。登入後開始一場專注就會算進來。</value>
+  </data>
+  <data name="CalendarTitle" xml:space="preserve">
+    <value>行事曆</value>
+  </data>
+  <data name="CalendarGuestHint" xml:space="preserve">
+    <value>Google 行事曆留在你登入的 Google 帳號。這台裝置上的訪客專注不會送過去，也不會從那裡匯入。</value>
+  </data>
+  <data name="UpcomingEvents" xml:space="preserve">
+    <value>即將到來的行程</value>
+  </data>
+  <data name="NoUpcomingEvents" xml:space="preserve">
+    <value>沒有即將到來的行程。</value>
+  </data>
+  <data name="GoogleTasks" xml:space="preserve">
+    <value>Google 工作</value>
+  </data>
+  <data name="NoGoogleTasks" xml:space="preserve">
+    <value>沒有 Google 工作。</value>
+  </data>
+  <data name="AllDay" xml:space="preserve">
+    <value>全天</value>
+  </data>
+  <data name="DueLabel" xml:space="preserve">
+    <value>截止</value>
+  </data>
+  <data name="CalendarLoadFailed" xml:space="preserve">
+    <value>無法載入 Google 行事曆。本機專注不受影響。</value>
+  </data>
+  <data name="GuestChallengeHint" xml:space="preserve">
+    <value>訪客接受後，七天任務只會留在這台裝置，不會寫進對方的挑戰紀錄。也可先登入再接受。</value>
+  </data>
+  <data name="Guest" xml:space="preserve">
+    <value>訪客</value>
+  </data>
+  <data name="SkipToContent" xml:space="preserve">
+    <value>跳到主要內容</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>找不到這個頁面</value>
+  </data>
+  <data name="NotFoundBody" xml:space="preserve">
+    <value>這個網址沒有內容。可以回首頁，或直接開始專注。訪客紀錄仍只在這台裝置。</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>出了一點問題</value>
+  </data>
+  <data name="ErrorBody" xml:space="preserve">
+    <value>請再試一次，或回首頁、開始專注。訪客紀錄仍只在這台裝置。</value>
+  </data>
+  <data name="RequestId" xml:space="preserve">
+    <value>請求編號</value>
+  </data>
+  <data name="DevelopmentMode" xml:space="preserve">
+    <value>開發模式</value>
+  </data>
+  <data name="DevelopmentModeHint" xml:space="preserve">
+    <value>詳細錯誤只會在這台電腦以 Development 執行時顯示。公開網站不要開啟。</value>
+  </data>
+  <data name="PwaDescription" xml:space="preserve">
+    <value>專注、連續天數，和每天小小的承諾。</value>
+  </data>
+  <data name="LevelUp" xml:space="preserve">
+    <value>升級了</value>
+  </data>
+  <data name="YouAreNowLevel" xml:space="preserve">
+    <value>你現在是 {0} 級。</value>
+  </data>
+  <data name="Awesome" xml:space="preserve">
+    <value>太好了</value>
+  </data>
+  <data name="ShortcutsTitle" xml:space="preserve">
+    <value>鍵盤快捷鍵</value>
+  </data>
+  <data name="ShortcutsHint" xml:space="preserve">
+    <value>這些按鍵用在專注計時器。訪客紀錄仍只在這台裝置。</value>
+  </data>
+  <data name="ShortcutSpace" xml:space="preserve">
+    <value>開始或暫停</value>
+  </data>
+  <data name="ShortcutMinutes" xml:space="preserve">
+    <value>還沒開始時，切到 15／25／50 分</value>
+  </data>
+  <data name="ShortcutSkipBreath" xml:space="preserve">
+    <value>跳過呼吸畫面</value>
+  </data>
+  <data name="ShortcutLeaveSanctuary" xml:space="preserve">
+    <value>離開聖域</value>
+  </data>
 </root>

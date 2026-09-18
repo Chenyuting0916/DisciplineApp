@@ -110,6 +110,33 @@ public class ShopAndSecurityTests
     }
 
     [Fact]
+    public void GuestLocalData_OnlyAllowsKnownGuestKeys()
+    {
+        Assert.Equal(5, GuestLocalData.Keys.Count);
+        Assert.True(GuestLocalData.IsAllowedKey("guest_focus_v1"));
+        Assert.True(GuestLocalData.IsAllowedKey("guest_tasks"));
+        Assert.True(GuestLocalData.IsAllowedKey("guest_habits_v1"));
+        Assert.True(GuestLocalData.IsAllowedKey("guest_journal_v1"));
+        Assert.True(GuestLocalData.IsAllowedKey("guest_ifthen_v1"));
+        Assert.False(GuestLocalData.IsAllowedKey("discipline_volume"));
+        Assert.False(GuestLocalData.IsAllowedKey("token"));
+        Assert.False(GuestLocalData.IsAllowedKey("guest_focus_v1_backup"));
+        Assert.False(GuestLocalData.IsAllowedKey(""));
+        Assert.False(GuestLocalData.IsAllowedKey(null));
+
+        var removed = GuestLocalData.KeysToRemove(new[]
+        {
+            "guest_tasks",
+            "token",
+            "guest_focus_v1",
+            "guest_tasks",
+            null,
+            "javascript:alert(1)"
+        });
+        Assert.Equal(new[] { "guest_tasks", "guest_focus_v1" }, removed);
+    }
+
+    [Fact]
     public async Task Intention_ClampsVowLength()
     {
         _store.Add(new ApplicationUser { Id = "u1" });

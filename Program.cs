@@ -175,6 +175,13 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers(); // Required for CultureController
+app.MapGet("/manifest.json", (Microsoft.Extensions.Localization.IStringLocalizer<DisciplineApp.App> localizer) =>
+{
+    var json = ManifestCopy.Json(
+        System.Globalization.CultureInfo.CurrentUICulture.Name,
+        localizer["PwaDescription"]);
+    return Results.Content(json, "application/manifest+json; charset=utf-8");
+});
 
 app.MapBlazorHub();
 app.MapFallbackToPage("/_Host");

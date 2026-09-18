@@ -1,4 +1,5 @@
 ﻿@inject DisciplineApp.Services.TokenProvider TokenProvider
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
@@ -7,9 +8,16 @@
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
         </Found>
         <NotFound>
-            <PageTitle>Not found</PageTitle>
+            <PageTitle>@Localizer["NotFound"]</PageTitle>
             <LayoutView Layout="@typeof(MainLayout)">
-                <p role="alert">Sorry, there's nothing at this address.</p>
+                <div class="card border-0 mt-4" role="alert">
+                    <div class="card-body p-4 p-md-5 text-center">
+                        <h1 class="h4 mb-3">@Localizer["NotFound"]</h1>
+                        <p class="mb-4">@Localizer["NotFoundBody"]</p>
+                        <a href="/" class="btn btn-outline-primary me-2">@Localizer["GoHome"]</a>
+                        <a href="timer" class="btn btn-primary">@Localizer["StartFocusSession"]</a>
+                    </div>
+                </div>
             </LayoutView>
         </NotFound>
     </Router>

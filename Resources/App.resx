@@ -966,4 +966,109 @@
   <data name="StartThisThen" xml:space="preserve">
     <value>Start this then</value>
   </data>
+  <data name="ClearLocalData" xml:space="preserve">
+    <value>Clear this device</value>
+  </data>
+  <data name="ClearLocalDataConfirm" xml:space="preserve">
+    <value>This resets guest focus, tasks, habits, vows, and if-then plans on this device to a first-visit state. It cannot be undone. The server has no copy. Continue?</value>
+  </data>
+  <data name="ClearLocalDataDone" xml:space="preserve">
+    <value>Guest records on this device were cleared.</value>
+  </data>
+  <data name="GuestShopHint" xml:space="preserve">
+    <value>Coins live on a signed-in account. There is no real money. Guest focus and habits stay on this device and do not enter the shop.</value>
+  </data>
+  <data name="GuestLeaderboardHint" xml:space="preserve">
+    <value>This board is signed-in accounts. Guest focus stays on this device and never appears here.</value>
+  </data>
+  <data name="LeaderboardEmpty" xml:space="preserve">
+    <value>No rankings yet. Start a focus session after you sign in.</value>
+  </data>
+  <data name="CalendarTitle" xml:space="preserve">
+    <value>Calendar</value>
+  </data>
+  <data name="CalendarGuestHint" xml:space="preserve">
+    <value>Google Calendar stays on your signed-in Google account. Guest focus on this device is not sent there, and nothing is imported.</value>
+  </data>
+  <data name="UpcomingEvents" xml:space="preserve">
+    <value>Upcoming events</value>
+  </data>
+  <data name="NoUpcomingEvents" xml:space="preserve">
+    <value>No upcoming events.</value>
+  </data>
+  <data name="GoogleTasks" xml:space="preserve">
+    <value>Google Tasks</value>
+  </data>
+  <data name="NoGoogleTasks" xml:space="preserve">
+    <value>No Google tasks.</value>
+  </data>
+  <data name="AllDay" xml:space="preserve">
+    <value>All day</value>
+  </data>
+  <data name="DueLabel" xml:space="preserve">
+    <value>Due</value>
+  </data>
+  <data name="CalendarLoadFailed" xml:space="preserve">
+    <value>Could not load Google Calendar. Your local focus is unchanged.</value>
+  </data>
+  <data name="GuestChallengeHint" xml:space="preserve">
+    <value>As a guest, the seven tasks stay on this device. They are not written onto the shared challenge. You can also sign in first.</value>
+  </data>
+  <data name="Guest" xml:space="preserve">
+    <value>Guest</value>
+  </data>
+  <data name="SkipToContent" xml:space="preserve">
+    <value>Skip to content</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>Page not found</value>
+  </data>
+  <data name="NotFoundBody" xml:space="preserve">
+    <value>This address is empty. Go home or start a focus session. Guest records stay on this device.</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>Something went wrong</value>
+  </data>
+  <data name="ErrorBody" xml:space="preserve">
+    <value>Try again, go home, or start focusing. Your guest records stay on this device.</value>
+  </data>
+  <data name="RequestId" xml:space="preserve">
+    <value>Request ID</value>
+  </data>
+  <data name="DevelopmentMode" xml:space="preserve">
+    <value>Development mode</value>
+  </data>
+  <data name="DevelopmentModeHint" xml:space="preserve">
+    <value>Detailed errors are only shown while this app is running as Development on your machine. Do not enable that on a public site.</value>
+  </data>
+  <data name="PwaDescription" xml:space="preserve">
+    <value>Focus, streaks, and tiny daily promises.</value>
+  </data>
+  <data name="LevelUp" xml:space="preserve">
+    <value>Level up</value>
+  </data>
+  <data name="YouAreNowLevel" xml:space="preserve">
+    <value>You are now level {0}.</value>
+  </data>
+  <data name="Awesome" xml:space="preserve">
+    <value>Nice</value>
+  </data>
+  <data name="ShortcutsTitle" xml:space="preserve">
+    <value>Keyboard shortcuts</value>
+  </data>
+  <data name="ShortcutsHint" xml:space="preserve">
+    <value>These keys work on the focus timer. Guest records stay on this device.</value>
+  </data>
+  <data name="ShortcutSpace" xml:space="preserve">
+    <value>Start or pause</value>
+  </data>
+  <data name="ShortcutMinutes" xml:space="preserve">
+    <value>Set 15 / 25 / 50 minutes when idle</value>
+  </data>
+  <data name="ShortcutSkipBreath" xml:space="preserve">
+    <value>Skip the breath screen</value>
+  </data>
+  <data name="ShortcutLeaveSanctuary" xml:space="preserve">
+    <value>Leave sanctuary</value>
+  </data>
 </root>

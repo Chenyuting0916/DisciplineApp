@@ -966,4 +966,109 @@
   <data name="StartThisThen" xml:space="preserve">
     <value>これを始める</value>
   </data>
+  <data name="ClearLocalData" xml:space="preserve">
+    <value>この端末の記録を消す</value>
+  </data>
+  <data name="ClearLocalDataConfirm" xml:space="preserve">
+    <value>この端末のゲスト記録を初回の状態に戻します（集中・タスク・習慣・宣言・If-Then）。元に戻せません。サーバーに控えはありません。続けますか？</value>
+  </data>
+  <data name="ClearLocalDataDone" xml:space="preserve">
+    <value>この端末のゲスト記録を消しました。</value>
+  </data>
+  <data name="GuestShopHint" xml:space="preserve">
+    <value>コインはログインしたアカウントにあります。現金は使いません。ゲストの集中と習慣はこの端末だけに残り、ショップには入りません。</value>
+  </data>
+  <data name="GuestLeaderboardHint" xml:space="preserve">
+    <value>ランキングはログイン中のアカウントです。ゲストの集中はこの端末だけに残り、ここには出ません。</value>
+  </data>
+  <data name="LeaderboardEmpty" xml:space="preserve">
+    <value>まだランキングがありません。ログインして集中を始めると反映されます。</value>
+  </data>
+  <data name="CalendarTitle" xml:space="preserve">
+    <value>カレンダー</value>
+  </data>
+  <data name="CalendarGuestHint" xml:space="preserve">
+    <value>Google カレンダーはログイン中の Google アカウントにあります。この端末のゲスト集中は送らず、取り込みもしません。</value>
+  </data>
+  <data name="UpcomingEvents" xml:space="preserve">
+    <value>今後の予定</value>
+  </data>
+  <data name="NoUpcomingEvents" xml:space="preserve">
+    <value>今後の予定はありません。</value>
+  </data>
+  <data name="GoogleTasks" xml:space="preserve">
+    <value>Google タスク</value>
+  </data>
+  <data name="NoGoogleTasks" xml:space="preserve">
+    <value>Google タスクはありません。</value>
+  </data>
+  <data name="AllDay" xml:space="preserve">
+    <value>終日</value>
+  </data>
+  <data name="DueLabel" xml:space="preserve">
+    <value>期限</value>
+  </data>
+  <data name="CalendarLoadFailed" xml:space="preserve">
+    <value>Google カレンダーを読み込めませんでした。端末の集中は変わっていません。</value>
+  </data>
+  <data name="GuestChallengeHint" xml:space="preserve">
+    <value>ゲストで受けると7日分のタスクはこの端末だけに残り、共有チャレンジには書き込みません。先にログインしても受けられます。</value>
+  </data>
+  <data name="Guest" xml:space="preserve">
+    <value>ゲスト</value>
+  </data>
+  <data name="SkipToContent" xml:space="preserve">
+    <value>本文へスキップ</value>
+  </data>
+  <data name="NotFound" xml:space="preserve">
+    <value>ページが見つかりません</value>
+  </data>
+  <data name="NotFoundBody" xml:space="preserve">
+    <value>このアドレスには何もありません。ホームに戻るか、集中を始めましょう。ゲスト記録はこの端末だけに残ります。</value>
+  </data>
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>問題が起きました</value>
+  </data>
+  <data name="ErrorBody" xml:space="preserve">
+    <value>もう一度試すか、ホームに戻るか、集中を始めてください。ゲスト記録はこの端末だけに残ります。</value>
+  </data>
+  <data name="RequestId" xml:space="preserve">
+    <value>リクエストID</value>
+  </data>
+  <data name="DevelopmentMode" xml:space="preserve">
+    <value>開発モード</value>
+  </data>
+  <data name="DevelopmentModeHint" xml:space="preserve">
+    <value>詳細なエラーはこの端末を Development で動かしているときだけ出ます。公開サイトでは有効にしないでください。</value>
+  </data>
+  <data name="PwaDescription" xml:space="preserve">
+    <value>集中、連続日数、毎日の小さな約束。</value>
+  </data>
+  <data name="LevelUp" xml:space="preserve">
+    <value>レベルアップ</value>
+  </data>
+  <data name="YouAreNowLevel" xml:space="preserve">
+    <value>レベル {0} になった。</value>
+  </data>
+  <data name="Awesome" xml:space="preserve">
+    <value>やった</value>
+  </data>
+  <data name="ShortcutsTitle" xml:space="preserve">
+    <value>キーボードショートカット</value>
+  </data>
+  <data name="ShortcutsHint" xml:space="preserve">
+    <value>これらのキーは集中タイマーで使います。ゲスト記録はこの端末だけに残ります。</value>
+  </data>
+  <data name="ShortcutSpace" xml:space="preserve">
+    <value>開始または一時停止</value>
+  </data>
+  <data name="ShortcutMinutes" xml:space="preserve">
+    <value>停止中に 15／25／50 分へ切り替え</value>
+  </data>
+  <data name="ShortcutSkipBreath" xml:space="preserve">
+    <value>呼吸画面をスキップ</value>
+  </data>
+  <data name="ShortcutLeaveSanctuary" xml:space="preserve">
+    <value>サンクチュアリを終了</value>
+  </data>
 </root>
