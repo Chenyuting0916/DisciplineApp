@@ -966,4 +966,13 @@
   <data name="StartThisThen" xml:space="preserve">
     <value>開始這一步</value>
   </data>
+  <data name="ClearLocalData" xml:space="preserve">
+    <value>清除本機資料</value>
+  </data>
+  <data name="ClearLocalDataConfirm" xml:space="preserve">
+    <value>這會把這台裝置上的訪客紀錄清成剛進來的狀態（專注、任務、習慣、誓言、如果—那麼）。無法復原。伺服器沒有備份。要繼續嗎？</value>
+  </data>
+  <data name="ClearLocalDataDone" xml:space="preserve">
+    <value>這台裝置上的訪客紀錄已清除。</value>
+  </data>
 </root>

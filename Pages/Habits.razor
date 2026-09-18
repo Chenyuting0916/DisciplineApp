@@ -2,8 +2,10 @@
 @inject IHabitService HabitService
 @inject GuestHabitService GuestHabitService
 @inject GuestExportService GuestExportService
+@inject LocalStorageService LocalStorageService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 @inject ToastService ToastService
+@inject NavigationManager NavigationManager
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 @inject IJSRuntime JSRuntime
 
@@ -19,10 +21,11 @@
                 <p class="text-muted small mb-0 mt-2">@Localizer["GuestHabitsHint"]</p>
             }
         </div>
-        <div class="d-flex gap-2">
+        <div class="d-flex gap-2 flex-wrap">
             @if (isGuest)
             {
                 <button class="btn btn-outline-secondary" @onclick="ExportGuest">@Localizer["ExportData"]</button>
+                <button class="btn btn-outline-danger" @onclick="WipeGuest">@Localizer["ClearLocalData"]</button>
             }
             <button class="btn btn-primary" @onclick="ShowAddModal">
                 <span class="oi oi-plus"></span> @Localizer["AddHabit"]
@@ -307,5 +310,19 @@
         var json = await GuestExportService.ExportJsonAsync();
         await JSRuntime.InvokeVoidAsync("downloadTextFile", InputGuard.ExportFileName(), json, "application/json");
         ToastService.ShowSuccess(Localizer["ExportReady"]);
+    }
+
+    private async Task WipeGuest()
+    {
+        if (!isGuest) return;
+        if (!await JSRuntime.InvokeAsync<bool>("confirm", Localizer["ClearLocalDataConfirm"].Value)) return;
+
+        foreach (var key in GuestLocalData.Keys)
+        {
+            await LocalStorageService.RemoveItemAsync(key);
+        }
+
+        ToastService.ShowSuccess(Localizer["ClearLocalDataDone"]);
+        NavigationManager.NavigateTo("/habits", forceLoad: true);
     }
 }
