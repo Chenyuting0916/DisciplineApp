@@ -60,12 +60,13 @@ public class ChallengeService : IChallengeService
         var challenge = await GetChallengeByTokenAsync(token);
         if (challenge == null) return false;
 
-        // Mark challenge as accepted
-        challenge.AcceptedByUserId = userId ?? "guest";
-        challenge.AcceptedAt = DateTime.UtcNow;
-        await _context.SaveChangesAsync();
+        if (ChallengeAccept.ClaimsOnServer(userId))
+        {
+            challenge.AcceptedByUserId = userId;
+            challenge.AcceptedAt = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+        }
 
-        // Create challenge tasks based on type
         await CreateChallengeTasks(challenge, userId);
 
         return true;
@@ -138,7 +139,7 @@ public class ChallengeService : IChallengeService
                 else
                 {
                     // Guest user - save to LocalStorage via GuestTaskService
-                    await _guestTaskService.AddTaskAsync(taskTitle, isRoutine: false, categoryId: 1, categories);
+                    await _guestTaskService.AddTaskAsync(taskTitle, isRoutine: false, categoryId: 1, categories, taskDate);
                 }
             }
         }

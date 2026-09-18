@@ -1011,4 +1011,7 @@
   <data name="CalendarLoadFailed" xml:space="preserve">
     <value>Could not load Google Calendar. Your local focus is unchanged.</value>
   </data>
+  <data name="GuestChallengeHint" xml:space="preserve">
+    <value>As a guest, the seven tasks stay on this device. They are not written onto the shared challenge. You can also sign in first.</value>
+  </data>
 </root>

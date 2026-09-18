@@ -144,6 +144,15 @@ public class IfThenAndExportTests
     }
 
     [Fact]
+    public void ChallengeAccept_GuestsDoNotClaimSharedRow()
+    {
+        Assert.False(ChallengeAccept.ClaimsOnServer(null));
+        Assert.False(ChallengeAccept.ClaimsOnServer(""));
+        Assert.False(ChallengeAccept.ClaimsOnServer("   "));
+        Assert.True(ChallengeAccept.ClaimsOnServer("u1"));
+    }
+
+    [Fact]
     public async Task HabitService_RejectsBeyondCapAndUnsafeColor()
     {
         await using var db = CreateDb();

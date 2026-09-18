@@ -1011,4 +1011,7 @@
   <data name="CalendarLoadFailed" xml:space="preserve">
     <value>無法載入 Google 行事曆。本機專注不受影響。</value>
   </data>
+  <data name="GuestChallengeHint" xml:space="preserve">
+    <value>訪客接受後，七天任務只會留在這台裝置，不會寫進對方的挑戰紀錄。也可先登入再接受。</value>
+  </data>
 </root>
