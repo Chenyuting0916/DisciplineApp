@@ -60,7 +60,8 @@
             {
                 var doneToday = IsDoneToday(habit);
                 var streak = GetStreak(habit);
-                <div class="habit-card" style="--habit-color: @habit.Color">
+                var habitColor = InputGuard.CssColor(habit.Color, "#F5A524");
+                <div class="habit-card" style="--habit-color: @habitColor">
                     <div class="d-flex align-items-center gap-3">
                         <button class="habit-check @(doneToday ? "done" : "")" @onclick="() => Toggle(habit)">
                             @(doneToday ? "✓" : habit.Icon)

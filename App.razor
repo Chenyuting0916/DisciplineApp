@@ -1,6 +1,6 @@
-﻿@inject DisciplineApp.Services.TokenProvider TokenProvider
-@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
+﻿@inject Microsoft.Extensions.Localization.IStringLocalizer<App> Localizer
 
+<CascadingValue Value="@CsrfToken" Name="CsrfToken">
 <CascadingAuthenticationState>
     <Router AppAssembly="@typeof(App).Assembly">
         <Found Context="routeData">
@@ -22,16 +22,9 @@
         </NotFound>
     </Router>
 </CascadingAuthenticationState>
+</CascadingValue>
 
 @code {
     [Parameter]
-    public string? AccessToken { get; set; }
-
-    protected override void OnInitialized()
-    {
-        if (!string.IsNullOrEmpty(AccessToken))
-        {
-            TokenProvider.AccessToken = AccessToken;
-        }
-    }
+    public string? CsrfToken { get; set; }
 }

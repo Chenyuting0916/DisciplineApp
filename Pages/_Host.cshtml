@@ -4,6 +4,7 @@
 @namespace DisciplineApp.Pages
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 @inject Microsoft.Extensions.Localization.IStringLocalizer<App> HostLocalizer
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery HostAntiforgery
 @using System.Globalization
 @using DisciplineApp.Models
 
@@ -58,14 +59,12 @@
     <component type="typeof(HeadOutlet)" render-mode="ServerPrerendered" />
 </head>
 <body>
-@using Microsoft.AspNetCore.Authentication
-
 @{
-    var accessToken = await HttpContext.GetTokenAsync("access_token");
+    var csrfToken = HostAntiforgery.GetAndStoreTokens(HttpContext).RequestToken;
 }
 
     <div id="offline-banner" hidden>@HostLocalizer["OfflineBanner"]</div>
-    <component type="typeof(App)" render-mode="ServerPrerendered" param-AccessToken="accessToken" />
+    <component type="typeof(App)" render-mode="ServerPrerendered" param-CsrfToken="csrfToken" />
 
     <!-- <div id="blazor-error-ui">
         <environment include="Staging,Production">

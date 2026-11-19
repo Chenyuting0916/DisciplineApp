@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using DisciplineApp.Data;
 using DisciplineApp.Models;
 using DisciplineApp.Services.Interfaces;
@@ -145,9 +146,12 @@ public class ChallengeService : IChallengeService
         }
     }
 
-    private string GenerateShareToken()
+    public static string CreateShareToken()
     {
-        // Generate a short, URL-friendly token
-        return Guid.NewGuid().ToString("N").Substring(0, 8);
+        var bytes = new byte[16];
+        RandomNumberGenerator.Fill(bytes);
+        return Convert.ToHexString(bytes).ToLowerInvariant();
     }
+
+    private string GenerateShareToken() => CreateShareToken();
 }

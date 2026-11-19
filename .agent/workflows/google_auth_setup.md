@@ -32,20 +32,17 @@ To enable "Login with Google", you need to create credentials in the Google Clou
    *(Check your `launchSettings.json` ports if different)*
 6. Click **Create**.
 
-## 4. Copy Keys
+## 4. Store the keys outside git
 1. A dialog will appear with your **Client ID** and **Client Secret**.
-2. Copy these values.
-3. Open `appsettings.json` in your project.
-4. Replace `YOUR_CLIENT_ID` and `YOUR_CLIENT_SECRET` with the copied values.
+2. Do not paste the secret into `appsettings.json` or any other tracked file.
+3. From the project directory, store them in user secrets:
 
-```json
-"Authentication": {
-  "Google": {
-    "ClientId": "paste-client-id-here",
-    "ClientSecret": "paste-client-secret-here"
-  }
-}
+```bash
+dotnet user-secrets set "Authentication:Google:ClientId" "paste-client-id-here"
+dotnet user-secrets set "Authentication:Google:ClientSecret" "paste-client-secret-here"
 ```
+
+On Azure App Service, set `Authentication__Google__ClientId` and `Authentication__Google__ClientSecret` in application settings.
 
 ## 5. Enable Google Calendar API (Optional)
 If you want to use the Calendar integration:

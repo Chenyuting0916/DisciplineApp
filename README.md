@@ -38,17 +38,14 @@ A gamified productivity web application built with **Blazor Server** and **.NET 
 
 2.  **Configure Google Authentication**
     - Create a project in [Google Cloud Console](https://console.cloud.google.com/).
-    - Enable **Google Calendar API** and **Google Tasks API**.
     - Create OAuth 2.0 credentials (Client ID and Client Secret).
-    - Update `appsettings.Development.json` (or use User Secrets):
-      ```json
-      "Authentication": {
-        "Google": {
-          "ClientId": "YOUR_CLIENT_ID",
-          "ClientSecret": "YOUR_CLIENT_SECRET"
-        }
-      }
+    - `appsettings.json` keeps the setting names only. Do not commit the client secret.
+    - Local secrets (stored outside the repo):
+      ```bash
+      dotnet user-secrets set "Authentication:Google:ClientId" "YOUR_CLIENT_ID"
+      dotnet user-secrets set "Authentication:Google:ClientSecret" "YOUR_CLIENT_SECRET"
       ```
+    - If a secret was ever committed, revoke it in Google Cloud Console and create a new one. Git history still contains the old value.
 
 3.  **Run the Application**
     ```bash
@@ -65,7 +62,8 @@ This project is configured for deployment to **Azure App Service** using GitHub 
 3.  Add secrets to your GitHub Repository:
     - `AZURE_WEBAPP_NAME`: Your App Service name.
     - `AZURE_WEBAPP_PUBLISH_PROFILE`: The content of your publish profile.
-4.  Manually trigger the **Azure Web App Deploy** workflow in the Actions tab.
+4.  In the Azure App Service configuration, set `Authentication__Google__ClientSecret` to the rotated secret. Set `Authentication__Google__ClientId` as well if you replace the client id that is still in `appsettings.json`.
+5.  Manually trigger the **Azure Web App Deploy** workflow in the Actions tab.
 
 ## 📝 License
 

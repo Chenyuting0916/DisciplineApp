@@ -1,5 +1,7 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
 using DisciplineApp.Data;
 using Microsoft.EntityFrameworkCore;
 using DisciplineApp.Models;
@@ -8,11 +10,41 @@ using DisciplineApp.Services.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// SameAsRequest stays valid on local HTTP. In Azure, forwarded headers mark the
+// public HTTPS request so cookies are still issued with Secure.
+var secureCookies = CookieSecurePolicy.SameAsRequest;
+
+builder.WebHost.ConfigureKestrel(options => options.AddServerHeader = false);
+
+// Azure App Service terminates TLS. Trust only the platform forwarded scheme and address
+// so HSTS and Secure cookies see the original HTTPS request.
+if (!builder.Environment.IsDevelopment())
+{
+    builder.Services.Configure<ForwardedHeadersOptions>(options =>
+    {
+        options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+        options.ForwardLimit = 1;
+        options.KnownNetworks.Clear();
+        options.KnownProxies.Clear();
+    });
+}
+
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
-builder.Services.AddControllers(); // Required for CultureController
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+});
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+builder.Services.AddAntiforgery(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = secureCookies;
+});
 
 // Add session support for token storage
 builder.Services.AddDistributedMemoryCache();
@@ -21,6 +53,8 @@ builder.Services.AddSession(options =>
     options.IdleTimeout = TimeSpan.FromHours(24);
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = secureCookies;
 });
 
 // Add HttpContextAccessor for TokenProvider
@@ -44,6 +78,15 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 
 builder.Services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddEntityFrameworkStores<ApplicationDbContext>();
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+    options.Cookie.SameSite = SameSiteMode.Lax;
+    options.Cookie.SecurePolicy = secureCookies;
+    options.SlidingExpiration = true;
+});
 
 
 
@@ -71,40 +114,30 @@ builder.Services.AddScoped<IIfThenService, IfThenService>();
 builder.Services.AddScoped<IDataExportService, DataExportService>();
 builder.Services.AddScoped<QuoteService>();
 
-builder.Services.AddAuthentication()
-    .AddGoogle(options =>
+var googleAuthNSection = builder.Configuration.GetSection("Authentication:Google");
+var googleClientId = googleAuthNSection["ClientId"];
+var googleClientSecret = googleAuthNSection["ClientSecret"];
+var authentication = builder.Services.AddAuthentication();
+if (!string.IsNullOrWhiteSpace(googleClientId) && !string.IsNullOrWhiteSpace(googleClientSecret))
+{
+    authentication.AddGoogle(options =>
     {
-        IConfigurationSection googleAuthNSection =
-            builder.Configuration.GetSection("Authentication:Google");
-
-        options.ClientId = googleAuthNSection["ClientId"] ?? "";
-        options.ClientSecret = googleAuthNSection["ClientSecret"] ?? "";
-        // Removed calendar and tasks scopes to avoid "Unverified App" warning
-        // options.Scope.Add("https://www.googleapis.com/auth/calendar.readonly");
-        // options.Scope.Add("https://www.googleapis.com/auth/tasks.readonly");
+        options.ClientId = googleClientId;
+        options.ClientSecret = googleClientSecret;
+        // Identity scopes only. Calendar and Tasks scopes were removed.
+        // Tokens stay in the encrypted auth cookie / user store and are not rendered into HTML.
         options.SaveTokens = true;
-        
-        // Removed forced consent prompt to reduce verification warnings
-        // Users will only see the consent screen on first login
-        // options.Events.OnRedirectToAuthorizationEndpoint = context =>
-        // {
-        //     var uri = context.RedirectUri;
-        //     if (uri.Contains("prompt="))
-        //     {
-        //         uri = System.Text.RegularExpressions.Regex.Replace(uri, "prompt=[^&]*", "prompt=consent");
-        //     }
-        //     else
-        //     {
-        //         uri += "&prompt=consent";
-        //     }
-        //     context.Response.Redirect(uri);
-        //     return Task.CompletedTask;
-        // };
-        
-        // Fix for "Correlation failed" on localhost/HTTP
+
+        // Lax + the request scheme keeps the OAuth correlation cookie working on localhost HTTP.
         options.CorrelationCookie.SameSite = SameSiteMode.Lax;
-        options.CorrelationCookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.CorrelationCookie.SecurePolicy = secureCookies;
+        options.CorrelationCookie.HttpOnly = true;
     });
+}
+else
+{
+    Console.WriteLine("Google OAuth is not configured. Set Authentication:Google:ClientId and Authentication:Google:ClientSecret with user-secrets or environment variables.");
+}
 
 // Add CookiePolicy to handle SameSite=None correctly if needed generally
 builder.Services.Configure<CookiePolicyOptions>(options =>
@@ -141,6 +174,7 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
+    app.UseForwardedHeaders();
     app.UseExceptionHandler("/Error");
     // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
@@ -151,10 +185,32 @@ app.UseCookiePolicy();
 
 app.Use(async (context, next) =>
 {
-    context.Response.Headers["X-Content-Type-Options"] = "nosniff";
-    context.Response.Headers["X-Frame-Options"] = "DENY";
-    context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
-    context.Response.Headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=()";
+    var headers = context.Response.Headers;
+    headers["X-Content-Type-Options"] = "nosniff";
+    headers["X-Frame-Options"] = "DENY";
+    headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    headers["Permissions-Policy"] = "camera=(), microphone=(), geolocation=(), payment=()";
+    headers["X-Permitted-Cross-Domain-Policies"] = "none";
+    headers["Cross-Origin-Opener-Policy"] = "same-origin";
+    var csp =
+        "default-src 'self'; " +
+        "base-uri 'self'; " +
+        "object-src 'none'; " +
+        "frame-ancestors 'none'; " +
+        "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; " +
+        "style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; " +
+        "font-src 'self' data: https://cdn.jsdelivr.net https://fonts.gstatic.com; " +
+        "img-src 'self' data: https:; " +
+        "connect-src 'self'; " +
+        "worker-src 'self' blob:; " +
+        "form-action 'self' https://accounts.google.com; " +
+        "manifest-src 'self'";
+    if (!app.Environment.IsDevelopment())
+    {
+        csp += "; upgrade-insecure-requests";
+    }
+
+    headers["Content-Security-Policy"] = csp;
     await next();
 });
 

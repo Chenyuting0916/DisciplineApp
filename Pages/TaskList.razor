@@ -61,7 +61,7 @@
                             }
                             @if (task.Category != null)
                             {
-                                <span class="badge ms-2" style="background-color: @task.Category.ColorCode">@task.Category.Name</span>
+                                <span class="badge ms-2" style="background-color: @InputGuard.CssColor(task.Category.ColorCode)">@task.Category.Name</span>
                             }
                         </div>
                         <div class="d-flex align-items-center gap-2">
@@ -168,7 +168,7 @@
                             {
                                 <div class="list-group-item bg-dark border-secondary d-flex justify-content-between align-items-center">
                                     <div class="d-flex align-items-center">
-                                        <span class="badge me-2" style="background-color: @category.ColorCode; width: 30px; height: 30px;"></span>
+                                        <span class="badge me-2" style="background-color: @InputGuard.CssColor(category.ColorCode); width: 30px; height: 30px;"></span>
                                         @if (editingCategoryId == category.Id)
                                         {
                                             <input type="text" class="form-control form-control-sm me-2" style="width: 150px;" @bind="editCategoryName" />
@@ -191,11 +191,11 @@
                                         }
                                         else
                                         {
-                                            @if (category.UserId != null)
+                                            @if (category.UserId != null && category.UserId == userId)
                                             {
                                                 <button class="btn btn-sm btn-outline-primary me-1" @onclick="() => StartEditCategory(category)">@Localizer["EditCategory"]</button>
+                                                <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteCategory(category)">@Localizer["DeleteCategory"]</button>
                                             }
-                                            <button class="btn btn-sm btn-outline-danger" @onclick="() => DeleteCategory(category)">@Localizer["DeleteCategory"]</button>
                                         }
                                     </div>
                                 </div>

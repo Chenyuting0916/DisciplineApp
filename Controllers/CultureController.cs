@@ -7,6 +7,8 @@ namespace DisciplineApp.Controllers;
 [Route("[controller]/[action]")]
 public class CultureController : Controller
 {
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public IActionResult Set(string culture, string redirectUri)
     {
         if (InputGuard.IsAllowedCulture(culture))
@@ -19,6 +21,7 @@ public class CultureController : Controller
                 {
                     HttpOnly = true,
                     IsEssential = true,
+                    Secure = HttpContext.Request.IsHttps,
                     SameSite = SameSiteMode.Lax,
                     MaxAge = TimeSpan.FromDays(365)
                 });

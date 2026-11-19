@@ -68,6 +68,7 @@
                             {
                                 var user = users[i];
                                 var isCurrentUser = user.Id == currentUserId;
+                                var publicName = HeaderCopy.PublicLabel(user.DisplayName, Localizer["User"]);
                                 <tr class="@(isCurrentUser ? "table-active border-start border-4 border-primary" : "")">
                                     <td class="text-center align-middle">
                                         @if (i == 0)
@@ -96,12 +97,12 @@
                                             else
                                             {
                                                 <div class="avatar-circle me-2 bg-secondary text-white">
-                                                    @(user.DisplayName?.FirstOrDefault() ?? user.UserName?.FirstOrDefault() ?? '?')
+                                                    @(publicName.Length > 0 ? publicName[0] : '?')
                                                 </div>
                                             }
                                             <div>
                                                 <div class="fw-bold @(isCurrentUser ? "text-primary" : "")">
-                                                    @(user.DisplayName ?? user.UserName) 
+                                                    @publicName 
                                                     @if (isCurrentUser)
                                                     {
                                                         <span class="small text-muted ms-1">(@Localizer["You"])</span>
