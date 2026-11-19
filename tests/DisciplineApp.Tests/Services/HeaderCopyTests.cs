@@ -15,6 +15,15 @@ public class HeaderCopyTests
     }
 
     [Fact]
+    public void PublicLabel_HidesEmailLoginName()
+    {
+        Assert.Equal("Ada", HeaderCopy.PublicLabel(" Ada ", "用戶"));
+        Assert.Equal("用戶", HeaderCopy.PublicLabel("ada@example.com", "用戶"));
+        Assert.Equal("用戶", HeaderCopy.PublicLabel("  ", "用戶"));
+        Assert.Equal("", HeaderCopy.PublicLabel(null, " "));
+    }
+
+    [Fact]
     public void LevelBadge_KeepsLocalizedLabel()
     {
         Assert.Equal("等級 3", HeaderCopy.LevelBadge("等級", 3));

@@ -6,15 +6,39 @@
         <span class="oi oi-globe me-1"></span> @CurrentCultureName
     </button>
     <ul class="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="languageDropdown">
-        <li><button class="dropdown-item @(CurrentCulture == "zh-TW" ? "active" : "")" @onclick='() => ChangeLanguage("zh-TW")'>繁體中文</button></li>
-        <li><button class="dropdown-item @(CurrentCulture == "en" ? "active" : "")" @onclick='() => ChangeLanguage("en")'>English</button></li>
-        <li><button class="dropdown-item @(CurrentCulture == "ja" ? "active" : "")" @onclick='() => ChangeLanguage("ja")'>日本語</button></li>
+        <li>
+            <form method="post" action="Culture/Set" class="m-0">
+                <input type="hidden" name="__RequestVerificationToken" value="@CsrfToken" />
+                <input type="hidden" name="culture" value="zh-TW" />
+                <input type="hidden" name="redirectUri" value="@CurrentPath" />
+                <button type="submit" class="dropdown-item @(CurrentCulture == "zh-TW" ? "active" : "")">繁體中文</button>
+            </form>
+        </li>
+        <li>
+            <form method="post" action="Culture/Set" class="m-0">
+                <input type="hidden" name="__RequestVerificationToken" value="@CsrfToken" />
+                <input type="hidden" name="culture" value="en" />
+                <input type="hidden" name="redirectUri" value="@CurrentPath" />
+                <button type="submit" class="dropdown-item @(CurrentCulture == "en" ? "active" : "")">English</button>
+            </form>
+        </li>
+        <li>
+            <form method="post" action="Culture/Set" class="m-0">
+                <input type="hidden" name="__RequestVerificationToken" value="@CsrfToken" />
+                <input type="hidden" name="culture" value="ja" />
+                <input type="hidden" name="redirectUri" value="@CurrentPath" />
+                <button type="submit" class="dropdown-item @(CurrentCulture == "ja" ? "active" : "")">日本語</button>
+            </form>
+        </li>
     </ul>
 </div>
 
 @code {
+    [CascadingParameter(Name = "CsrfToken")]
+    public string? CsrfToken { get; set; }
+
     private string CurrentCulture => CultureInfo.CurrentCulture.Name;
-    
+
     private string CurrentCultureName => CurrentCulture switch
     {
         "zh-TW" => "繁體中文",
@@ -23,12 +47,13 @@
         _ => "Language"
     };
 
-    private void ChangeLanguage(string culture)
+    private string CurrentPath
     {
-        var uri = new Uri(NavigationManager.Uri)
-            .GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
-        var query = $"?culture={Uri.EscapeDataString(culture)}&redirectUri={Uri.EscapeDataString(uri)}";
-
-        NavigationManager.NavigateTo("/Culture/Set" + query, forceLoad: true);
+        get
+        {
+            var path = new Uri(NavigationManager.Uri)
+                .GetComponents(UriComponents.PathAndQuery, UriFormat.Unescaped);
+            return path.StartsWith('/') && !path.StartsWith("//", StringComparison.Ordinal) ? path : "/";
+        }
     }
 }

@@ -32,11 +32,18 @@ bld/
 *.db-shm
 *.db-wal
 
-# Sensitive configuration files
-# Sensitive configuration files
-# appsettings.json
+# Sensitive configuration files.
+# appsettings.json stays tracked and must contain placeholders only.
+# bin/, obj/, and .vs/ are ignored with the build and IDE rules above.
 appsettings.Development.json
 appsettings.Production.json
+appsettings.local.json
+appsettings.*.local.json
+
+# Local environment files
+.env
+.env.*
+!.env.example
 
 # User secrets
 secrets.json

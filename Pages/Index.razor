@@ -355,8 +355,9 @@
                                         @foreach (var habit in guestHabits.Take(5))
                                         {
                                             var doneToday = GuestHabitDoneToday(habit);
+                                            var habitColor = InputGuard.CssColor(habit.Color, "#F5A524");
                                             <div class="d-flex align-items-center gap-2">
-                                                <button type="button" class="habit-check @(doneToday ? "done" : "")" style="--habit-color: @habit.Color" @onclick="() => ToggleGuestHabit(habit)">
+                                                <button type="button" class="habit-check @(doneToday ? "done" : "")" style="--habit-color: @habitColor" @onclick="() => ToggleGuestHabit(habit)">
                                                     @(doneToday ? "✓" : habit.Icon)
                                                 </button>
                                                 <span>@habit.Title</span>

@@ -54,6 +54,21 @@ public static class InputGuard
         return color.Skip(1).All(Uri.IsHexDigit);
     }
 
+    public static bool IsCssHexColor(string? color)
+    {
+        if (string.IsNullOrWhiteSpace(color) || color[0] != '#') return false;
+        if (color.Length is not (4 or 7)) return false;
+        for (var i = 1; i < color.Length; i++)
+        {
+            if (!Uri.IsHexDigit(color[i])) return false;
+        }
+
+        return true;
+    }
+
+    public static string CssColor(string? color, string fallback = "#808080")
+        => IsCssHexColor(color) ? color! : fallback;
+
     public static string ExportFileName()
         => $"discipline-export-{DateTime.UtcNow:yyyyMMdd}.json";
 

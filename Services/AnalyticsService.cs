@@ -28,9 +28,9 @@ public class AnalyticsService : IAnalyticsService
         var analyticsEvent = new AnalyticsEvent
         {
             UserId = userId,
-            EventName = eventName,
-            Category = category,
-            Data = data,
+            EventName = InputGuard.Clamp(eventName, InputGuard.TitleMax),
+            Category = string.IsNullOrWhiteSpace(category) ? null : InputGuard.Clamp(category, InputGuard.TitleMax),
+            Data = string.IsNullOrWhiteSpace(data) ? null : InputGuard.Clamp(data, InputGuard.NoteMax),
             Timestamp = DateTime.UtcNow
         };
 

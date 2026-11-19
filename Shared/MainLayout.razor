@@ -38,7 +38,11 @@
                             <small class="text-muted">@currentUser.CurrentXP XP</small>
                         }
                     </div>
-                    <a href="Account/LogOut" class="ms-3 btn btn-sm btn-outline-danger">@Localizer["Logout"]</a>
+                    <form method="post" action="Account/LogOut" class="ms-3 d-inline">
+                        <input type="hidden" name="__RequestVerificationToken" value="@CsrfToken" />
+                        <input type="hidden" name="returnUrl" value="/" />
+                        <button type="submit" class="btn btn-sm btn-outline-danger">@Localizer["Logout"]</button>
+                    </form>
                 </Authorized>
                 <NotAuthorized>
                     <span class="fw-bold me-3">@Localizer["Guest"]</span>
@@ -113,6 +117,9 @@
 }
 
 @code {
+    [CascadingParameter(Name = "CsrfToken")]
+    public string? CsrfToken { get; set; }
+
     private ApplicationUser? currentUser;
     private bool showLoginModal = false;
     private List<ToastMessage> toasts = new();

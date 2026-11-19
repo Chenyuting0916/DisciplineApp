@@ -107,6 +107,10 @@ public class ShopAndSecurityTests
         Assert.False(InputGuard.IsHttpsUrl("http://insecure.example/x.png"));
         Assert.True(InputGuard.IsHttpsUrl("https://lh3.googleusercontent.com/a"));
         Assert.False(InputGuard.IsAllowedTheme("ember; background:red"));
+        Assert.Equal("#112233", InputGuard.CssColor("#112233"));
+        Assert.Equal("#abc", InputGuard.CssColor("#abc"));
+        Assert.Equal("#808080", InputGuard.CssColor("#112233;background:url(https://evil)"));
+        Assert.Equal("#F5A524", InputGuard.CssColor("red", "#F5A524"));
     }
 
     [Fact]

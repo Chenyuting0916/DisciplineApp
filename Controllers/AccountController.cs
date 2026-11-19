@@ -127,7 +127,8 @@ public class AccountController : Controller
         return LocalRedirect(SafeLocal(returnUrl));
     }
     
-    [HttpGet]
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> LogOut(string returnUrl = "/")
     {
         await _signInManager.SignOutAsync();

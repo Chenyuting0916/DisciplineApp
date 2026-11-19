@@ -37,7 +37,7 @@ public class CategoryService : ICategoryService
 
         var category = new Category
         {
-            Name = name.Trim(),
+            Name = InputGuard.Clamp(name, InputGuard.TitleMax),
             ColorCode = colorCode,
             UserId = userId
         };
@@ -64,7 +64,7 @@ public class CategoryService : ICategoryService
             colorCode = category.ColorCode; // Keep existing color if invalid
         }
 
-        category.Name = name.Trim();
+        category.Name = InputGuard.Clamp(name, InputGuard.TitleMax);
         category.ColorCode = colorCode;
 
         await _context.SaveChangesAsync();
@@ -75,9 +75,9 @@ public class CategoryService : ICategoryService
     public async Task<bool> DeleteCategoryAsync(int categoryId, string userId)
     {
         var category = await _context.Categories.FindAsync(categoryId);
-        
-        // Validate: category exists
-        if (category == null)
+
+        // System categories are shared. Only the owner may delete a custom category.
+        if (category == null || string.IsNullOrEmpty(userId) || category.UserId != userId)
         {
             return false;
         }
